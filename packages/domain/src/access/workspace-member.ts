@@ -4,6 +4,7 @@ import { ConflictError, ForbiddenError, ValidationError } from '../shared/errors
 import { formatShortDate, diffInDays } from '../shared/dates';
 import { assertCanAssignRole } from './access-policy';
 import { ROLE_META, type Role } from './roles';
+import { roleTakesSeat } from './seats';
 
 export type MemberStatus = 'ACTIVE' | 'DEACTIVATED';
 
@@ -81,9 +82,9 @@ export class WorkspaceMember extends AggregateRoot<WorkspaceMemberProps> {
   get workspaceId() {
     return this.props.workspaceId;
   }
-  /** Seats count everyone but guests. */
+  /** Owners, admins and members take a paid seat; viewers and guests are free. */
   get takesSeat(): boolean {
-    return this.props.role !== 'GUEST';
+    return roleTakesSeat(this.props.role);
   }
   toSnapshot(): Readonly<WorkspaceMemberProps & { id: string }> {
     return { ...this.props, id: this.id };

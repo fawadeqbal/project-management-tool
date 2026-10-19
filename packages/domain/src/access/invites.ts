@@ -2,6 +2,7 @@ import { DAY_MS, diffInDays } from '../shared/dates';
 import { ValidationError } from '../shared/errors';
 import { assertCanAssignRole } from './access-policy';
 import { ROLE_META, type Role } from './roles';
+import { roleTakesSeat } from './seats';
 
 export const INVITE_TTL_DAYS = 7;
 
@@ -21,8 +22,8 @@ export const validateInvite = (actorRole: Role, input: { role: Role; projectId?:
 
 export const inviteExpiry = (now: Date): Date => new Date(now.getTime() + INVITE_TTL_DAYS * DAY_MS);
 
-/** Whether a pending invite takes a seat when accepted (guests are free). */
-export const inviteTakesSeat = (role: Role): boolean => role !== 'GUEST';
+/** Whether a pending invite takes a seat when accepted (viewers and guests are free). */
+export const inviteTakesSeat = (role: Role): boolean => roleTakesSeat(role);
 
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
 

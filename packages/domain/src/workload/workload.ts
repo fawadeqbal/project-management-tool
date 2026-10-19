@@ -1,4 +1,5 @@
 import { diffInDays, startOfDay, toDateOnly, workingDaysBetween } from '../shared/dates';
+import { ValidationError } from '../shared/errors';
 
 export interface WorkloadPerson {
   userId: string;
@@ -248,3 +249,21 @@ export const suggestRebalance = (
 /** Days in range helper exposed for UIs that render the header row. */
 export const workloadDays = (from: Date, to: Date): string[] => workingDaysBetween(from, to).map(toDateOnly);
 export const isToday = (date: string, today: Date) => diffInDays(today, new Date(date + 'T00:00:00Z')) === 0;
+
+/** Longest range the workload grid computes in one request (about a quarter). */
+export const WORKLOAD_MAX_RANGE_DAYS = 92;
+
+/** A workload range must run forwards and stay within a quarter, so one request stays cheap. */
+export const assertWorkloadRange = (from: Date, to: Date): void => {
+  const days = diffInDays(from, to) + 1;
+  if (days < 1)
+    throw new ValidationError('workload.range_order', 'Pick an end date on or after the start date.', {
+      field: 'to',
+    });
+  if (days > WORKLOAD_MAX_RANGE_DAYS)
+    throw new ValidationError(
+      'workload.range_too_long',
+      `Workload covers up to ${WORKLOAD_MAX_RANGE_DAYS} days at a time. Pick a shorter range — a quarter or less.`,
+      { field: 'to', maxDays: WORKLOAD_MAX_RANGE_DAYS },
+    );
+};

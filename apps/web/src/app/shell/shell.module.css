@@ -1,0 +1,424 @@
+/* App shell: sidebar 256px · top bar 52px · drawer below 1024px · compact top bar below 768px */
+
+.shell {
+  --shell-sidebar-width: 256px;
+  --shell-topbar-height: 52px;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.shell[data-sidebar='collapsed'] {
+  --shell-sidebar-width: 0px;
+}
+
+.sidebarSlot {
+  position: sticky;
+  top: 0;
+  flex: none;
+  width: var(--shell-sidebar-width);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  transition: width 160ms ease;
+}
+
+.column {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  outline: none;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  background: var(--bg-inverse);
+  opacity: 0.4;
+}
+
+/* ── Sidebar ─────────────────────────────────────────── */
+
+.sidebar {
+  box-sizing: border-box;
+  width: 256px;
+  height: 100%;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-default);
+}
+
+.workspace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: var(--space-1-5) var(--space-2) var(--space-1-5) var(--space-1-5);
+  margin-bottom: 10px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.workspace:hover {
+  background: var(--bg-hover);
+}
+
+.workspace:focus-visible,
+.onboarding:focus-visible,
+.search:focus-visible,
+.avatarButton:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.workspaceMark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-lg);
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.workspaceName {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  color: var(--text-tertiary);
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navGroup button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 14px;
+}
+
+.sectionLabel {
+  margin: 0;
+  padding: 0 var(--space-2) var(--space-1);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spacer {
+  flex: 1 1 auto;
+  min-height: var(--space-6);
+}
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.onboardingHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.onboardingTitle {
+  flex: 1 1 auto;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.onboardingCount {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.onboardingNext {
+  font-size: 13px;
+  color: var(--text-link);
+}
+
+/* ── Top bar ─────────────────────────────────────────── */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  height: var(--shell-topbar-height);
+  padding: 0 var(--space-4) 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--bg-canvas);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.menuButton {
+  display: none;
+}
+
+.crumbs {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.crumbs ol {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.crumbs li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crumbs li + li::before {
+  content: '/';
+  padding: 0 var(--space-2);
+  color: var(--text-tertiary);
+}
+
+.crumbs li[aria-current='page'] {
+  color: var(--text-primary);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 300px;
+  max-width: 40%;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 var(--space-1-5) 0 10px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.search:hover {
+  border-color: var(--border-strong);
+}
+
+.searchLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bellWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.avatarButton {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── Shortcut sheet ──────────────────────────────────── */
+
+.sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-6);
+}
+
+.sheetTitle {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.sheetList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.sheetRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 14px;
+}
+
+.sheetRow dd {
+  margin: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  /* Collapsed sidebar is out of the tab order too, not just out of sight. */
+  .shell[data-sidebar='collapsed'] .sidebarSlot {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 1023px) {
+  .shell,
+  .shell[data-sidebar='collapsed'] {
+    --shell-sidebar-width: 0px;
+  }
+
+  .sidebarSlot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 60;
+    width: 256px;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 180ms ease, visibility 0s linear 180ms;
+    box-shadow: var(--shadow-4);
+  }
+
+  .shell[data-drawer='open'] .sidebarSlot {
+    transform: none;
+    visibility: visible;
+    transition: transform 180ms ease;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .topbar {
+    padding: 0 var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .crumbs {
+    display: none;
+  }
+
+  .search {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  .hideCompact {
+    display: none;
+  }
+
+  .topbar :global(.ht-btn) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .sidebar :global(.ht-nav) {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebarSlot,
+  .shell[data-drawer='open'] .sidebarSlot {
+    transition: none;
+  }
+}

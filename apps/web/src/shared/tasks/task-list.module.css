@@ -1,0 +1,23 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-default);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rows[hidden] {
+  display: none;
+}
+
+.pending {
+  opacity: 0.6;
+}

@@ -1,0 +1,356 @@
+.gantt {
+  display: flex;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-surface);
+  min-width: 0;
+}
+
+.taskList {
+  flex: 0 0 300px;
+  min-width: 0;
+  border-right: 1px solid var(--border-default);
+}
+
+.taskListHeader {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-subtle);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.taskRow {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-default);
+  font-size: 13px;
+  min-width: 0;
+}
+
+.taskRow[data-kind='section'] {
+  background: var(--bg-subtle);
+  font-weight: 600;
+}
+
+.sectionToggle,
+.taskName {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) 0 28px;
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+}
+
+.sectionToggle {
+  padding-left: var(--space-2);
+  cursor: pointer;
+}
+
+button.taskName {
+  cursor: pointer;
+}
+
+button.taskName:hover {
+  background: var(--bg-hover);
+}
+
+.ellipsis {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chartScroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.chart {
+  position: relative;
+}
+
+.chartHeader {
+  position: relative;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-subtle);
+}
+
+.headerCell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  padding: 6px var(--space-2);
+  border-left: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.headerLabel {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.headerSub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.chartBody {
+  position: relative;
+}
+
+.chartRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.chartRow[data-kind='section'] {
+  background: var(--bg-subtle);
+}
+
+.bar {
+  position: absolute;
+  top: 8px;
+  height: 22px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  background: var(--accent-slate-avatar);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+}
+
+.bar[data-tone='critical'] {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--text-on-brand);
+}
+
+.bar[data-tone='done'] {
+  background: var(--status-done-bg);
+  border-color: var(--status-done);
+  color: var(--success-text);
+}
+
+.bar[data-dragging='true'] {
+  box-shadow: var(--shadow-3);
+  cursor: grabbing;
+  z-index: 2;
+}
+
+.bar:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--brand-primary-pressed);
+}
+
+.barLabel {
+  position: relative;
+  padding: 0 var(--space-2);
+}
+
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.handle[data-edge='start'] {
+  left: 0;
+}
+
+.handle[data-edge='end'] {
+  right: 0;
+}
+
+.baseline {
+  position: absolute;
+  top: 32px;
+  border-top: 2px dashed var(--text-tertiary);
+}
+
+.conflict {
+  position: absolute;
+  top: 9px;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warning-bg);
+  color: var(--warning-icon);
+  border: 1px solid var(--warning-icon);
+}
+
+.milestone {
+  position: absolute;
+  top: 13px;
+  width: 14px;
+  height: 14px;
+  transform: rotate(45deg);
+  border-radius: 3px;
+  background: var(--text-primary);
+}
+
+.milestone[data-done] {
+  background: var(--status-done);
+}
+
+.milestoneLabel {
+  position: absolute;
+  top: 11px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.links {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.link {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 1.5;
+}
+
+.link[data-critical] {
+  stroke: var(--brand-primary);
+}
+
+.arrow {
+  fill: var(--text-secondary);
+}
+
+.arrowCritical {
+  fill: var(--brand-primary);
+}
+
+.todayLine {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  background: var(--danger-icon);
+  pointer-events: none;
+}
+
+.todayLabel {
+  position: absolute;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-solid);
+  color: var(--text-on-brand);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.legend {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendCritical,
+.legendTask {
+  width: 16px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--brand-primary);
+}
+
+.legendTask {
+  background: var(--accent-slate-avatar);
+  border: 1px solid var(--border-strong);
+}
+
+.legendBaseline {
+  width: 16px;
+  border-top: 2px dashed var(--text-tertiary);
+}
+
+.diamondSm {
+  width: 10px;
+  height: 10px;
+  margin: 0 3px;
+  flex: none;
+  transform: rotate(45deg);
+  background: var(--text-primary);
+  border-radius: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .taskList {
+    flex-basis: 160px;
+  }
+  .legend {
+    display: none;
+  }
+}

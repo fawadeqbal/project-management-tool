@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SkipLink } from '@hearth/ui';
 import { CommandPalette } from '@/features/command-palette';
 import { TaskPanelHost } from '@/features/task-detail';
+import { ProjectsHost } from '@/features/projects';
 import { useMe } from '@/shared/auth/use-me';
 import { useUiStore } from '@/shared/layout/ui-store';
 import { CreateTaskDialog } from '@/shared/tasks/CreateTaskDialog';
@@ -77,6 +78,7 @@ export function AppShell() {
       <CreateTaskDialog />
       <CommandPalette />
       <ShortcutSheet />
+      <ProjectsHost />
     </div>
   );
 }

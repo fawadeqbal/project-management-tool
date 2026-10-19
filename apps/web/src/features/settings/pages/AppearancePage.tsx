@@ -21,9 +21,15 @@ export function AppearancePage() {
         <h2 id="theme-heading" className={styles.cardTitle}>
           Theme
         </h2>
-        <SegmentedControl label="Theme" options={OPTIONS} value={preference} onChange={(v) => setPreference(v as ThemePreference)} />
+        <SegmentedControl
+          label="Theme"
+          options={OPTIONS}
+          value={preference}
+          onChange={(v) => setPreference(v as ThemePreference)}
+        />
         <p className={styles.muted} aria-live="polite">
-          {preference === 'system' ? `Following your system — ${resolved} right now.` : `Always ${resolved}.`} Toggle any time from ⌘K with “Toggle theme”.
+          {preference === 'system' ? `Following your system — ${resolved} right now.` : `Always ${resolved}.`}{' '}
+          Toggle any time from ⌘K with “Toggle theme”.
         </p>
       </section>
     </div>

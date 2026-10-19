@@ -18,7 +18,10 @@ import { GenerateSuggestionCommand } from './generate-suggestion.command';
  * per generation, checked against the plan limit first.
  */
 @CommandHandler(GenerateSuggestionCommand)
-export class GenerateSuggestionHandler implements ICommandHandler<GenerateSuggestionCommand, AiSuggestionDto> {
+export class GenerateSuggestionHandler implements ICommandHandler<
+  GenerateSuggestionCommand,
+  AiSuggestionDto
+> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly loader: AiTaskContextLoader,
@@ -31,7 +34,9 @@ export class GenerateSuggestionHandler implements ICommandHandler<GenerateSugges
 
   async execute({ actor, taskId, kind }: GenerateSuggestionCommand): Promise<AiSuggestionDto> {
     const task = await this.loader.load(actor.workspaceId, taskId);
-    this.access.assert(actor, kind === 'breakdown' ? 'tasks.create' : 'tasks.view', { projectId: task.projectId });
+    this.access.assert(actor, kind === 'breakdown' ? 'tasks.create' : 'tasks.view', {
+      projectId: task.projectId,
+    });
     await this.usage.assertAvailable(actor.workspaceId);
 
     let content: Prisma.InputJsonObject;
@@ -50,15 +55,24 @@ export class GenerateSuggestionHandler implements ICommandHandler<GenerateSugges
     const now = this.clock.now();
     // A fresh suggestion replaces any older pending one of the same kind.
     const [, row] = await this.prisma.$transaction([
-      this.prisma.aiSuggestion.updateMany({ where: { taskId, kind, status: 'PENDING' }, data: { status: 'DISCARDED' } }),
-      this.prisma.aiSuggestion.create({ data: { taskId, kind, content, source, createdById: actor.userId, createdAt: now } }),
+      this.prisma.aiSuggestion.updateMany({
+        where: { taskId, kind, status: 'PENDING' },
+        data: { status: 'DISCARDED' },
+      }),
+      this.prisma.aiSuggestion.create({
+        data: { taskId, kind, content, source, createdById: actor.userId, createdAt: now },
+      }),
     ]);
     this.events.publish(
-      createEvent('ai.suggestion_created', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: row.id, occurredAt: now }, {
-        taskId,
-        kind,
-        provider: this.ai.name,
-      }),
+      createEvent(
+        'ai.suggestion_created',
+        { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: row.id, occurredAt: now },
+        {
+          taskId,
+          kind,
+          provider: this.ai.name,
+        },
+      ),
     );
     return toSuggestionDto(row);
   }

@@ -53,8 +53,21 @@ export class DashboardReadModel {
 
     const [tasks, layout, schedule] = await Promise.all([
       this.prisma.task.findMany({
-        where: { workspaceId: actor.workspaceId, ...(query.projectId ? { projectId: query.projectId } : { OR: [{ projectId: null }, { project: { archivedAt: null } }] }) },
-        select: { status: true, createdAt: true, startDate: true, dueDate: true, completedAt: true, projectId: true, updatedAt: true },
+        where: {
+          workspaceId: actor.workspaceId,
+          ...(query.projectId
+            ? { projectId: query.projectId }
+            : { OR: [{ projectId: null }, { project: { archivedAt: null } }] }),
+        },
+        select: {
+          status: true,
+          createdAt: true,
+          startDate: true,
+          dueDate: true,
+          completedAt: true,
+          projectId: true,
+          updatedAt: true,
+        },
       }),
       this.prefs.layout(actor.workspaceId, actor.userId),
       this.prefs.schedule(actor.workspaceId, actor.userId),
@@ -62,7 +75,13 @@ export class DashboardReadModel {
 
     const reportTasks: ReportTask[] = tasks;
     const throughput = weeklyThroughput(reportTasks, today, weeks);
-    const rows = projects.map((p) => this.healthRow(p, tasks.filter((t) => t.projectId === p.id), today));
+    const rows = projects.map((p) =>
+      this.healthRow(
+        p,
+        tasks.filter((t) => t.projectId === p.id),
+        today,
+      ),
+    );
 
     return {
       title: query.projectId ? projects[0]!.name : `Q${Math.floor(today.getUTCMonth() / 3) + 1} portfolio`,
@@ -82,16 +101,30 @@ export class DashboardReadModel {
   }
 
   private healthRow(
-    p: { id: string; name: string; color: string; health: string; startDate: Date | null; dueDate: Date | null; budgetUsedPct: number | null; owner: { id: string; name: string; initials: string; avatarColor: string } },
+    p: {
+      id: string;
+      name: string;
+      color: string;
+      health: string;
+      startDate: Date | null;
+      dueDate: Date | null;
+      budgetUsedPct: number | null;
+      owner: { id: string; name: string; initials: string; avatarColor: string };
+    },
     tasks: { status: string; dueDate: Date | null }[],
     today: Date,
   ): ProjectHealthRowDto {
     const totalTasks = tasks.length;
     const doneTasks = tasks.filter((t) => t.status === 'DONE').length;
-    const overdueTasks = tasks.filter((t) => t.status !== 'DONE' && t.dueDate && diffInDays(today, t.dueDate) < 0).length;
+    const overdueTasks = tasks.filter(
+      (t) => t.status !== 'DONE' && t.dueDate && diffInDays(today, t.dueDate) < 0,
+    ).length;
     const blockedTasks = tasks.filter((t) => t.status === 'BLOCKED').length;
     const progress = projectProgress({ totalTasks, doneTasks });
-    const suggestion = evaluateHealth({ totalTasks, doneTasks, overdueTasks, blockedTasks, startDate: p.startDate, dueDate: p.dueDate }, today);
+    const suggestion = evaluateHealth(
+      { totalTasks, doneTasks, overdueTasks, blockedTasks, startDate: p.startDate, dueDate: p.dueDate },
+      today,
+    );
     const health = p.health as ProjectHealth;
     return {
       project: toProjectRef(p),
@@ -110,7 +143,11 @@ export class DashboardReadModel {
   }
 
   /** "6 tasks blocked for more than 3 days — 4 of them in Mobile app v2." */
-  private blockedNote(tasks: { status: string; projectId: string | null; updatedAt: Date }[], projects: { id: string; name: string }[], now: Date): string | null {
+  private blockedNote(
+    tasks: { status: string; projectId: string | null; updatedAt: Date }[],
+    projects: { id: string; name: string }[],
+    now: Date,
+  ): string | null {
     const blocked = tasks.filter((t) => t.status === 'BLOCKED');
     if (!blocked.length) return null;
     const stale = blocked.filter((t) => t.updatedAt.getTime() <= addDays(now, -BLOCKED_STALE_DAYS).getTime());

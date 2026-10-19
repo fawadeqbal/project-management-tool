@@ -11,7 +11,9 @@ export interface SlipCandidate {
  * The open task that slipped furthest against its baseline start ("pricing slipped 2 days").
  * Only forward slips count; done work and tasks without a baseline are ignored.
  */
-export const largestSlip = <T extends SlipCandidate>(tasks: readonly T[]): { task: T; days: number } | null => {
+export const largestSlip = <T extends SlipCandidate>(
+  tasks: readonly T[],
+): { task: T; days: number } | null => {
   let best: { task: T; days: number } | null = null;
   for (const t of tasks) {
     if (t.done || !t.start || !t.baselineStart) continue;

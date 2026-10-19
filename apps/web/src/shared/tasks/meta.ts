@@ -1,6 +1,13 @@
 import type { IconName } from '@hearth/ui';
 import { isIconName } from '@hearth/ui';
-import { PRIORITIES, PRIORITY_META, STATUS_META, TASK_STATUSES, type Priority, type TaskStatus } from '@hearth/domain';
+import {
+  PRIORITIES,
+  PRIORITY_META,
+  STATUS_META,
+  TASK_STATUSES,
+  type Priority,
+  type TaskStatus,
+} from '@hearth/domain';
 
 /** Status → icon + token color, matching the design system's StatusIcon. */
 export const STATUS_ICON: Record<TaskStatus, { icon: IconName; color: string }> = {

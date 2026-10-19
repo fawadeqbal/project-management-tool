@@ -11,11 +11,21 @@ const useSignedIn = () => !!useAuthStore((s) => s.token);
 
 /** Sidebar data: favorites, teams, counts, onboarding progress. */
 export function useShell() {
-  return useQuery({ queryKey: queryKeys.shell, queryFn: () => api.workspace.shell(), enabled: useSignedIn(), staleTime: 30_000 });
+  return useQuery({
+    queryKey: queryKeys.shell,
+    queryFn: () => api.workspace.shell(),
+    enabled: useSignedIn(),
+    staleTime: 30_000,
+  });
 }
 
 export function useMembers() {
-  return useQuery({ queryKey: queryKeys.members, queryFn: () => api.workspace.members(), enabled: useSignedIn(), staleTime: 5 * 60_000 });
+  return useQuery({
+    queryKey: queryKeys.members,
+    queryFn: () => api.workspace.members(),
+    enabled: useSignedIn(),
+    staleTime: 5 * 60_000,
+  });
 }
 
 /** id → member lookup for avatars and names. */
@@ -25,11 +35,21 @@ export function useMemberMap(): Map<string, MemberDto> {
 }
 
 export function useTeams() {
-  return useQuery({ queryKey: queryKeys.teams, queryFn: () => api.workspace.teams(), enabled: useSignedIn(), staleTime: 5 * 60_000 });
+  return useQuery({
+    queryKey: queryKeys.teams,
+    queryFn: () => api.workspace.teams(),
+    enabled: useSignedIn(),
+    staleTime: 5 * 60_000,
+  });
 }
 
 export function useTags() {
-  return useQuery({ queryKey: queryKeys.tags, queryFn: () => api.workspace.tags(), enabled: useSignedIn(), staleTime: 5 * 60_000 });
+  return useQuery({
+    queryKey: queryKeys.tags,
+    queryFn: () => api.workspace.tags(),
+    enabled: useSignedIn(),
+    staleTime: 5 * 60_000,
+  });
 }
 
 export function useCreateTag() {

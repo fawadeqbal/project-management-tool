@@ -13,7 +13,11 @@ interface PlanGateState {
 export const usePlanGateStore = create<PlanGateState>((set) => ({
   dialog: null,
   blocked: {},
-  open: (message, feature) => set((s) => ({ dialog: { message, feature }, blocked: feature ? { ...s.blocked, [feature]: true } : s.blocked })),
+  open: (message, feature) =>
+    set((s) => ({
+      dialog: { message, feature },
+      blocked: feature ? { ...s.blocked, [feature]: true } : s.blocked,
+    })),
   close: () => set({ dialog: null }),
 }));
 

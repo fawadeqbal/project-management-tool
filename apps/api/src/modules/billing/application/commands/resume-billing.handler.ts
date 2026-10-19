@@ -1,7 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { BillingDto } from '@hearth/contracts';
-import { NotFoundError, SUBSCRIPTION_REPOSITORY, type Clock, type SubscriptionRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SUBSCRIPTION_REPOSITORY,
+  type Clock,
+  type SubscriptionRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import { BillingReadModel } from '../../infrastructure/billing.read-model';

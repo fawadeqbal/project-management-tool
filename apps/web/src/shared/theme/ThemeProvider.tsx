@@ -24,7 +24,8 @@ const readStored = (): ThemePreference => {
   }
 };
 
-const systemPrefersDark = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const systemPrefersDark = () =>
+  typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 /**
  * Sets `data-theme` on <html>. The inline script in index.html applies the stored value before
@@ -76,9 +77,15 @@ export function ThemeProvider({
     },
     [onPreferenceChange],
   );
-  const toggle = useCallback(() => setPreference(resolved === 'dark' ? 'light' : 'dark'), [resolved, setPreference]);
+  const toggle = useCallback(
+    () => setPreference(resolved === 'dark' ? 'light' : 'dark'),
+    [resolved, setPreference],
+  );
 
-  const value = useMemo(() => ({ preference, resolved, setPreference, toggle }), [preference, resolved, setPreference, toggle]);
+  const value = useMemo(
+    () => ({ preference, resolved, setPreference, toggle }),
+    [preference, resolved, setPreference, toggle],
+  );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 

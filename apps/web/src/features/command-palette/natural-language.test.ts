@@ -21,8 +21,14 @@ describe('interpretQuery (Ask Hearth heuristic)', () => {
   });
 
   it('matches teams, projects, people, status and priority', () => {
-    expect(interpretQuery('blocked marketing tasks', ctx)!.params).toEqual({ status: 'BLOCKED', team: 't-mkt' });
-    expect(interpretQuery('urgent website relaunch', ctx)!.params).toEqual({ priority: 'URGENT', project: 'p-web' });
+    expect(interpretQuery('blocked marketing tasks', ctx)!.params).toEqual({
+      status: 'BLOCKED',
+      team: 't-mkt',
+    });
+    expect(interpretQuery('urgent website relaunch', ctx)!.params).toEqual({
+      priority: 'URGENT',
+      project: 'p-web',
+    });
     const sara = interpretQuery('tasks for sara due today', ctx)!;
     expect(sara.params).toEqual({ due: 'today', assignee: 'u-sara' });
     expect(sara.label).toBe('Show tasks assigned to Sara Ahmed due today');

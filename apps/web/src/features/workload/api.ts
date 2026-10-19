@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { WORKLOAD_ROUTES, type CreateTimeOffInput, type TimeOffDto, type WorkloadDto, type WorkloadQuery } from '@hearth/contracts';
+import {
+  WORKLOAD_ROUTES,
+  type CreateTimeOffInput,
+  type TimeOffDto,
+  type WorkloadDto,
+  type WorkloadQuery,
+} from '@hearth/contracts';
 import { ApiError, http } from '@/shared/api/http';
 import { useTaskMutations } from '@/shared/tasks/useTaskMutations';
 import { toast } from '@/shared/toast/toast-store';
@@ -23,7 +29,11 @@ export const workloadKeys = {
 };
 
 export function useWorkload(q: WorkloadParams) {
-  return useQuery({ queryKey: workloadKeys.view(q), queryFn: () => workloadApi.get(q), placeholderData: (prev) => prev });
+  return useQuery({
+    queryKey: workloadKeys.view(q),
+    queryFn: () => workloadApi.get(q),
+    placeholderData: (prev) => prev,
+  });
 }
 
 export function useTimeOff(enabled = true) {
@@ -39,7 +49,11 @@ export function useTimeOffMutations() {
   const client = useQueryClient();
   const refresh = () => void client.invalidateQueries({ queryKey: workloadKeys.all });
   const add = useMutation({ mutationFn: workloadApi.addTimeOff, onError: report, onSettled: refresh });
-  const remove = useMutation({ mutationFn: (t: TimeOffDto) => workloadApi.removeTimeOff(t.id), onError: report, onSettled: refresh });
+  const remove = useMutation({
+    mutationFn: (t: TimeOffDto) => workloadApi.removeTimeOff(t.id),
+    onError: report,
+    onSettled: refresh,
+  });
   return useMemo(
     () => ({
       add: (input: CreateTimeOffInput) => add.mutateAsync(input),
@@ -50,7 +64,15 @@ export function useTimeOffMutations() {
             toast.show({
               message: `Removed ${firstName(t.user.name)}’s time off`,
               action: 'Undo',
-              onAction: () => void add.mutateAsync({ userId: t.user.id, startDate: t.startDate, endDate: t.endDate, reason: t.reason }).catch(() => undefined),
+              onAction: () =>
+                void add
+                  .mutateAsync({
+                    userId: t.user.id,
+                    startDate: t.startDate,
+                    endDate: t.endDate,
+                    reason: t.reason,
+                  })
+                  .catch(() => undefined),
             }),
           )
           .catch(() => undefined),
@@ -77,7 +99,10 @@ export function useReassign() {
       const t = w.tasks[taskId];
       if (!t) return;
       patchCache(taskId, toUserId);
-      await tasks.update(taskStub({ id: t.id, key: t.key, title: t.title, status: t.status, assigneeId: t.assigneeId }), { assigneeId: toUserId });
+      await tasks.update(
+        taskStub({ id: t.id, key: t.key, title: t.title, status: t.status, assigneeId: t.assigneeId }),
+        { assigneeId: toUserId },
+      );
       void client.invalidateQueries({ queryKey: workloadKeys.all });
     };
     return (w: WorkloadDto, taskId: string, toUserId: string) => {
@@ -91,7 +116,10 @@ export function useReassign() {
         action: from ? 'Undo' : undefined,
         onAction: from
           ? () => {
-              const current = client.getQueriesData<WorkloadDto>({ queryKey: workloadKeys.all }).find(([, d]) => d && d.tasks[taskId])?.[1] ?? w;
+              const current =
+                client
+                  .getQueriesData<WorkloadDto>({ queryKey: workloadKeys.all })
+                  .find(([, d]) => d && d.tasks[taskId])?.[1] ?? w;
               void write(current, taskId, from);
             }
           : undefined,

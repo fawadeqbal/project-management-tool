@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildRetrospective, ranksAtTop, sprintSnapshotOf, suggestDeferral, type SprintWorkItem } from './planning-helpers';
+import {
+  buildRetrospective,
+  ranksAtTop,
+  sprintSnapshotOf,
+  suggestDeferral,
+  type SprintWorkItem,
+} from './planning-helpers';
 import { Sprint } from './sprint';
 import { parseDateOnly } from '../shared/dates';
 
@@ -37,7 +43,19 @@ describe('sprint planning helpers', () => {
 
 describe('Sprint scope changes', () => {
   const now = new Date('2026-10-19T09:00:00Z');
-  const sprint = () => Sprint.plan({ id: 's', projectId: 'p', workspaceId: 'w', number: 25, startDate: parseDateOnly('2026-10-27'), endDate: parseDateOnly('2026-11-09') }, 'u', now);
+  const sprint = () =>
+    Sprint.plan(
+      {
+        id: 's',
+        projectId: 'p',
+        workspaceId: 'w',
+        number: 25,
+        startDate: parseDateOnly('2026-10-27'),
+        endDate: parseDateOnly('2026-11-09'),
+      },
+      'u',
+      now,
+    );
   it('marks additions after start as scope changes', () => {
     const s = sprint();
     s.addTask({ id: 't1', points: 3 }, 'u', now);

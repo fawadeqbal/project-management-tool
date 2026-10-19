@@ -6,7 +6,17 @@ import { wipLevel } from './project-health';
 
 const now = new Date('2026-10-19T09:00:00Z');
 const make = () =>
-  Project.create({ id: 'p1', workspaceId: 'w1', ownerId: 'u1', name: '  Website relaunch ', color: 'blue', dueDate: parseDateOnly('2026-11-14') }, now);
+  Project.create(
+    {
+      id: 'p1',
+      workspaceId: 'w1',
+      ownerId: 'u1',
+      name: '  Website relaunch ',
+      color: 'blue',
+      dueDate: parseDateOnly('2026-11-14'),
+    },
+    now,
+  );
 
 describe('Project aggregate', () => {
   it('creates with a trimmed name and records project.created', () => {
@@ -16,9 +26,21 @@ describe('Project aggregate', () => {
   });
 
   it('rejects a blank name and a due date before the start', () => {
-    expect(() => Project.create({ id: 'p', workspaceId: 'w', ownerId: 'u', name: ' ' }, now)).toThrow(/can’t be empty/);
+    expect(() => Project.create({ id: 'p', workspaceId: 'w', ownerId: 'u', name: ' ' }, now)).toThrow(
+      /can’t be empty/,
+    );
     expect(() =>
-      Project.create({ id: 'p', workspaceId: 'w', ownerId: 'u', name: 'X', startDate: parseDateOnly('2026-11-02'), dueDate: parseDateOnly('2026-11-01') }, now),
+      Project.create(
+        {
+          id: 'p',
+          workspaceId: 'w',
+          ownerId: 'u',
+          name: 'X',
+          startDate: parseDateOnly('2026-11-02'),
+          dueDate: parseDateOnly('2026-11-01'),
+        },
+        now,
+      ),
     ).toThrow(/on or after/);
   });
 
@@ -27,11 +49,18 @@ describe('Project aggregate', () => {
     p.addSection('a', 'Discovery', null, 'u1', now);
     p.addSection('c', 'Build', null, 'u1', now);
     p.addSection('b', 'Design', 'c', 'u1', now);
-    expect(p.sections.map((s) => [s.name, s.position])).toEqual([['Discovery', 0], ['Design', 1], ['Build', 2]]);
+    expect(p.sections.map((s) => [s.name, s.position])).toEqual([
+      ['Discovery', 0],
+      ['Design', 1],
+      ['Build', 2],
+    ]);
     p.moveSection('c', 0, 'u1', now);
     expect(p.sections.map((s) => s.id)).toEqual(['c', 'a', 'b']);
     p.removeSection('a', 'u1', now);
-    expect(p.sections.map((s) => [s.id, s.position])).toEqual([['c', 0], ['b', 1]]);
+    expect(p.sections.map((s) => [s.id, s.position])).toEqual([
+      ['c', 0],
+      ['b', 1],
+    ]);
     expect(() => p.addSection('d', 'design', null, 'u1', now)).toThrow(/already a “design”/);
   });
 

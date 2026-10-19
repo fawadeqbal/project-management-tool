@@ -1,4 +1,12 @@
-import { ConflictError, FixedClock, ForbiddenError, WorkspaceMember, type DomainEvent, type Role, type WorkspaceMemberRepository } from '@hearth/domain';
+import {
+  ConflictError,
+  FixedClock,
+  ForbiddenError,
+  WorkspaceMember,
+  type DomainEvent,
+  type Role,
+  type WorkspaceMemberRepository,
+} from '@hearth/domain';
 import type { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import type { PlanService } from '../../../../shared/billing/require-feature';
 import type { SeatCounter } from '../../infrastructure/seat-counter';
@@ -17,7 +25,8 @@ class InMemoryMembers implements WorkspaceMemberRepository {
   rows = new Map<string, { role: Role; status: 'ACTIVE' | 'DEACTIVATED'; deactivatedAt: Date | null }>();
   removed: string[] = [];
   constructor(seed: Record<string, Role>) {
-    for (const [userId, role] of Object.entries(seed)) this.rows.set(userId, { role, status: 'ACTIVE', deactivatedAt: null });
+    for (const [userId, role] of Object.entries(seed))
+      this.rows.set(userId, { role, status: 'ACTIVE', deactivatedAt: null });
   }
   async findByUser(workspaceId: string, userId: string) {
     const r = this.rows.get(userId);
@@ -55,14 +64,21 @@ describe('member commands', () => {
 
   it('changes a role and publishes member.role_changed', async () => {
     const handler = new ChangeMemberRoleHandler(repo, events, clock);
-    await expect(handler.execute(new ChangeMemberRoleCommand(fawad, 'mo', 'ADMIN'))).resolves.toEqual({ userId: 'mo', role: 'ADMIN' });
+    await expect(handler.execute(new ChangeMemberRoleCommand(fawad, 'mo', 'ADMIN'))).resolves.toEqual({
+      userId: 'mo',
+      role: 'ADMIN',
+    });
     expect(published.map((e) => e.type)).toEqual(['member.role_changed']);
   });
 
   it('rejects escalation (admin → owner) with 403 and the last-owner demotion with 409', async () => {
     const handler = new ChangeMemberRoleHandler(repo, events, clock);
-    await expect(handler.execute(new ChangeMemberRoleCommand(sara, 'mo', 'OWNER'))).rejects.toBeInstanceOf(ForbiddenError);
-    await expect(handler.execute(new ChangeMemberRoleCommand(fawad, 'fawad', 'ADMIN'))).rejects.toBeInstanceOf(ConflictError);
+    await expect(handler.execute(new ChangeMemberRoleCommand(sara, 'mo', 'OWNER'))).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
+    await expect(
+      handler.execute(new ChangeMemberRoleCommand(fawad, 'fawad', 'ADMIN')),
+    ).rejects.toBeInstanceOf(ConflictError);
     expect(repo.rows.get('mo')!.role).toBe('MEMBER');
   });
 
@@ -71,7 +87,9 @@ describe('member commands', () => {
     const seats = { activeSeats: async () => 2 } as unknown as SeatCounter;
     await new DeactivateMemberHandler(repo, events, clock).execute(new DeactivateMemberCommand(sara, 'mo'));
     expect(repo.rows.get('mo')!.status).toBe('DEACTIVATED');
-    await new ReactivateMemberHandler(repo, plans, seats, events, clock).execute(new ReactivateMemberCommand(sara, 'mo'));
+    await new ReactivateMemberHandler(repo, plans, seats, events, clock).execute(
+      new ReactivateMemberCommand(sara, 'mo'),
+    );
     expect(repo.rows.get('mo')!.status).toBe('ACTIVE');
     expect(published.map((e) => e.type)).toEqual(['member.deactivated', 'member.reactivated']);
   });
@@ -80,13 +98,22 @@ describe('member commands', () => {
     repo.rows.set('mo', { role: 'MEMBER', status: 'DEACTIVATED', deactivatedAt: null });
     const plans = { policyFor: async () => new PlanLimitPolicy(PLANS.PRO) } as unknown as PlanService;
     const seats = { activeSeats: async () => 10 } as unknown as SeatCounter;
-    await expect(new ReactivateMemberHandler(repo, plans, seats, events, clock).execute(new ReactivateMemberCommand(sara, 'mo'))).rejects.toThrow(/all 10 seats/);
+    await expect(
+      new ReactivateMemberHandler(repo, plans, seats, events, clock).execute(
+        new ReactivateMemberCommand(sara, 'mo'),
+      ),
+    ).rejects.toThrow(/all 10 seats/);
   });
 
   it('removes permanently only when confirmed', async () => {
     const handler = new RemoveMemberHandler(repo, events, clock);
-    await expect(handler.execute(new RemoveMemberCommand(fawad, 'mo', false))).rejects.toThrow(/can’t be undone/);
-    await expect(handler.execute(new RemoveMemberCommand(fawad, 'mo', true))).resolves.toEqual({ userId: 'mo', unassignedTasks: 2 });
+    await expect(handler.execute(new RemoveMemberCommand(fawad, 'mo', false))).rejects.toThrow(
+      /can’t be undone/,
+    );
+    await expect(handler.execute(new RemoveMemberCommand(fawad, 'mo', true))).resolves.toEqual({
+      userId: 'mo',
+      unassignedTasks: 2,
+    });
     expect(repo.removed).toEqual(['mo']);
   });
 });

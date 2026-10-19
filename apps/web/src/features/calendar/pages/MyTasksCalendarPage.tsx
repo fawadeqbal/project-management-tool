@@ -8,13 +8,22 @@ import { TaskCalendar } from '../components/TaskCalendar';
 import { useCalendarState } from '../use-calendar-state';
 import styles from '../calendar.module.css';
 
-const PATHS: Record<string, string> = { list: '/my-tasks', board: '/my-tasks/board', calendar: '/my-tasks/calendar' };
+const PATHS: Record<string, string> = {
+  list: '/my-tasks',
+  board: '/my-tasks/board',
+  calendar: '/my-tasks/calendar',
+};
 
 /** My tasks calendar: everything assigned to me by due date, across projects (legend by project). */
 export function MyTasksCalendarPage() {
   const navigate = useNavigate();
   const { cursor, range, window, setCursor, setRange } = useCalendarState();
-  const { data: scheduled = [] } = useTasks({ scope: 'mine', includeDone: true, from: window.from, to: window.to });
+  const { data: scheduled = [] } = useTasks({
+    scope: 'mine',
+    includeDone: true,
+    from: window.from,
+    to: window.to,
+  });
   const { data: mine = [] } = useTasks({ scope: 'mine' });
   const unscheduled = useMemo(() => mine.filter((t) => !t.dueDate && t.status !== 'DONE'), [mine]);
   useHotkey('1', () => void navigate(PATHS.list!));
@@ -31,7 +40,14 @@ export function MyTasksCalendarPage() {
         onCursorChange={setCursor}
         onRangeChange={setRange}
         label="My tasks"
-        tabs={<ViewTabs tabs={MY_TASKS_TABS} value="calendar" label="My tasks views" onChange={(id) => void navigate(PATHS[id] ?? '/my-tasks')} />}
+        tabs={
+          <ViewTabs
+            tabs={MY_TASKS_TABS}
+            value="calendar"
+            label="My tasks views"
+            onChange={(id) => void navigate(PATHS[id] ?? '/my-tasks')}
+          />
+        }
       />
     </div>
   );

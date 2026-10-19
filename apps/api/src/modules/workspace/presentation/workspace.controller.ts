@@ -1,10 +1,22 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateTagSchema, type CreateTagInput, type MemberDto, type ShellDto, type TagDto, type TeamDto } from '@hearth/contracts';
+import {
+  CreateTagSchema,
+  type CreateTagInput,
+  type MemberDto,
+  type ShellDto,
+  type TagDto,
+  type TeamDto,
+} from '@hearth/contracts';
 import type { Actor } from '@hearth/domain';
 import { CurrentActor } from '../../../shared/workspace-context/current-actor.decorator';
 import { ZodValidationPipe } from '../../../shared/http/zod-validation.pipe';
-import { GetShellQuery, ListMembersQuery, ListTagsQuery, ListTeamsQuery } from '../application/workspace.queries';
+import {
+  GetShellQuery,
+  ListMembersQuery,
+  ListTagsQuery,
+  ListTeamsQuery,
+} from '../application/workspace.queries';
 import { CreateTagCommand } from '../application/create-tag.handler';
 
 @Controller()
@@ -30,7 +42,10 @@ export class WorkspaceController {
   }
 
   @Post('tags')
-  createTag(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(CreateTagSchema)) input: CreateTagInput): Promise<TagDto> {
+  createTag(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(CreateTagSchema)) input: CreateTagInput,
+  ): Promise<TagDto> {
     return this.commands.execute(new CreateTagCommand(actor, input));
   }
 

@@ -14,8 +14,16 @@ describe('Onboarding (e2e)', () => {
 
   it('shows 3 of 5 done with "Invite 2 teammates" as the single next step', async () => {
     const { body } = await fawad.get('/onboarding').expect(200);
-    expect(body).toMatchObject({ completed: 3, total: 5, nextStep: 'Invite 2 teammates', isComplete: false, dismissed: false });
-    expect(body.steps.filter((s: { isNext: boolean }) => s.isNext).map((s: { id: string }) => s.id)).toEqual(['invite-teammates']);
+    expect(body).toMatchObject({
+      completed: 3,
+      total: 5,
+      nextStep: 'Invite 2 teammates',
+      isComplete: false,
+      dismissed: false,
+    });
+    expect(body.steps.filter((s: { isNext: boolean }) => s.isNext).map((s: { id: string }) => s.id)).toEqual([
+      'invite-teammates',
+    ]);
     expect(body.steps.find((s: { id: string }) => s.id === 'create-first-task').hint).toMatch(/^HRT-\d+ · /);
     const shell = await fawad.get('/shell').expect(200);
     expect(shell.body.onboarding).toMatchObject({ completed: 3, total: 5, nextStep: 'Invite 2 teammates' });
@@ -25,7 +33,9 @@ describe('Onboarding (e2e)', () => {
     const { body } = await fawad.get('/templates').expect(200);
     expect(body.length).toBeGreaterThanOrEqual(3);
     expect(body.length).toBeLessThanOrEqual(6);
-    expect(body.filter((t: { featured: boolean }) => t.featured).map((t: { name: string }) => t.name)).toEqual(['Product sprint', 'Marketing campaign', 'Client project']);
+    expect(
+      body.filter((t: { featured: boolean }) => t.featured).map((t: { name: string }) => t.name),
+    ).toEqual(['Product sprint', 'Marketing campaign', 'Client project']);
   });
 
   it('applies a template: a project with sections and starter tasks, numbered from the workspace sequence', async () => {
@@ -35,7 +45,9 @@ describe('Onboarding (e2e)', () => {
     const export_ = await fawad.get('/billing/export').expect(200);
     const tasks = export_.body.tasks.filter((t: { project: string }) => t.project === 'Docs site launch');
     expect(tasks).toHaveLength(10);
-    expect(new Set(tasks.map((t: { section: string }) => t.section))).toEqual(new Set(['Discovery', 'Design', 'Build', 'Launch']));
+    expect(new Set(tasks.map((t: { section: string }) => t.section))).toEqual(
+      new Set(['Discovery', 'Design', 'Build', 'Launch']),
+    );
     const numbers = tasks.map((t: { key: string }) => Number(t.key.split('-')[1]));
     expect(Math.min(...numbers)).toBeGreaterThan(95);
     const shell = await fawad.get('/shell').expect(200);

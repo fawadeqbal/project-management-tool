@@ -15,7 +15,15 @@ export const RoleSchema = z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER', 'GUEST']
 export interface ApiErrorBody {
   error: {
     code: string;
-    kind: 'validation' | 'not_found' | 'forbidden' | 'conflict' | 'limit_reached' | 'invariant' | 'unauthorized' | 'internal';
+    kind:
+      | 'validation'
+      | 'not_found'
+      | 'forbidden'
+      | 'conflict'
+      | 'limit_reached'
+      | 'invariant'
+      | 'unauthorized'
+      | 'internal';
     message: string;
     details?: Record<string, unknown>;
     fieldErrors?: Record<string, string[]>;

@@ -16,4 +16,5 @@ export const routes: RouteObject[] = [
 ];
 export const commands: Command[] = [];
 
-export const loadProjectCalendarPage = async (): Promise<ComponentType> => (await import('./pages/ProjectCalendarPage')).ProjectCalendarPage;
+export const loadProjectCalendarPage = async (): Promise<ComponentType> =>
+  (await import('./pages/ProjectCalendarPage')).ProjectCalendarPage;

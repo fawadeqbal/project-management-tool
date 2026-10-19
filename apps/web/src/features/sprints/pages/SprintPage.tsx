@@ -19,7 +19,9 @@ import styles from '../sprints.module.css';
 
 /** Active sprint first, then the next planned one, then the latest. */
 export const defaultSprint = (sprints: readonly SprintSummaryDto[]): SprintSummaryDto | undefined =>
-  sprints.find((s) => s.status === 'ACTIVE') ?? sprints.find((s) => s.status === 'PLANNED') ?? sprints[sprints.length - 1];
+  sprints.find((s) => s.status === 'ACTIVE') ??
+  sprints.find((s) => s.status === 'PLANNED') ??
+  sprints[sprints.length - 1];
 
 const STATUS_TONE = { ACTIVE: 'info', PLANNED: 'neutral', COMPLETED: 'success' } as const;
 
@@ -71,9 +73,23 @@ export function SprintPage() {
   const commands = useMemo<Command[]>(() => {
     const out: Command[] = [];
     if (sprint?.status === 'PLANNED')
-      out.push({ id: 'sprints.start', title: `Start ${sprint.name}`, group: 'Actions', icon: 'zap', keywords: ['sprint', 'begin'], run: () => void mutations.start(sprint.id) });
+      out.push({
+        id: 'sprints.start',
+        title: `Start ${sprint.name}`,
+        group: 'Actions',
+        icon: 'zap',
+        keywords: ['sprint', 'begin'],
+        run: () => void mutations.start(sprint.id),
+      });
     if (sprint?.status === 'ACTIVE')
-      out.push({ id: 'sprints.complete', title: `Complete ${sprint.name}`, group: 'Actions', icon: 'check', keywords: ['sprint', 'finish', 'retro'], run: () => setCompleting(true) });
+      out.push({
+        id: 'sprints.complete',
+        title: `Complete ${sprint.name}`,
+        group: 'Actions',
+        icon: 'check',
+        keywords: ['sprint', 'finish', 'retro'],
+        run: () => setCompleting(true),
+      });
     if (target)
       out.push({
         id: 'sprints.add-to-sprint',
@@ -87,7 +103,14 @@ export function SprintPage() {
           if (focusedBacklog.current) addToSprint(focusedBacklog.current);
         },
       });
-    out.push({ id: 'sprints.plan', title: 'Plan next sprint', group: 'Actions', icon: 'calendar', keywords: ['sprint', 'new'], run: () => void mutations.plan() });
+    out.push({
+      id: 'sprints.plan',
+      title: 'Plan next sprint',
+      group: 'Actions',
+      icon: 'calendar',
+      keywords: ['sprint', 'new'],
+      run: () => void mutations.plan(),
+    });
     return out;
   }, [sprint, target, mutations, addToSprint]);
   useRegisterCommands(commands);
@@ -105,7 +128,9 @@ export function SprintPage() {
     return (
       <main className={styles.page}>
         <PlanGateDialog />
-        <UpgradeBanner feature="sprints">Planning sprints is part of Business. You can still look around.</UpgradeBanner>
+        <UpgradeBanner feature="sprints">
+          Planning sprints is part of Business. You can still look around.
+        </UpgradeBanner>
         <EmptyState
           icon="zap"
           title="No sprints yet"
@@ -146,11 +171,23 @@ export function SprintPage() {
           hideLabel
           value={sprint.id}
           onChange={(e) => selectSprint(e.target.value)}
-          options={[...list].reverse().map((s) => ({ value: s.id, label: `${s.name} · ${s.status === 'ACTIVE' ? 'Active' : s.status === 'PLANNED' ? 'Planned' : 'Completed'}` }))}
+          options={[...list]
+            .reverse()
+            .map((s) => ({
+              value: s.id,
+              label: `${s.name} · ${s.status === 'ACTIVE' ? 'Active' : s.status === 'PLANNED' ? 'Planned' : 'Completed'}`,
+            }))}
           className={styles.switcher}
         />
         {d.header.people.length ? (
-          <AvatarGroup people={d.header.people.map((p) => ({ initials: p.initials, name: p.name, color: p.avatarColor }))} size={28} />
+          <AvatarGroup
+            people={d.header.people.map((p) => ({
+              initials: p.initials,
+              name: p.name,
+              color: p.avatarColor,
+            }))}
+            size={28}
+          />
         ) : null}
         {sprint.status !== 'COMPLETED' ? (
           <Button variant="ghost" icon="pencil" onClick={() => setEditing(true)}>
@@ -167,7 +204,9 @@ export function SprintPage() {
             Start sprint
           </Button>
         ) : null}
-        {sprint.status === 'ACTIVE' ? <Button onClick={() => setCompleting(true)}>Complete sprint</Button> : null}
+        {sprint.status === 'ACTIVE' ? (
+          <Button onClick={() => setCompleting(true)}>Complete sprint</Button>
+        ) : null}
         {sprint.status === 'COMPLETED' && !nextPlanned ? (
           <Button variant="secondary" icon="plus" onClick={() => void mutations.plan()}>
             Plan next sprint
@@ -175,12 +214,17 @@ export function SprintPage() {
         ) : null}
       </header>
 
-      <UpgradeBanner feature="sprints">Sprint planning is part of Business — you can keep viewing the burndown and backlog.</UpgradeBanner>
+      <UpgradeBanner feature="sprints">
+        Sprint planning is part of Business — you can keep viewing the burndown and backlog.
+      </UpgradeBanner>
       {retro ? <RetrospectivePanel retro={retro} onDismiss={() => setRetro(null)} /> : null}
 
       <div className={styles.columns}>
         <div className={styles.main}>
-          <SprintTaskList detail={d} onMoveToBacklog={target ? (t) => mutations.moveToBacklog(target.id, target.name, t) : undefined} />
+          <SprintTaskList
+            detail={d}
+            onMoveToBacklog={target ? (t) => mutations.moveToBacklog(target.id, target.name, t) : undefined}
+          />
           <BacklogList
             tasks={backlog.data ?? []}
             targetName={target?.name ?? null}
@@ -207,7 +251,13 @@ export function SprintPage() {
           onConfirm={(m) => void complete(m)}
         />
       ) : null}
-      {editing ? <EditSprintDialog sprint={sprint} onClose={() => setEditing(false)} onSave={(input) => void mutations.update(sprint.id, input)} /> : null}
+      {editing ? (
+        <EditSprintDialog
+          sprint={sprint}
+          onClose={() => setEditing(false)}
+          onSave={(input) => void mutations.update(sprint.id, input)}
+        />
+      ) : null}
     </main>
   );
 }

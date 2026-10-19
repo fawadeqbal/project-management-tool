@@ -13,7 +13,8 @@ export class QueryBooleansPipe implements PipeTransform<unknown, unknown> {
     const query = { ...(value as Record<string, unknown>) };
     for (const key of BOOLEAN_KEYS) {
       const v = query[key];
-      if (typeof v === 'string' && ['false', '0', 'no', 'off', ''].includes(v.trim().toLowerCase())) query[key] = false;
+      if (typeof v === 'string' && ['false', '0', 'no', 'off', ''].includes(v.trim().toLowerCase()))
+        query[key] = false;
     }
     return query;
   }

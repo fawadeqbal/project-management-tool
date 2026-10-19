@@ -23,5 +23,11 @@ export function useCalendarState() {
     [setParams],
   );
   const window = useMemo(() => rangeWindow(cursor, range), [cursor, range]);
-  return { cursor, range, window, setCursor: (d: string) => set('date', d), setRange: (v: CalendarRange) => set('range', v) };
+  return {
+    cursor,
+    range,
+    window,
+    setCursor: (d: string) => set('date', d),
+    setRange: (v: CalendarRange) => set('range', v),
+  };
 }

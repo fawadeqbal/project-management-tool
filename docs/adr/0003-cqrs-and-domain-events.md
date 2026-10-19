@@ -10,16 +10,16 @@ schedules, permission checks). Reads are numerous, view-shaped and performance-s
 
 ## Decision
 
-* **Commands** go through handlers that load aggregates via repository ports, call behavior
+- **Commands** go through handlers that load aggregates via repository ports, call behavior
   methods, save, and publish the recorded domain events.
-* **Queries** go through read models that query Prisma directly and return contract DTOs.
-* **Domain events** (`task.status_changed`, `comment.created`, `approval.requested`,
+- **Queries** go through read models that query Prisma directly and return contract DTOs.
+- **Domain events** (`task.status_changed`, `comment.created`, `approval.requested`,
   `sprint.completed`…) fan out to event handlers: activity log, inbox notifications, sprint
   snapshots, websocket broadcast.
 
 ## Consequences
 
-* Handlers are small, single-purpose and unit-testable with in-memory repositories.
-* Read models can be optimized (or later moved to a replica/projection) without touching rules.
-* Event handlers run after the write commits; they must be idempotent and tolerate failure
+- Handlers are small, single-purpose and unit-testable with in-memory repositories.
+- Read models can be optimized (or later moved to a replica/projection) without touching rules.
+- Event handlers run after the write commits; they must be idempotent and tolerate failure
   (an outbox can be added if delivery guarantees are needed).

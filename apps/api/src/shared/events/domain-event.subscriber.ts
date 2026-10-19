@@ -26,7 +26,9 @@ export abstract class DomainEventSubscriber implements IEventHandler<DomainEvent
     try {
       await this.on(event);
     } catch (e) {
-      this.logger.error(`Failed handling ${event.type} for ${event.aggregateId}: ${e instanceof Error ? e.stack : String(e)}`);
+      this.logger.error(
+        `Failed handling ${event.type} for ${event.aggregateId}: ${e instanceof Error ? e.stack : String(e)}`,
+      );
     }
   }
 }

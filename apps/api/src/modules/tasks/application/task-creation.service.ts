@@ -105,15 +105,31 @@ export class TaskCreationService {
     await this.tasks.save(task);
 
     const snapshot = task.toSnapshot();
-    const last = await this.relations.lastPositions(actor.workspaceId, { projectId, status: snapshot.status, parentId: snapshot.parentId });
-    await this.relations.setOrdering(task.id, { boardPosition: positionsAfter(last.board, 1)[0]!, listPosition: positionsAfter(last.list, 1)[0]! });
+    const last = await this.relations.lastPositions(actor.workspaceId, {
+      projectId,
+      status: snapshot.status,
+      parentId: snapshot.parentId,
+    });
+    await this.relations.setOrdering(task.id, {
+      boardPosition: positionsAfter(last.board, 1)[0]!,
+      listPosition: positionsAfter(last.list, 1)[0]!,
+    });
     if (input.tagIds?.length) await this.relations.replaceTags(task.id, input.tagIds);
-    await this.relations.follow(task.id, [actor.userId, ...(snapshot.assigneeId ? [snapshot.assigneeId] : [])]);
+    await this.relations.follow(task.id, [
+      actor.userId,
+      ...(snapshot.assigneeId ? [snapshot.assigneeId] : []),
+    ]);
 
-    const parent = await updateParentProgress({ tasks: this.tasks, relations: this.relations }, actor, snapshot.parentId, now);
+    const parent = await updateParentProgress(
+      { tasks: this.tasks, relations: this.relations },
+      actor,
+      snapshot.parentId,
+      now,
+    );
     this.publisher.publishFrom(task, ...(parent ? [parent] : []));
     return task;
   }
 }
 
-const toDate = (v: string | Date | null | undefined): Date | null => (v == null ? null : v instanceof Date ? v : parseDateOnly(v));
+const toDate = (v: string | Date | null | undefined): Date | null =>
+  v == null ? null : v instanceof Date ? v : parseDateOnly(v);

@@ -10,9 +10,18 @@ import { DeleteSectionHandler } from './application/commands/delete-section.hand
 import { CreateMilestoneHandler } from './application/commands/create-milestone.handler';
 import { UpdateMilestoneHandler } from './application/commands/update-milestone.handler';
 import { DeleteMilestoneHandler } from './application/commands/delete-milestone.handler';
-import { GetBoardHandler, GetProjectHandler, ListProjectsHandler, ListTeamProjectsHandler } from './application/queries/project.queries';
+import {
+  GetBoardHandler,
+  GetProjectHandler,
+  ListProjectsHandler,
+  ListTeamProjectsHandler,
+} from './application/queries/project.queries';
 import { PrismaProjectRepository } from './infrastructure/prisma-project.repository';
-import { PrismaFavoriteStore, PrismaMilestoneStore, PrismaTeamDirectory } from './infrastructure/prisma-project-stores';
+import {
+  PrismaFavoriteStore,
+  PrismaMilestoneStore,
+  PrismaTeamDirectory,
+} from './infrastructure/prisma-project-stores';
 import { ProjectsReadModel } from './infrastructure/projects.read-model';
 import { ProjectsController } from './presentation/projects.controller';
 

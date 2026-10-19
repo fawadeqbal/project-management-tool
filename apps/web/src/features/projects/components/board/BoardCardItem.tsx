@@ -16,9 +16,20 @@ export interface BoardCardItemProps {
 }
 
 /** A sortable kanban card: drag with the pointer, or focus it and use M / Alt+arrows. */
-export const BoardCardItem = memo(function BoardCardItem({ task, columnId, muted, onOpen, onFocusCard, onCardKeyDown }: BoardCardItemProps) {
+export const BoardCardItem = memo(function BoardCardItem({
+  task,
+  columnId,
+  muted,
+  onOpen,
+  onFocusCard,
+  onCardKeyDown,
+}: BoardCardItemProps) {
   const pending = isOptimisticId(task.id);
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id, data: { columnId }, disabled: pending });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: { columnId },
+    disabled: pending,
+  });
   const row = taskRowProps(task);
   return (
     <BoardCard
@@ -41,7 +52,11 @@ export const BoardCardItem = memo(function BoardCardItem({ task, columnId, muted
       aria-label={`${task.key} ${task.title}. Press M to move, Enter to open.`}
       aria-busy={pending || undefined}
       tabIndex={0}
-      style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : muted ? 0.72 : undefined }}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : muted ? 0.72 : undefined,
+      }}
       onClick={() => !pending && onOpen(task)}
       onFocus={() => onFocusCard(task)}
       onKeyDown={(e) => onCardKeyDown(task, e)}

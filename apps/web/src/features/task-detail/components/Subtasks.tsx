@@ -46,7 +46,12 @@ export function Subtasks({ task, onToggle, onAdd, onOpen, readOnly }: Props) {
               {done} / {total}
             </span>
             <span className={styles.progress}>
-              <ProgressBar value={Math.round((done / total) * 100)} tone="success" height={4} label={`Subtasks: ${done} of ${total} done`} />
+              <ProgressBar
+                value={Math.round((done / total) * 100)}
+                tone="success"
+                height={4}
+                label={`Subtasks: ${done} of ${total} done`}
+              />
             </span>
           </>
         ) : null}
@@ -59,8 +64,18 @@ export function Subtasks({ task, onToggle, onAdd, onOpen, readOnly }: Props) {
           const pending = isOptimisticId(s.id);
           return (
             <li key={s.id} className={styles.subtask} data-done={isDone} aria-busy={pending || undefined}>
-              <TaskCheckbox checked={isDone} label={isDone ? `Mark “${s.title}” as not done` : `Mark “${s.title}” as done`} onChange={() => !pending && onToggle(s.id)} disabled={readOnly || pending} />
-              <button type="button" className={styles.subtaskTitle} onClick={() => !pending && onOpen(s.key)} disabled={pending}>
+              <TaskCheckbox
+                checked={isDone}
+                label={isDone ? `Mark “${s.title}” as not done` : `Mark “${s.title}” as done`}
+                onChange={() => !pending && onToggle(s.id)}
+                disabled={readOnly || pending}
+              />
+              <button
+                type="button"
+                className={styles.subtaskTitle}
+                onClick={() => !pending && onOpen(s.key)}
+                disabled={pending}
+              >
                 {s.title}
               </button>
             </li>

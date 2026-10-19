@@ -2,7 +2,10 @@
  * Fractional ordering for drag-and-drop lists (board columns, backlog rank, subtasks):
  * moving an item writes one row instead of renumbering the whole list.
  */
-export const positionBetween = (before: number | null | undefined, after: number | null | undefined): number => {
+export const positionBetween = (
+  before: number | null | undefined,
+  after: number | null | undefined,
+): number => {
   if (before == null && after == null) return 1024;
   if (before == null) return (after as number) - 1024;
   if (after == null) return before + 1024;

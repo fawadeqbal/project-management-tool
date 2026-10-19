@@ -27,7 +27,14 @@ export interface TaskDetailViewProps {
 }
 
 /** Everything about one task; shared by the side panel and the full page. */
-export function TaskDetailView({ task, mode, onClose, onOpenFullPage, onOpenTask, onDeleted }: TaskDetailViewProps) {
+export function TaskDetailView({
+  task,
+  mode,
+  onClose,
+  onOpenFullPage,
+  onOpenTask,
+  onDeleted,
+}: TaskDetailViewProps) {
   const mutations = useTaskMutations();
   const detail = useTaskDetailMutations(task);
   const viewers = usePresence(task.id);
@@ -36,7 +43,8 @@ export function TaskDetailView({ task, mode, onClose, onOpenFullPage, onOpenTask
   const canDelete = usePermission('tasks.delete');
   const canComment = usePermission('comments.create');
 
-  const update = (patch: UpdateTaskInput, undoMessage?: string) => void mutations.update(task, patch, { undoMessage });
+  const update = (patch: UpdateTaskInput, undoMessage?: string) =>
+    void mutations.update(task, patch, { undoMessage });
 
   const copyLink = async () => {
     try {
@@ -70,11 +78,32 @@ export function TaskDetailView({ task, mode, onClose, onOpenFullPage, onOpenTask
         }}
       />
       <div className={styles.scroll}>
-        <EditableTitle value={task.title} as={mode === 'page' ? 'h1' : 'h2'} disabled={!canEdit} onSave={(title) => update({ title })} />
-        <PropertyGrid task={task} readOnly={!canEdit} onUpdate={update} onAddBlocker={(b) => detail.addBlocker(b)} onRemoveBlocker={(id) => detail.removeBlocker(id)} />
-        <DescriptionEditor value={task.description} disabled={!canEdit} onSave={(description) => update({ description })} />
+        <EditableTitle
+          value={task.title}
+          as={mode === 'page' ? 'h1' : 'h2'}
+          disabled={!canEdit}
+          onSave={(title) => update({ title })}
+        />
+        <PropertyGrid
+          task={task}
+          readOnly={!canEdit}
+          onUpdate={update}
+          onAddBlocker={(b) => detail.addBlocker(b)}
+          onRemoveBlocker={(id) => detail.removeBlocker(id)}
+        />
+        <DescriptionEditor
+          value={task.description}
+          disabled={!canEdit}
+          onSave={(description) => update({ description })}
+        />
         <AiSummarySlot task={task} />
-        <Subtasks task={task} readOnly={!canEdit} onToggle={toggleSubtask} onAdd={(title) => detail.addSubtask(title)} onOpen={onOpenTask} />
+        <Subtasks
+          task={task}
+          readOnly={!canEdit}
+          onToggle={toggleSubtask}
+          onAdd={(title) => detail.addSubtask(title)}
+          onOpen={onOpenTask}
+        />
         <CommentsActivity task={task} />
       </div>
       {canComment ? <CommentComposer onSend={detail.addComment} /> : null}

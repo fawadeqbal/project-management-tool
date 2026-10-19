@@ -18,7 +18,10 @@ export function KpiRow({ kpis }: { kpis: KpiDto[] }) {
           deltaTone={TONE[k.deltaTone]}
           delta={
             <span className={styles.delta}>
-              <Icon name={k.deltaTone === 'good' ? 'check' : k.deltaTone === 'bad' ? 'alert' : 'clock'} size={12} />
+              <Icon
+                name={k.deltaTone === 'good' ? 'check' : k.deltaTone === 'bad' ? 'alert' : 'clock'}
+                size={12}
+              />
               {k.delta}
               <span className={styles.srOnly}> ({TONE_WORD[k.deltaTone]})</span>
             </span>

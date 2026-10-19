@@ -210,7 +210,9 @@
   text-align: left;
   font: inherit;
   cursor: pointer;
-  transition: border-color 100ms, box-shadow 100ms;
+  transition:
+    border-color 100ms,
+    box-shadow 100ms;
 }
 
 .template:hover {

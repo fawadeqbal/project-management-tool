@@ -13,7 +13,9 @@ export class SeatCounter {
   async committedSeats(workspaceId: string, now: Date): Promise<number> {
     const [active, pending] = await Promise.all([
       this.activeSeats(workspaceId),
-      this.prisma.invite.count({ where: { workspaceId, status: 'PENDING', role: { not: 'GUEST' }, expiresAt: { gt: now } } }),
+      this.prisma.invite.count({
+        where: { workspaceId, status: 'PENDING', role: { not: 'GUEST' }, expiresAt: { gt: now } },
+      }),
     ]);
     return active + pending;
   }

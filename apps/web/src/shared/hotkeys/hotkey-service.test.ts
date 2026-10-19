@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { HotkeyService, isTypingTarget, parseHotkey, SEQUENCE_TIMEOUT_MS } from './hotkey-service';
 
-const press = (svc: HotkeyService, key: string, init: Partial<KeyboardEventInit> = {}, target: EventTarget = document.body) => {
+const press = (
+  svc: HotkeyService,
+  key: string,
+  init: Partial<KeyboardEventInit> = {},
+  target: EventTarget = document.body,
+) => {
   const e = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
   Object.defineProperty(e, 'target', { value: target });
   svc.handle(e);

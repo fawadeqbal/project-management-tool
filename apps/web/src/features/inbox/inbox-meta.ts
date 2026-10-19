@@ -5,7 +5,12 @@ import { inboxTime } from '@hearth/domain';
 
 export const TAB_ORDER: InboxTabDto[] = ['all', 'mentions', 'assigned', 'approvals'];
 
-const TAB_LABEL: Record<InboxTabDto, string> = { all: 'All', mentions: 'Mentions', assigned: 'Assigned', approvals: 'Approvals' };
+const TAB_LABEL: Record<InboxTabDto, string> = {
+  all: 'All',
+  mentions: 'Mentions',
+  assigned: 'Assigned',
+  approvals: 'Approvals',
+};
 
 /** "Mentions 3" — counts are unread items; All has no count (as in the design). */
 export const tabLabel = (tab: InboxTabDto, counts: InboxCountsDto | undefined): string => {
@@ -29,4 +34,5 @@ export const EMPTY_COPY: Record<InboxTabDto, string> = {
 };
 
 export const isApproval = (item: InboxItemDto) => item.type === 'APPROVAL_REQUESTED' && !!item.approvalId;
-export const isConversation = (item: InboxItemDto) => (item.type === 'MENTION' || item.type === 'COMMENT_REPLY') && !!item.taskId;
+export const isConversation = (item: InboxItemDto) =>
+  (item.type === 'MENTION' || item.type === 'COMMENT_REPLY') && !!item.taskId;

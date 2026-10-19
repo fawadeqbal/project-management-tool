@@ -62,7 +62,13 @@ export function EditableTitle({ value, onSave, as: Heading = 'h2', disabled }: P
 
   return (
     <Heading className={styles.title}>
-      <button type="button" className={styles.titleButton} onClick={() => !disabled && setEditing(true)} disabled={disabled} aria-label={`${value}. Edit title`}>
+      <button
+        type="button"
+        className={styles.titleButton}
+        onClick={() => !disabled && setEditing(true)}
+        disabled={disabled}
+        aria-label={`${value}. Edit title`}
+      >
         {value}
       </button>
     </Heading>

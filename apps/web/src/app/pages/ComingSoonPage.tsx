@@ -3,7 +3,15 @@ import { Button, EmptyState, type IconName } from '@hearth/ui';
 import styles from './pages.module.css';
 
 /** Calm placeholder for areas that aren't built yet. */
-export function ComingSoonPage({ title, icon, description }: { title: string; icon: IconName; description: string }) {
+export function ComingSoonPage({
+  title,
+  icon,
+  description,
+}: {
+  title: string;
+  icon: IconName;
+  description: string;
+}) {
   const navigate = useNavigate();
   return (
     <div className={styles.page}>
@@ -23,9 +31,17 @@ export function ComingSoonPage({ title, icon, description }: { title: string; ic
 }
 
 export const GoalsPage = () => (
-  <ComingSoonPage title="Goals" icon="target" description="Soon you’ll connect projects to the outcomes they move. For now, track the work in projects and My tasks." />
+  <ComingSoonPage
+    title="Goals"
+    icon="target"
+    description="Soon you’ll connect projects to the outcomes they move. For now, track the work in projects and My tasks."
+  />
 );
 
 export const DocsPage = () => (
-  <ComingSoonPage title="Docs" icon="doc" description="Specs, briefs and meeting notes will live next to the work. Until then, keep details in task descriptions." />
+  <ComingSoonPage
+    title="Docs"
+    icon="doc"
+    description="Specs, briefs and meeting notes will live next to the work. Until then, keep details in task descriptions."
+  />
 );

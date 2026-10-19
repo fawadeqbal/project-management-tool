@@ -2,7 +2,17 @@ import { Button } from '@hearth/ui';
 import styles from '../inbox.module.css';
 
 /** Appears while items are selected with X. */
-export function BulkBar({ count, onArchive, onMarkRead, onClear }: { count: number; onArchive: () => void; onMarkRead: () => void; onClear: () => void }) {
+export function BulkBar({
+  count,
+  onArchive,
+  onMarkRead,
+  onClear,
+}: {
+  count: number;
+  onArchive: () => void;
+  onMarkRead: () => void;
+  onClear: () => void;
+}) {
   return (
     <div className={styles.bulkBar} role="toolbar" aria-label="Selected items">
       <span className={styles.bulkCount} aria-live="polite">

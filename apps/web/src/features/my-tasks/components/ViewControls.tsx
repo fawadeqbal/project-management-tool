@@ -3,7 +3,13 @@ import { GROUPINGS, SORTS, type MyTasksView } from '../view-state';
 import styles from '../my-tasks.module.css';
 
 /** "Group: Due date" and "Sort: Priority" menus. */
-export function ViewControls({ view, onChange }: { view: MyTasksView; onChange: (patch: Partial<MyTasksView>) => void }) {
+export function ViewControls({
+  view,
+  onChange,
+}: {
+  view: MyTasksView;
+  onChange: (patch: Partial<MyTasksView>) => void;
+}) {
   const groupLabel = GROUPINGS.find((g) => g.id === view.grouping)?.label ?? 'Due date';
   const sortLabel = SORTS.find((s) => s.id === view.sort)?.label ?? 'Priority';
   return (

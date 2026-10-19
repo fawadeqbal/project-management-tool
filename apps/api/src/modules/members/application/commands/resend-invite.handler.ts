@@ -20,11 +20,20 @@ export class ResendInviteHandler implements ICommandHandler<ResendInviteCommand,
 
   async execute({ actor, inviteId }: ResendInviteCommand): Promise<InviteDto> {
     const now = this.clock.now();
-    const invite = await this.prisma.invite.findFirst({ where: { id: inviteId, workspaceId: actor.workspaceId, status: 'PENDING' } });
+    const invite = await this.prisma.invite.findFirst({
+      where: { id: inviteId, workspaceId: actor.workspaceId, status: 'PENDING' },
+    });
     if (!invite) throw new NotFoundError('Invite', inviteId);
-    await this.prisma.invite.update({ where: { id: invite.id }, data: { resentAt: now, expiresAt: inviteExpiry(now) } });
+    await this.prisma.invite.update({
+      where: { id: invite.id },
+      data: { resentAt: now, expiresAt: inviteExpiry(now) },
+    });
     this.events.publish(
-      createEvent('member.invite_resent', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: invite.id, occurredAt: now }, { email: invite.email }),
+      createEvent(
+        'member.invite_resent',
+        { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: invite.id, occurredAt: now },
+        { email: invite.email },
+      ),
     );
     return (await this.read.invite(actor.workspaceId, invite.id))!;
   }

@@ -21,9 +21,17 @@ export class CreateTagHandler implements ICommandHandler<CreateTagCommand, TagDt
 
   async execute({ actor, input }: CreateTagCommand): Promise<TagDto> {
     this.access.assert(actor, 'tasks.edit');
-    const existing = await this.prisma.tag.findFirst({ where: { workspaceId: actor.workspaceId, name: { equals: input.name, mode: 'insensitive' } } });
-    if (existing) throw new ConflictError('tag.exists', `There’s already a “${existing.name}” tag — pick it from the list.`);
-    const tag = await this.prisma.tag.create({ data: { workspaceId: actor.workspaceId, name: input.name, color: input.color } });
+    const existing = await this.prisma.tag.findFirst({
+      where: { workspaceId: actor.workspaceId, name: { equals: input.name, mode: 'insensitive' } },
+    });
+    if (existing)
+      throw new ConflictError(
+        'tag.exists',
+        `There’s already a “${existing.name}” tag — pick it from the list.`,
+      );
+    const tag = await this.prisma.tag.create({
+      data: { workspaceId: actor.workspaceId, name: input.name, color: input.color },
+    });
     return { id: tag.id, name: tag.name, color: accent(tag.color) };
   }
 }

@@ -8,14 +8,37 @@ describe('AddCommentHandler / DeleteTaskHandler', () => {
 
   beforeEach(async () => {
     kit = createKit();
-    const t = Task.create({ id: 't-1', workspaceId: WS, keyPrefix: 'HRT', number: 188, creatorId: 'u-fawad', title: 'Pricing page', projectId: 'p-web' }, TODAY);
+    const t = Task.create(
+      {
+        id: 't-1',
+        workspaceId: WS,
+        keyPrefix: 'HRT',
+        number: 188,
+        creatorId: 'u-fawad',
+        title: 'Pricing page',
+        projectId: 'p-web',
+      },
+      TODAY,
+    );
     t.pullEvents();
     await kit.tasks.save(t);
   });
 
   it('publishes comment.created with resolved mentions and auto-follows the author', async () => {
-    const handler = new AddCommentHandler(kit.tasks, kit.directory, kit.relations, kit.clock, kit.access, kit.publisher.asPublisher(), kit.read);
-    await handler.execute(new AddCommentCommand(actorOf('ADMIN', 'u-sara'), 't-1', { body: '@Fawad and @mo — can you check the toggle? @nobody' }));
+    const handler = new AddCommentHandler(
+      kit.tasks,
+      kit.directory,
+      kit.relations,
+      kit.clock,
+      kit.access,
+      kit.publisher.asPublisher(),
+      kit.read,
+    );
+    await handler.execute(
+      new AddCommentCommand(actorOf('ADMIN', 'u-sara'), 't-1', {
+        body: '@Fawad and @mo — can you check the toggle? @nobody',
+      }),
+    );
     expect(kit.publisher.events).toHaveLength(1);
     const event = kit.publisher.events[0]!;
     expect(event).toMatchObject({ type: 'comment.created', aggregateId: 'c-1', actorId: 'u-sara' });
@@ -33,10 +56,26 @@ describe('AddCommentHandler / DeleteTaskHandler', () => {
   });
 
   it('lets viewers comment but not delete', async () => {
-    const comment = new AddCommentHandler(kit.tasks, kit.directory, kit.relations, kit.clock, kit.access, kit.publisher.asPublisher(), kit.read);
+    const comment = new AddCommentHandler(
+      kit.tasks,
+      kit.directory,
+      kit.relations,
+      kit.clock,
+      kit.access,
+      kit.publisher.asPublisher(),
+      kit.read,
+    );
     await comment.execute(new AddCommentCommand(actorOf('VIEWER', 'u-v'), 't-1', { body: 'Looks good' }));
-    const del = new DeleteTaskHandler(kit.tasks, kit.relations, kit.clock, kit.access, kit.publisher.asPublisher());
-    await expect(del.execute(new DeleteTaskCommand(actorOf('VIEWER', 'u-v'), 't-1'))).rejects.toBeInstanceOf(ForbiddenError);
+    const del = new DeleteTaskHandler(
+      kit.tasks,
+      kit.relations,
+      kit.clock,
+      kit.access,
+      kit.publisher.asPublisher(),
+    );
+    await expect(del.execute(new DeleteTaskCommand(actorOf('VIEWER', 'u-v'), 't-1'))).rejects.toBeInstanceOf(
+      ForbiddenError,
+    );
     await del.execute(new DeleteTaskCommand(actorOf(), 't-1'));
     expect(kit.tasks.all()).toHaveLength(0);
     expect(kit.publisher.types()).toEqual(['comment.created', 'task.deleted']);

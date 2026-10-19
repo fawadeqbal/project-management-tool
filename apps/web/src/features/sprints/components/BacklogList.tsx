@@ -1,6 +1,19 @@
 import { useRef } from 'react';
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button, Icon, PriorityIcon, Tag, toUiPriority, type AccentColor } from '@hearth/ui';
 import type { RankBacklogInput, SprintTaskDto } from '@hearth/contracts';
@@ -11,7 +24,8 @@ import styles from '../sprints.module.css';
 
 const EPIC_COLORS: AccentColor[] = ['sky', 'violet', 'amber', 'green', 'rose', 'blue'];
 /** Stable color per epic name. */
-export const epicColor = (epic: string): AccentColor => EPIC_COLORS[[...epic].reduce((a, c) => a + c.charCodeAt(0), 0) % EPIC_COLORS.length]!;
+export const epicColor = (epic: string): AccentColor =>
+  EPIC_COLORS[[...epic].reduce((a, c) => a + c.charCodeAt(0), 0) % EPIC_COLORS.length]!;
 
 interface Props {
   tasks: SprintTaskDto[];
@@ -27,7 +41,10 @@ interface Props {
  * Alt+↑ / Alt+↓. Shift+S adds the focused row to the sprint. Estimates always visible.
  */
 export function BacklogList({ tasks, targetName, onRank, onAddToSprint, onFocusTask }: Props) {
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   const listRef = useRef<HTMLDivElement>(null);
 
   const moveTo = (from: number, to: number) => {
@@ -44,7 +61,9 @@ export function BacklogList({ tasks, targetName, onRank, onAddToSprint, onFocusT
   };
 
   const focusRow = (index: number) => {
-    requestAnimationFrame(() => listRef.current?.querySelectorAll<HTMLElement>('[data-backlog-row]')[index]?.focus());
+    requestAnimationFrame(() =>
+      listRef.current?.querySelectorAll<HTMLElement>('[data-backlog-row]')[index]?.focus(),
+    );
   };
 
   return (
@@ -53,7 +72,11 @@ export function BacklogList({ tasks, targetName, onRank, onAddToSprint, onFocusT
         <strong className={styles.panelTitle}>Backlog</strong>
         <span className={styles.panelSub}>Ranked · drag into the sprint or press Shift+S</span>
       </div>
-      {tasks.length === 0 ? <p className={styles.empty}>The backlog is empty. New ideas land here, ranked by what matters most.</p> : null}
+      {tasks.length === 0 ? (
+        <p className={styles.empty}>
+          The backlog is empty. New ideas land here, ranked by what matters most.
+        </p>
+      ) : null}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           <div ref={listRef} role="list" aria-describedby="backlog-help">
@@ -95,7 +118,8 @@ interface RowProps {
 }
 
 function BacklogRow({ task, rank, targetName, onAdd, onMove, onStep, onFocus, onBlur }: RowProps) {
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id: task.id });
   const panel = useTaskPanel();
   return (
     <div
@@ -110,7 +134,13 @@ function BacklogRow({ task, rank, targetName, onAdd, onMove, onStep, onFocus, on
       onBlur={(e) => {
         // Keep the selection when focus leaves the page (⌘K palette, a toast); clear it when it moves elsewhere on the page.
         const next = e.relatedTarget as HTMLElement | null;
-        if (e.target === e.currentTarget && next && e.currentTarget.closest('main')?.contains(next) && !next.closest('[data-backlog-row]')) onBlur();
+        if (
+          e.target === e.currentTarget &&
+          next &&
+          e.currentTarget.closest('main')?.contains(next) &&
+          !next.closest('[data-backlog-row]')
+        )
+          onBlur();
       }}
       onKeyDown={(e) => {
         if (e.target !== e.currentTarget) return;
@@ -129,7 +159,15 @@ function BacklogRow({ task, rank, targetName, onAdd, onMove, onStep, onFocus, on
         }
       }}
     >
-      <button type="button" ref={setActivatorNodeRef} className={styles.grip} aria-label={`Drag to rank ${task.key}`} {...attributes} {...listeners} tabIndex={-1}>
+      <button
+        type="button"
+        ref={setActivatorNodeRef}
+        className={styles.grip}
+        aria-label={`Drag to rank ${task.key}`}
+        {...attributes}
+        {...listeners}
+        tabIndex={-1}
+      >
         <Icon name="grip" size={14} />
       </button>
       <span className={styles.rank}>{rank}</span>
@@ -141,7 +179,16 @@ function BacklogRow({ task, rank, targetName, onAdd, onMove, onStep, onFocus, on
       {task.epic ? <Tag color={epicColor(task.epic)}>{task.epic}</Tag> : null}
       <PointsChip points={task.points} />
       {targetName ? (
-        <Button variant="ghost" size="sm" icon="plus" tabIndex={-1} className={styles.rowAction} aria-label={`Add ${task.key} to ${targetName}`} onClick={onAdd} title="Add to sprint (Shift+S)">
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="plus"
+          tabIndex={-1}
+          className={styles.rowAction}
+          aria-label={`Add ${task.key} to ${targetName}`}
+          onClick={onAdd}
+          title="Add to sprint (Shift+S)"
+        >
           <span className={styles.rowActionText}>Add to sprint</span>
         </Button>
       ) : null}

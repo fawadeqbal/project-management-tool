@@ -13,7 +13,13 @@ const mentionAt = (text: string, caret: number): { start: number; query: string 
 };
 
 /** Comment box pinned to the bottom: @ autocomplete from members, ⌘↵ / Ctrl+Enter to send. */
-export function CommentComposer({ onSend, disabled }: { onSend: (body: string) => Promise<boolean>; disabled?: boolean }) {
+export function CommentComposer({
+  onSend,
+  disabled,
+}: {
+  onSend: (body: string) => Promise<boolean>;
+  disabled?: boolean;
+}) {
   const [text, setText] = useState('');
   const [caret, setCaret] = useState(0);
   const [active, setActive] = useState(0);
@@ -25,7 +31,11 @@ export function CommentComposer({ onSend, disabled }: { onSend: (body: string) =
   const suggestions = useMemo<MemberDto[]>(() => {
     if (!mention) return [];
     return members
-      .filter((m) => m.status === 'ACTIVE' && (m.name.toLowerCase().includes(mention.query) || m.email.toLowerCase().startsWith(mention.query)))
+      .filter(
+        (m) =>
+          m.status === 'ACTIVE' &&
+          (m.name.toLowerCase().includes(mention.query) || m.email.toLowerCase().startsWith(mention.query)),
+      )
       .slice(0, 6);
   }, [mention, members]);
   const showSuggestions = suggestions.length > 0;
@@ -132,7 +142,14 @@ export function CommentComposer({ onSend, disabled }: { onSend: (body: string) =
           onKeyDown={onKeyDown}
         />
         <Kbd keys={isMac() ? ['⌘', '↵'] : ['Ctrl', '↵']} aria-hidden="true" />
-        <Button size="sm" icon="send" aria-label="Send comment" onClick={() => void send()} disabled={!text.trim() || disabled} loading={sending} />
+        <Button
+          size="sm"
+          icon="send"
+          aria-label="Send comment"
+          onClick={() => void send()}
+          disabled={!text.trim() || disabled}
+          loading={sending}
+        />
       </div>
     </div>
   );

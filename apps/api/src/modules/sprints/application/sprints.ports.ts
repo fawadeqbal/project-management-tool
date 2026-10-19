@@ -38,7 +38,11 @@ export interface SprintSnapshotStore {
 export const SPRINT_SNAPSHOT_STORE = Symbol('SprintSnapshotStore');
 
 /** Maps the aggregate + its tasks to the summary DTO used across sprint screens. */
-export const toSprintSummary = (sprint: Sprint, items: readonly Pick<SprintTaskDto, 'status' | 'points'>[], completedPoints?: number): SprintSummaryDto => {
+export const toSprintSummary = (
+  sprint: Sprint,
+  items: readonly Pick<SprintTaskDto, 'status' | 'points'>[],
+  completedPoints?: number,
+): SprintSummaryDto => {
   const s = sprint.toSnapshot();
   const { remainingPoints, scopePoints } = sprintSnapshotOf(items);
   return {

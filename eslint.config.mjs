@@ -12,7 +12,10 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
+      ],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
@@ -22,7 +25,17 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: ['@nestjs/*', '@prisma/*', 'react', 'react-dom', '@hearth/ui', '@hearth/contracts', 'zod'] },
+        {
+          patterns: [
+            '@nestjs/*',
+            '@prisma/*',
+            'react',
+            'react-dom',
+            '@hearth/ui',
+            '@hearth/contracts',
+            'zod',
+          ],
+        },
       ],
     },
   },

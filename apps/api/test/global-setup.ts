@@ -2,7 +2,9 @@ import { execSync } from 'node:child_process';
 import path from 'node:path';
 
 export const TEST_DATABASE_URL =
-  process.env.E2E_DATABASE_URL ?? process.env.DATABASE_URL_TEST ?? 'postgresql://hearth:hearth@localhost:5432/hearth_test';
+  process.env.E2E_DATABASE_URL ??
+  process.env.DATABASE_URL_TEST ??
+  'postgresql://hearth:hearth@localhost:5432/hearth_test';
 
 /**
  * Runs once before the e2e suite: applies pending migrations to the test database and loads the

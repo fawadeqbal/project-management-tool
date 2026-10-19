@@ -371,7 +371,9 @@
     width: 256px;
     transform: translateX(-100%);
     visibility: hidden;
-    transition: transform 180ms ease, visibility 0s linear 180ms;
+    transition:
+      transform 180ms ease,
+      visibility 0s linear 180ms;
     box-shadow: var(--shadow-4);
   }
 

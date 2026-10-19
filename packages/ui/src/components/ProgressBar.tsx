@@ -11,7 +11,15 @@ export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   height?: number;
 }
 
-export function ProgressBar({ value, label, tone = 'brand', height, className, style, ...rest }: ProgressBarProps) {
+export function ProgressBar({
+  value,
+  label,
+  tone = 'brand',
+  height,
+  className,
+  style,
+  ...rest
+}: ProgressBarProps) {
   const v = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
   return (
     <div

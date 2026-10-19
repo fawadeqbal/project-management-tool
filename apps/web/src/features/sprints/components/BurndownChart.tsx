@@ -15,7 +15,13 @@ export function BurndownChart({ burndown }: { burndown: BurndownDto }) {
         <strong className={styles.cardTitle}>Are we on pace?</strong>
         <span className={styles[`pace_${pace.tone}`]}>{pace.text}</span>
       </div>
-      <svg role="img" aria-labelledby={`${titleId} ${descId}`} width="100%" viewBox={`0 0 ${FRAME.width} ${FRAME.height}`} className={styles.chart}>
+      <svg
+        role="img"
+        aria-labelledby={`${titleId} ${descId}`}
+        width="100%"
+        viewBox={`0 0 ${FRAME.width} ${FRAME.height}`}
+        className={styles.chart}
+      >
         <title id={titleId}>Sprint burndown</title>
         <desc id={descId}>{g.description}</desc>
         {g.grid.map((line) => (
@@ -26,9 +32,20 @@ export function BurndownChart({ burndown }: { burndown: BurndownDto }) {
             </text>
           </g>
         ))}
-        {g.todayX !== null ? <line data-testid="burndown-today" x1={g.todayX} x2={g.todayX} y1={FRAME.y1} y2={FRAME.y0} className={styles.todayLine} /> : null}
+        {g.todayX !== null ? (
+          <line
+            data-testid="burndown-today"
+            x1={g.todayX}
+            x2={g.todayX}
+            y1={FRAME.y1}
+            y2={FRAME.y0}
+            className={styles.todayLine}
+          />
+        ) : null}
         <polyline data-testid="burndown-ideal" points={g.idealPath} className={styles.idealLine} />
-        {g.actualPath ? <polyline data-testid="burndown-actual" points={g.actualPath} className={styles.actualLine} /> : null}
+        {g.actualPath ? (
+          <polyline data-testid="burndown-actual" points={g.actualPath} className={styles.actualLine} />
+        ) : null}
         {g.scope.map((s) => (
           <g key={`${s.x}-${s.y}`} data-testid="burndown-scope">
             <circle cx={s.x} cy={s.y} r={4} className={styles.scopeDot} />

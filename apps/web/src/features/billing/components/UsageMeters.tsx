@@ -24,7 +24,10 @@ export function UsageMeters({ usage }: { usage: UsageMeterDto[] }) {
             aria-valuenow={u.pct}
             aria-valuetext={`${u.usedLabel} of ${u.limitLabel}`}
           >
-            <div className={`${styles.meterFill} ${u.warning ? styles.meterFillWarning : ''}`} style={{ width: `${u.pct}%` }} />
+            <div
+              className={`${styles.meterFill} ${u.warning ? styles.meterFillWarning : ''}`}
+              style={{ width: `${u.pct}%` }}
+            />
           </div>
           <span className={`${styles.meterNote} ${u.warning ? styles.meterNoteWarning : ''}`}>
             {u.warning ? <Icon name="alert" size={12} label="Warning" /> : null}

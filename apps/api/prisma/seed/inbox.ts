@@ -22,15 +22,35 @@ export async function seedInbox(prisma: PrismaClient, ctx: SeedContext): Promise
   const NB = must(users, 'NB');
   const now = new Date();
   const todayAt = (h: number, m: number) => {
-    const d = new Date(Date.UTC(ctx.today.getUTCFullYear(), ctx.today.getUTCMonth(), ctx.today.getUTCDate(), h, m));
+    const d = new Date(
+      Date.UTC(ctx.today.getUTCFullYear(), ctx.today.getUTCMonth(), ctx.today.getUTCDate(), h, m),
+    );
     // Early in the (UTC) morning the design's times would be in the future — keep them in the past.
     return d.getTime() > now.getTime() ? new Date(now.getTime() - (9 * 60 + 60 - (h * 60 + m)) * 60_000) : d;
   };
-  const dayAt = (offset: number, h: number, m = 0) => new Date(day(ctx, offset).getTime() + (h * 60 + m) * 60_000);
+  const dayAt = (offset: number, h: number, m = 0) =>
+    new Date(day(ctx, offset).getTime() + (h * 60 + m) * 60_000);
 
   // ── New tasks with the next numbers ──
-  const nextNumber = async () => (await prisma.workspace.update({ where: { id: workspaceId }, data: { taskSeq: { increment: 1 } }, select: { taskSeq: true } })).taskSeq;
-  const createTask = async (data: { title: string; project: string; assignee: string; creator: string; status: 'TODO' | 'IN_REVIEW'; priority: 'HIGH' | 'MEDIUM'; due: number; description?: string; createdAt: Date }) => {
+  const nextNumber = async () =>
+    (
+      await prisma.workspace.update({
+        where: { id: workspaceId },
+        data: { taskSeq: { increment: 1 } },
+        select: { taskSeq: true },
+      })
+    ).taskSeq;
+  const createTask = async (data: {
+    title: string;
+    project: string;
+    assignee: string;
+    creator: string;
+    status: 'TODO' | 'IN_REVIEW';
+    priority: 'HIGH' | 'MEDIUM';
+    due: number;
+    description?: string;
+    createdAt: Date;
+  }) => {
     const number = await nextNumber();
     const task = await prisma.task.create({
       data: {
@@ -64,10 +84,17 @@ export async function seedInbox(prisma: PrismaClient, ctx: SeedContext): Promise
     status: 'IN_REVIEW',
     priority: 'HIGH',
     due: 1,
-    description: 'Third pass on the homepage copy for the relaunch: one-sentence hero, three outcomes instead of a feature list, pricing in its own section.',
+    description:
+      'Third pass on the homepage copy for the relaunch: one-sentence hero, three outcomes instead of a feature list, pricing in its own section.',
     createdAt: dayAt(-3, 10),
   });
-  await prisma.taskFollower.createMany({ data: [{ taskId: homepage.id, userId: FI }, { taskId: homepage.id, userId: SA }], skipDuplicates: true });
+  await prisma.taskFollower.createMany({
+    data: [
+      { taskId: homepage.id, userId: FI },
+      { taskId: homepage.id, userId: SA },
+    ],
+    skipDuplicates: true,
+  });
 
   const offline = await createTask({
     title: 'Review offline sync copy before beta',
@@ -99,8 +126,20 @@ export async function seedInbox(prisma: PrismaClient, ctx: SeedContext): Promise
       },
       attachments: {
         create: [
-          { name: 'Homepage copy v3', kind: 'doc', url: 'https://docs.acme.com/homepage-copy-v3', sizeBytes: 0, taskId: homepage.id },
-          { name: 'hero-v3.png', kind: 'file', url: 'https://files.acme.com/hero-v3.png', sizeBytes: Math.round(1.2 * 1024 * 1024), taskId: homepage.id },
+          {
+            name: 'Homepage copy v3',
+            kind: 'doc',
+            url: 'https://docs.acme.com/homepage-copy-v3',
+            sizeBytes: 0,
+            taskId: homepage.id,
+          },
+          {
+            name: 'hero-v3.png',
+            kind: 'file',
+            url: 'https://files.acme.com/hero-v3.png',
+            sizeBytes: Math.round(1.2 * 1024 * 1024),
+            taskId: homepage.id,
+          },
         ],
       },
     },
@@ -136,7 +175,8 @@ export async function seedInbox(prisma: PrismaClient, ctx: SeedContext): Promise
       type: 'MENTION',
       title: 'Sara Ahmed mentioned you',
       context: ctxLine('Website relaunch', 'HRT-188'),
-      excerpt: '@Fawad the annual toggle label is 3.9:1 in dark mode — can we move it to the secondary text token?',
+      excerpt:
+        '@Fawad the annual toggle label is 3.9:1 in dark mode — can we move it to the secondary text token?',
       taskId: task('HRT-188'),
       at: todayAt(9, 10),
       unread: true,
@@ -212,10 +252,21 @@ export async function seedInbox(prisma: PrismaClient, ctx: SeedContext): Promise
   const t195 = task('HRT-195');
   if (t195) {
     const parent = await prisma.comment.create({
-      data: { taskId: t195, authorId: FI, body: 'Are the funnel events final? The dashboard needs stable names.', createdAt: dayAt(-1, 10, 30) },
+      data: {
+        taskId: t195,
+        authorId: FI,
+        body: 'Are the funnel events final? The dashboard needs stable names.',
+        createdAt: dayAt(-1, 10, 30),
+      },
     });
     await prisma.comment.create({
-      data: { taskId: t195, authorId: RT, parentId: parent.id, body: 'Events are named in snake_case now; dashboard picks them up tomorrow.', createdAt: dayAt(-1, 11, 5) },
+      data: {
+        taskId: t195,
+        authorId: RT,
+        parentId: parent.id,
+        body: 'Events are named in snake_case now; dashboard picks them up tomorrow.',
+        createdAt: dayAt(-1, 11, 5),
+      },
     });
   }
 

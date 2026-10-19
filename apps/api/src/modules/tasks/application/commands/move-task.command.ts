@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { MoveTaskInput, TaskDto } from '@hearth/contracts';
-import { NotFoundError, positionBetween, TASK_REPOSITORY, type Actor, type Clock, type TaskRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  positionBetween,
+  TASK_REPOSITORY,
+  type Actor,
+  type Clock,
+  type TaskRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -54,18 +61,29 @@ export class MoveTaskHandler implements ICommandHandler<MoveTaskCommand, TaskDto
     if (reordered) position = positionBetween(above ?? null, below ?? null);
     else if (input.status && input.status !== before.status && field === 'boardPosition') {
       // Dropped into a column without neighbours: append at the end of that column.
-      const last = await this.relations.lastPositions(actor.workspaceId, { projectId: before.projectId, status: input.status, parentId: before.parentId });
+      const last = await this.relations.lastPositions(actor.workspaceId, {
+        projectId: before.projectId,
+        status: input.status,
+        parentId: before.parentId,
+      });
       position = positionBetween(last.board, null);
     }
 
     await this.tasks.save(task);
     if (position !== undefined) await this.relations.setOrdering(task.id, { [field]: position });
 
-    const parent = task.toSnapshot().status !== before.status
-      ? await updateParentProgress({ tasks: this.tasks, relations: this.relations }, actor, before.parentId, now)
-      : null;
+    const parent =
+      task.toSnapshot().status !== before.status
+        ? await updateParentProgress(
+            { tasks: this.tasks, relations: this.relations },
+            actor,
+            before.parentId,
+            now,
+          )
+        : null;
     this.publisher.publishFrom(task);
-    if (position !== undefined) this.publisher.publish(taskUpdatedEvent(task, ['position'], actor.userId, now));
+    if (position !== undefined)
+      this.publisher.publish(taskUpdatedEvent(task, ['position'], actor.userId, now));
     if (parent) this.publisher.publishFrom(parent);
     return this.read.get(actor.workspaceId, task.id);
   }

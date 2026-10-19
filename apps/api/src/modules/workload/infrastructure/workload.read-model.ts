@@ -1,6 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { WORKLOAD_SOURCE, type TimeOffDto, type TimeOffQuery, type UserRefDto, type WorkloadDto, type WorkloadQuery, type WorkloadTaskDto } from '@hearth/contracts';
+import {
+  WORKLOAD_SOURCE,
+  type TimeOffDto,
+  type TimeOffQuery,
+  type UserRefDto,
+  type WorkloadDto,
+  type WorkloadQuery,
+  type WorkloadTaskDto,
+} from '@hearth/contracts';
 import {
   addDays,
   computeWorkload,
@@ -38,7 +46,10 @@ export class WorkloadReadModel {
     const weekEnd = addDays(mondayOf(from), 4);
 
     const [workspace, members] = await Promise.all([
-      this.prisma.workspace.findUniqueOrThrow({ where: { id: actor.workspaceId }, select: { keyPrefix: true } }),
+      this.prisma.workspace.findUniqueOrThrow({
+        where: { id: actor.workspaceId },
+        select: { keyPrefix: true },
+      }),
       this.prisma.membership.findMany({
         where: {
           workspaceId: actor.workspaceId,
@@ -63,11 +74,16 @@ export class WorkloadReadModel {
         select: { assigneeId: true },
         distinct: ['assigneeId'],
       });
-      const ids = new Set([...(project.team?.members.map((m) => m.userId) ?? []), ...assignees.map((a) => a.assigneeId!)]);
+      const ids = new Set([
+        ...(project.team?.members.map((m) => m.userId) ?? []),
+        ...assignees.map((a) => a.assigneeId!),
+      ]);
       people = members.filter((m) => ids.has(m.userId));
     }
     // Seniority order from the design: by join date, then name.
-    people.sort((a, b) => a.joinedAt.getTime() - b.joinedAt.getTime() || a.user.name.localeCompare(b.user.name));
+    people.sort(
+      (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime() || a.user.name.localeCompare(b.user.name),
+    );
     const userIds = people.map((p) => p.userId);
 
     const [taskRows, timeOffRows] = await Promise.all([
@@ -97,7 +113,14 @@ export class WorkloadReadModel {
           dueDate: true,
         },
       }),
-      this.prisma.timeOff.findMany({ where: { workspaceId: actor.workspaceId, userId: { in: userIds }, startDate: { lte: to }, endDate: { gte: from } } }),
+      this.prisma.timeOff.findMany({
+        where: {
+          workspaceId: actor.workspaceId,
+          userId: { in: userIds },
+          startDate: { lte: to },
+          endDate: { gte: from },
+        },
+      }),
     ]);
 
     const key = (n: number) => `${workspace.keyPrefix}-${n}`;
@@ -111,15 +134,28 @@ export class WorkloadReadModel {
       estimateHours: t.estimateHours,
       estimatePoints: t.estimatePoints,
     }));
-    const personInputs = people.map((p) => ({ userId: p.userId, capacityHoursPerDay: p.capacityHoursPerDay }));
-    const timeOff = timeOffRows.map((t) => ({ userId: t.userId, startDate: t.startDate, endDate: t.endDate }));
+    const personInputs = people.map((p) => ({
+      userId: p.userId,
+      capacityHoursPerDay: p.capacityHoursPerDay,
+    }));
+    const timeOff = timeOffRows.map((t) => ({
+      userId: t.userId,
+      startDate: t.startDate,
+      endDate: t.endDate,
+    }));
     const rows = computeWorkload(personInputs, domainTasks, timeOff, { from, to }, query.unit);
     const summary = summarizeWorkload(rows);
 
     const refs = new Map<string, UserRefDto>(people.map((p) => [p.userId, toUserRef(p.user)]));
     const firstNames = Object.fromEntries(people.map((p) => [p.userId, p.user.name.split(' ')[0]!]));
     // Suggestions always reason in hours over this week — "based on this week's estimates".
-    const weekRows = computeWorkload(personInputs, domainTasks, timeOff, { from, to: weekEnd < to ? weekEnd : to }, 'hours');
+    const weekRows = computeWorkload(
+      personInputs,
+      domainTasks,
+      timeOff,
+      { from, to: weekEnd < to ? weekEnd : to },
+      'hours',
+    );
     const taskById = new Map(taskRows.map((t) => [t.id, t]));
     const suggestions = suggestRebalance(weekRows, domainTasks, firstNames).flatMap((s) => {
       const task = taskById.get(s.taskId);
@@ -162,9 +198,18 @@ export class WorkloadReadModel {
       };
 
     return {
-      range: { from: dateOnly(from)!, to: dateOnly(to)!, label: `${formatShortDate(from)} – ${formatShortDate(to)}` },
+      range: {
+        from: dateOnly(from)!,
+        to: dateOnly(to)!,
+        label: `${formatShortDate(from)} – ${formatShortDate(to)}`,
+      },
       unit: query.unit,
-      days: days.map((date, i) => ({ date, label: dayLabel(date), isToday: isToday(date, today), weekStart: i > 0 && parseDateOnly(date).getUTCDay() === 1 })),
+      days: days.map((date, i) => ({
+        date,
+        label: dayLabel(date),
+        isToday: isToday(date, today),
+        weekStart: i > 0 && parseDateOnly(date).getUTCDay() === 1,
+      })),
       people: rows.map((r, i) => ({
         user: refs.get(r.userId)!,
         jobTitle: people[i]!.user.jobTitle,
@@ -180,10 +225,18 @@ export class WorkloadReadModel {
         capacityUsedPct: summary.capacityUsedPct,
         planned: summary.planned,
         capacity: summary.capacity,
-        overCapacity: summary.overCapacity.map((o) => ({ user: refs.get(o.userId)!, days: o.days, label: dayRangeLabel(o.days) })),
+        overCapacity: summary.overCapacity.map((o) => ({
+          user: refs.get(o.userId)!,
+          days: o.days,
+          label: dayRangeLabel(o.days),
+        })),
         freeCapacity: summary.freeCapacity,
         freeBy: summary.freeBy.map((f) => ({ user: refs.get(f.userId)!, free: f.free })),
-        timeOff: summary.timeOff.map((o) => ({ user: refs.get(o.userId)!, days: o.days, label: dayRangeLabel(o.days, true) })),
+        timeOff: summary.timeOff.map((o) => ({
+          user: refs.get(o.userId)!,
+          days: o.days,
+          label: dayRangeLabel(o.days, true),
+        })),
       },
       suggestions,
     };
@@ -194,12 +247,22 @@ export class WorkloadReadModel {
     if (query.userId) where.userId = query.userId;
     if (query.to) where.startDate = { lte: parseDateOnly(query.to) };
     if (query.from) where.endDate = { gte: parseDateOnly(query.from) };
-    const rows = await this.prisma.timeOff.findMany({ where, include: { user: { select: USER_REF_SELECT } }, orderBy: [{ startDate: 'asc' }] });
+    const rows = await this.prisma.timeOff.findMany({
+      where,
+      include: { user: { select: USER_REF_SELECT } },
+      orderBy: [{ startDate: 'asc' }],
+    });
     return rows.map(toTimeOffDto);
   }
 }
 
-export const toTimeOffDto = (t: { id: string; startDate: Date; endDate: Date; reason: string | null; user: { id: string; name: string; initials: string; avatarColor: string } }): TimeOffDto => ({
+export const toTimeOffDto = (t: {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  reason: string | null;
+  user: { id: string; name: string; initials: string; avatarColor: string };
+}): TimeOffDto => ({
   id: t.id,
   user: toUserRef(t.user),
   startDate: dateOnly(t.startDate)!,

@@ -23,7 +23,16 @@ export class FirstTaskCreatedHandler extends DomainEventSubscriber {
   protected async on(event: DomainEvent): Promise<void> {
     if (await this.store.complete(event.workspaceId, event.actorId, 'create-first-task'))
       this.events.publish(
-        createEvent('onboarding.step_completed', { workspaceId: event.workspaceId, actorId: event.actorId, aggregateId: event.actorId, occurredAt: this.clock.now() }, { step: 'create-first-task' }),
+        createEvent(
+          'onboarding.step_completed',
+          {
+            workspaceId: event.workspaceId,
+            actorId: event.actorId,
+            aggregateId: event.actorId,
+            occurredAt: this.clock.now(),
+          },
+          { step: 'create-first-task' },
+        ),
       );
   }
 }

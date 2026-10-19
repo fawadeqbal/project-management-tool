@@ -30,7 +30,11 @@ export function ProjectBoardPage() {
       {isLoading ? (
         <BoardSkeleton />
       ) : isError ? (
-        <EmptyState icon="alert" title="We couldn’t load the board" description="Check your connection and try again." />
+        <EmptyState
+          icon="alert"
+          title="We couldn’t load the board"
+          description="Check your connection and try again."
+        />
       ) : (
         <TaskBoard
           tasks={visible}

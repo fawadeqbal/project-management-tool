@@ -67,7 +67,9 @@ function isSectionList(entries: DropdownMenuEntries): entries is readonly Dropdo
 
 function toSections(entries: DropdownMenuEntries): readonly DropdownMenuSection[] {
   if (entries.length === 0) return [];
-  return isSectionList(entries) ? entries : [{ id: 'default', items: entries as readonly DropdownMenuItem[] }];
+  return isSectionList(entries)
+    ? entries
+    : [{ id: 'default', items: entries as readonly DropdownMenuItem[] }];
 }
 
 const TYPEAHEAD_RESET_MS = 500;
@@ -100,14 +102,17 @@ export function DropdownMenu({
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
   const optionId = (index: number) => `${listId}-opt-${index}`;
 
-  const firstEnabled = useCallback((from: number, step: 1 | -1): number => {
-    const n = flat.length;
-    for (let k = 0; k < n; k += 1) {
-      const i = (((from + step * k) % n) + n) % n;
-      if (!flat[i]?.disabled) return i;
-    }
-    return -1;
-  }, [flat]);
+  const firstEnabled = useCallback(
+    (from: number, step: 1 | -1): number => {
+      const n = flat.length;
+      for (let k = 0; k < n; k += 1) {
+        const i = (((from + step * k) % n) + n) % n;
+        if (!flat[i]?.disabled) return i;
+      }
+      return -1;
+    },
+    [flat],
+  );
 
   const setOpen = useCallback(
     (next: boolean, initial: 'first' | 'last' = 'first') => {
@@ -165,7 +170,8 @@ export function DropdownMenu({
     if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
       const now = Date.now();
       const state = typeahead.current;
-      state.text = now - state.at > TYPEAHEAD_RESET_MS ? event.key.toLowerCase() : state.text + event.key.toLowerCase();
+      state.text =
+        now - state.at > TYPEAHEAD_RESET_MS ? event.key.toLowerCase() : state.text + event.key.toLowerCase();
       state.at = now;
       const start = state.text.length === 1 ? highlight + 1 : Math.max(highlight, 0);
       for (let k = 0; k < flat.length; k += 1) {

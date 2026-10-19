@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react';
 import { Textarea } from '@hearth/ui';
 
 /** Description with autosave on blur. */
-export function DescriptionEditor({ value, onSave, disabled }: { value: string | null; onSave: (v: string | null) => void; disabled?: boolean }) {
+export function DescriptionEditor({
+  value,
+  onSave,
+  disabled,
+}: {
+  value: string | null;
+  onSave: (v: string | null) => void;
+  disabled?: boolean;
+}) {
   const [draft, setDraft] = useState(value ?? '');
   const [focused, setFocused] = useState(false);
   useEffect(() => {

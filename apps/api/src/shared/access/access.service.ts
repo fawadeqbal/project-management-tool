@@ -9,11 +9,19 @@ import { AccessPolicy, type Actor, type Permission } from '@hearth/domain';
 export class AccessService {
   private readonly policy = new AccessPolicy();
 
-  allows(actor: Actor, permission: Permission, resource?: { projectId?: string | null; ownerId?: string }): boolean {
+  allows(
+    actor: Actor,
+    permission: Permission,
+    resource?: { projectId?: string | null; ownerId?: string },
+  ): boolean {
     return this.policy.allows(actor, permission, resource);
   }
 
-  assert(actor: Actor, permission: Permission, resource?: { projectId?: string | null; ownerId?: string }): void {
+  assert(
+    actor: Actor,
+    permission: Permission,
+    resource?: { projectId?: string | null; ownerId?: string },
+  ): void {
     this.policy.assert(actor, permission, resource);
   }
 }

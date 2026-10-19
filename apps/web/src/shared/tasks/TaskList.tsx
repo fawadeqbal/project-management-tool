@@ -40,7 +40,11 @@ export interface TaskListProps {
 }
 
 type PickerKind = 'status' | 'assignee' | 'priority';
-const TONE_COLOR = { danger: 'var(--danger-icon)', brand: 'var(--brand-primary)', neutral: 'var(--text-secondary)' } as const;
+const TONE_COLOR = {
+  danger: 'var(--danger-icon)',
+  brand: 'var(--brand-primary)',
+  neutral: 'var(--text-secondary)',
+} as const;
 
 /**
  * Grouped task list (Strategy-based grouping and sorting from the domain). Keyboard:
@@ -75,7 +79,10 @@ export function TaskList({
   useEffect(() => setCollapsed({}), [grouping]);
   const isCollapsed = (g: TaskGroup<TaskDto>) => collapsed[g.id] ?? g.collapsedByDefault;
 
-  const visible = useMemo(() => groups.flatMap((g) => (collapsed[g.id] ?? g.collapsedByDefault ? [] : g.items)), [groups, collapsed]);
+  const visible = useMemo(
+    () => groups.flatMap((g) => ((collapsed[g.id] ?? g.collapsedByDefault) ? [] : g.items)),
+    [groups, collapsed],
+  );
   const byId = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
 
   const [focusedId, setFocusedId] = useState<string | null>(null);
@@ -84,7 +91,8 @@ export function TaskList({
   const containerRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
 
-  const rowEl = (id: string) => containerRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`) ?? null;
+  const rowEl = (id: string) =>
+    containerRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`) ?? null;
   const focusRow = useCallback((id: string) => {
     const el = containerRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`);
     el?.focus();
@@ -107,7 +115,8 @@ export function TaskList({
     if (!visible.length) return;
     const id = currentId();
     const idx = id ? visible.findIndex((t) => t.id === id) : -1;
-    const next = idx < 0 ? (delta > 0 ? 0 : visible.length - 1) : Math.min(visible.length - 1, Math.max(0, idx + delta));
+    const next =
+      idx < 0 ? (delta > 0 ? 0 : visible.length - 1) : Math.min(visible.length - 1, Math.max(0, idx + delta));
     focusRow(visible[next]!.id);
   };
 
@@ -188,7 +197,13 @@ export function TaskList({
   }
 
   return (
-    <div ref={containerRef} className={styles.list} role="table" aria-label={label} aria-rowcount={tasks.length}>
+    <div
+      ref={containerRef}
+      className={styles.list}
+      role="table"
+      aria-label={label}
+      aria-rowcount={tasks.length}
+    >
       {groups.map((g) => {
         const isOpen = !isCollapsed(g);
         const regionId = `${listId}-${g.id}`;
@@ -243,7 +258,13 @@ export function TaskList({
           onOpenChange={closePicker}
           anchorRef={anchorRef}
           value={pickerTask.priority}
-          onChange={(priority) => void mutations.update(pickerTask, { priority }, { undoMessage: `${pickerTask.key} priority changed` })}
+          onChange={(priority) =>
+            void mutations.update(
+              pickerTask,
+              { priority },
+              { undoMessage: `${pickerTask.key} priority changed` },
+            )
+          }
         />
       ) : null}
       {pickerTask && picker?.kind === 'assignee' ? (
@@ -252,7 +273,9 @@ export function TaskList({
           onOpenChange={closePicker}
           anchorRef={anchorRef}
           value={pickerTask.assigneeId}
-          onChange={(assigneeId) => void mutations.update(pickerTask, { assigneeId }, { undoMessage: `${pickerTask.key} reassigned` })}
+          onChange={(assigneeId) =>
+            void mutations.update(pickerTask, { assigneeId }, { undoMessage: `${pickerTask.key} reassigned` })
+          }
         />
       ) : null}
     </div>

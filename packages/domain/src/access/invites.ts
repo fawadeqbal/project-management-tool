@@ -12,7 +12,11 @@ export const INVITE_TTL_DAYS = 7;
 export const validateInvite = (actorRole: Role, input: { role: Role; projectId?: string | null }): void => {
   assertCanAssignRole(actorRole, input.role);
   if (input.role === 'GUEST' && !input.projectId)
-    throw new ValidationError('invites.guest_project', 'Pick the project this guest can see — guests only get access to one project.', { field: 'projectId' });
+    throw new ValidationError(
+      'invites.guest_project',
+      'Pick the project this guest can see — guests only get access to one project.',
+      { field: 'projectId' },
+    );
 };
 
 export const inviteExpiry = (now: Date): Date => new Date(now.getTime() + INVITE_TTL_DAYS * DAY_MS);
@@ -27,7 +31,13 @@ const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
  * "Guest · Website relaunch · expires in 2 days".
  */
 export const inviteMeta = (
-  invite: { role: Role; teamName?: string | null; projectName?: string | null; sentAt: Date; expiresAt: Date },
+  invite: {
+    role: Role;
+    teamName?: string | null;
+    projectName?: string | null;
+    sentAt: Date;
+    expiresAt: Date;
+  },
   now: Date,
 ): string => {
   const parts: string[] = [ROLE_META[invite.role].label];

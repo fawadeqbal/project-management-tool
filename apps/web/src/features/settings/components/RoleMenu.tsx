@@ -14,7 +14,14 @@ export interface RoleMenuProps {
 /** Role picker with the plain-words description of each role next to it. */
 export function RoleMenu({ name, role, assignable, disabled, disabledReason, onChange }: RoleMenuProps) {
   const trigger = (
-    <Button variant="secondary" size="sm" iconRight="chevron-down" aria-label={`Role for ${name}: ${ROLE_META[role].label}`} disabled={disabled} title={disabledReason}>
+    <Button
+      variant="secondary"
+      size="sm"
+      iconRight="chevron-down"
+      aria-label={`Role for ${name}: ${ROLE_META[role].label}`}
+      disabled={disabled}
+      title={disabledReason}
+    >
       {ROLE_META[role].label}
     </Button>
   );

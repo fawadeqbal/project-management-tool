@@ -61,7 +61,8 @@ export function Tooltip({ content, children, placement = 'top', delay = 400 }: T
   useEffect(() => () => clear(), []);
 
   useLayoutEffect(() => {
-    if (visible && anchorRef.current && tipRef.current) applyPosition(anchorRef.current, tipRef.current, placement, 'center', 6);
+    if (visible && anchorRef.current && tipRef.current)
+      applyPosition(anchorRef.current, tipRef.current, placement, 'center', 6);
   }, [visible, placement]);
 
   useEffect(() => {
@@ -102,7 +103,14 @@ export function Tooltip({ content, children, placement = 'top', delay = 400 }: T
     <>
       {child}
       <Portal>
-        <div ref={tipRef} id={id} role="tooltip" className="ht-tooltip" hidden={!visible} style={{ top: 0, left: 0 }}>
+        <div
+          ref={tipRef}
+          id={id}
+          role="tooltip"
+          className="ht-tooltip"
+          hidden={!visible}
+          style={{ top: 0, left: 0 }}
+        >
           {content}
         </div>
       </Portal>

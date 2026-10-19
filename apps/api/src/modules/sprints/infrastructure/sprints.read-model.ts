@@ -19,7 +19,10 @@ import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../shared/clock/clock';
 import { SPRINT_TASK_SELECT, toSprintTaskDto } from './sprint-task.mapper';
 
-type SprintWithFacts = SprintRow & { snapshots: SprintSnapshot[]; tasks: { status: SprintTaskDto['status']; estimatePoints: number | null }[] };
+type SprintWithFacts = SprintRow & {
+  snapshots: SprintSnapshot[];
+  tasks: { status: SprintTaskDto['status']; estimatePoints: number | null }[];
+};
 
 const VELOCITY_WINDOW = 3;
 
@@ -35,22 +38,35 @@ export class SprintsReadModel {
     await this.assertProject(actor, projectId);
     const rows = await this.prisma.sprint.findMany({
       where: { projectId },
-      include: { snapshots: { orderBy: { date: 'asc' } }, tasks: { select: { status: true, estimatePoints: true } } },
+      include: {
+        snapshots: { orderBy: { date: 'asc' } },
+        tasks: { select: { status: true, estimatePoints: true } },
+      },
       orderBy: { number: 'asc' },
     });
     return rows.map((r) => this.summary(r));
   }
 
   async detail(actor: Actor, sprintId: string): Promise<SprintDetailDto> {
-    const row = await this.prisma.sprint.findFirst({ where: { id: sprintId, project: { workspaceId: actor.workspaceId } }, select: { projectId: true } });
+    const row = await this.prisma.sprint.findFirst({
+      where: { id: sprintId, project: { workspaceId: actor.workspaceId } },
+      select: { projectId: true },
+    });
     if (!row) throw new NotFoundError('Sprint', sprintId);
     const all = await this.prisma.sprint.findMany({
       where: { projectId: row.projectId },
-      include: { snapshots: { orderBy: { date: 'asc' } }, tasks: { select: { status: true, estimatePoints: true } } },
+      include: {
+        snapshots: { orderBy: { date: 'asc' } },
+        tasks: { select: { status: true, estimatePoints: true } },
+      },
       orderBy: { number: 'asc' },
     });
     const sprint = all.find((s) => s.id === sprintId)!;
-    const taskRows = await this.prisma.task.findMany({ where: { sprintId }, select: SPRINT_TASK_SELECT, orderBy: [{ number: 'asc' }] });
+    const taskRows = await this.prisma.task.findMany({
+      where: { sprintId },
+      select: SPRINT_TASK_SELECT,
+      orderBy: [{ number: 'asc' }],
+    });
     const tasks = taskRows.map(toSprintTaskDto);
     const summaries = all.map((s) => this.summary(s));
     const summary = summaries.find((s) => s.id === sprintId)!;
@@ -60,12 +76,23 @@ export class SprintsReadModel {
     const committed = sprint.status === 'PLANNED' ? summary.scopePoints : sprint.committedPoints;
     const burndown = computeBurndown(
       { startDate: sprint.startDate, endDate: sprint.endDate, committedPoints: committed },
-      sprint.snapshots.map((s) => ({ date: s.date, remainingPoints: s.remainingPoints, scopePoints: s.scopePoints })),
+      sprint.snapshots.map((s) => ({
+        date: s.date,
+        remainingPoints: s.remainingPoints,
+        scopePoints: s.scopePoints,
+      })),
       today,
     );
     const last = burndown.actual[burndown.actual.length - 1];
-    const behindBy = last ? Math.round((last.remaining - (burndown.ideal[last.day]?.remaining ?? 0)) * 10) / 10 : 0;
-    const maxPoints = Math.max(committed, ...burndown.actual.map((a) => a.remaining), ...sprint.snapshots.map((s) => s.scopePoints), 0);
+    const behindBy = last
+      ? Math.round((last.remaining - (burndown.ideal[last.day]?.remaining ?? 0)) * 10) / 10
+      : 0;
+    const maxPoints = Math.max(
+      committed,
+      ...burndown.actual.map((a) => a.remaining),
+      ...sprint.snapshots.map((s) => s.scopePoints),
+      0,
+    );
 
     // Velocity: completed sprints before this one, plus this sprint's plan (its current scope).
     const completedBefore = summaries.filter((s) => s.status === 'COMPLETED' && s.number < sprint.number);
@@ -73,9 +100,23 @@ export class SprintsReadModel {
       completedBefore.map((s) => s.completedPoints),
       VELOCITY_WINDOW,
     );
-    const bars = completedBefore.slice(-4).map((s) => ({ sprintId: s.id, number: s.number, label: `S${s.number}`, points: s.completedPoints, isPlan: false }));
+    const bars = completedBefore
+      .slice(-4)
+      .map((s) => ({
+        sprintId: s.id,
+        number: s.number,
+        label: `S${s.number}`,
+        points: s.completedPoints,
+        isPlan: false,
+      }));
     const isOpen = sprint.status !== 'COMPLETED';
-    bars.push({ sprintId: sprint.id, number: sprint.number, label: `S${sprint.number}`, points: isOpen ? summary.scopePoints : summary.completedPoints, isPlan: isOpen });
+    bars.push({
+      sprintId: sprint.id,
+      number: sprint.number,
+      label: `S${sprint.number}`,
+      points: isOpen ? summary.scopePoints : summary.completedPoints,
+      isPlan: isOpen,
+    });
 
     const commitment = isOpen ? summary.scopePoints : sprint.committedPoints;
     const cap = sprintCapacity(commitment, velocity);
@@ -100,7 +141,11 @@ export class SprintsReadModel {
         people: [...people.values()],
       },
       tasks,
-      progress: { donePoints, totalPoints: scopePoints, donePct: scopePoints ? Math.round((donePoints / scopePoints) * 100) : 0 },
+      progress: {
+        donePoints,
+        totalPoints: scopePoints,
+        donePct: scopePoints ? Math.round((donePoints / scopePoints) * 100) : 0,
+      },
       burndown: {
         days: workingDaysBetween(sprint.startDate, sprint.endDate).map(toDateOnly),
         totalDays: burndown.totalDays,
@@ -121,9 +166,15 @@ export class SprintsReadModel {
         level: cap.level,
         ratio: Math.round(cap.ratio * 100) / 100,
         message,
-        deferTask: defer ? { id: defer.id, key: defer.key, title: defer.title, points: defer.points ?? 0 } : null,
+        deferTask: defer
+          ? { id: defer.id, key: defer.key, title: defer.title, points: defer.points ?? 0 }
+          : null,
       },
-      scopeChanges: burndown.scopeChanges.map((c) => ({ date: c.date, label: `${formatShortDate(new Date(c.date + 'T00:00:00Z'))} · +${c.addedPoints} pts`, addedPoints: c.addedPoints })),
+      scopeChanges: burndown.scopeChanges.map((c) => ({
+        date: c.date,
+        label: `${formatShortDate(new Date(c.date + 'T00:00:00Z'))} · +${c.addedPoints} pts`,
+        addedPoints: c.addedPoints,
+      })),
       sprints: summaries,
     };
   }
@@ -131,7 +182,13 @@ export class SprintsReadModel {
   async backlog(actor: Actor, projectId: string): Promise<SprintTaskDto[]> {
     await this.assertProject(actor, projectId);
     const rows = await this.prisma.task.findMany({
-      where: { projectId, sprintId: null, backlogRank: { not: null }, status: { not: 'DONE' }, parentId: null },
+      where: {
+        projectId,
+        sprintId: null,
+        backlogRank: { not: null },
+        status: { not: 'DONE' },
+        parentId: null,
+      },
       select: SPRINT_TASK_SELECT,
       orderBy: [{ backlogRank: 'asc' }, { number: 'asc' }],
     });
@@ -143,7 +200,10 @@ export class SprintsReadModel {
     const { remainingPoints, scopePoints } = sprintSnapshotOf(items);
     const final = r.snapshots[r.snapshots.length - 1];
     // A completed sprint's record is its final snapshot (unfinished work has moved on since).
-    const completedPoints = r.status === 'COMPLETED' && final ? final.scopePoints - final.remainingPoints : scopePoints - remainingPoints;
+    const completedPoints =
+      r.status === 'COMPLETED' && final
+        ? final.scopePoints - final.remainingPoints
+        : scopePoints - remainingPoints;
     return {
       id: r.id,
       projectId: r.projectId,
@@ -163,13 +223,18 @@ export class SprintsReadModel {
 
   private statusLabel(s: SprintRow, daysLeft: number, today: Date): string {
     if (s.status === 'COMPLETED') return `Completed ${formatShortDate(s.completedAt ?? s.endDate)}`;
-    if (s.status === 'PLANNED') return s.startDate.getTime() > today.getTime() ? `Planned · starts ${weekdayName(s.startDate)} ${formatShortDate(s.startDate)}` : 'Planned · ready to start';
+    if (s.status === 'PLANNED')
+      return s.startDate.getTime() > today.getTime()
+        ? `Planned · starts ${weekdayName(s.startDate)} ${formatShortDate(s.startDate)}`
+        : 'Planned · ready to start';
     if (daysLeft === 0) return 'Active · last day';
     return `Active · ${daysLeft} working ${daysLeft === 1 ? 'day' : 'days'} left`;
   }
 
   private async assertProject(actor: Actor, projectId: string): Promise<void> {
-    const exists = await this.prisma.project.count({ where: { id: projectId, workspaceId: actor.workspaceId } });
+    const exists = await this.prisma.project.count({
+      where: { id: projectId, workspaceId: actor.workspaceId },
+    });
     if (!exists) throw new NotFoundError('Project', projectId);
   }
 }

@@ -6,7 +6,13 @@ import styles from '../settings.module.css';
 export function PermissionMatrixDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { data } = useRoles(open);
   return (
-    <Dialog open={open} onClose={onClose} size="lg" title="Permission matrix" description="What each role can do. The API enforces exactly this.">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      size="lg"
+      title="Permission matrix"
+      description="What each role can do. The API enforces exactly this."
+    >
       {!data ? (
         <Skeleton height={240} />
       ) : (
@@ -31,7 +37,14 @@ export function PermissionMatrixDialog({ open, onClose }: { open: boolean; onClo
                   <th scope="row">{row.label}</th>
                   {data.roles.map((r) => (
                     <td key={r.role}>
-                      {row.roles.includes(r.role) ? <Icon name="check" label={`${r.label}: allowed`} className={styles.allowed} /> : <span className={styles.denied}><VisuallyHidden>{r.label}: not allowed</VisuallyHidden><span aria-hidden="true">—</span></span>}
+                      {row.roles.includes(r.role) ? (
+                        <Icon name="check" label={`${r.label}: allowed`} className={styles.allowed} />
+                      ) : (
+                        <span className={styles.denied}>
+                          <VisuallyHidden>{r.label}: not allowed</VisuallyHidden>
+                          <span aria-hidden="true">—</span>
+                        </span>
+                      )}
                     </td>
                   ))}
                 </tr>

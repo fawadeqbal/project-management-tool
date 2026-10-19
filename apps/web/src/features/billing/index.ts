@@ -19,6 +19,11 @@ export const commands: Command[] = [
 ];
 
 /** Contextual upgrade prompt for plan-gated features: other features import it from '@/features/billing'. */
-export { UpgradePrompt, useUpgradePrompt, type UpgradePromptProps, type UpgradePromptApi } from './components/UpgradePrompt';
+export {
+  UpgradePrompt,
+  useUpgradePrompt,
+  type UpgradePromptProps,
+  type UpgradePromptApi,
+} from './components/UpgradePrompt';
 export { downloadExport } from './api';
 export { BillingPage } from './pages/BillingPage';

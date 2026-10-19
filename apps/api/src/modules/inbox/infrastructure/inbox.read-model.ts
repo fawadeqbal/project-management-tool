@@ -1,7 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type { InboxCountsDto, InboxDto, InboxItemDto, InboxQuery } from '@hearth/contracts';
-import { INBOX_TABS, inboxTime, notificationIcon, type Actor, type Clock, type InboxTab, type NotificationType } from '@hearth/domain';
+import {
+  INBOX_TABS,
+  inboxTime,
+  notificationIcon,
+  type Actor,
+  type Clock,
+  type InboxTab,
+  type NotificationType,
+} from '@hearth/domain';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../shared/clock/clock';
 import { USER_REF_SELECT, toUserRef } from '../../../shared/mappers/refs';
@@ -31,7 +39,9 @@ export class InboxReadModel {
   async list(actor: Actor, query: InboxQuery): Promise<InboxDto> {
     const now = this.clock.now();
     const base = this.visible(actor, now);
-    const where: Prisma.NotificationWhereInput = { AND: [base, this.tabFilter(query.tab), query.unread ? { readAt: null } : {}] };
+    const where: Prisma.NotificationWhereInput = {
+      AND: [base, this.tabFilter(query.tab), query.unread ? { readAt: null } : {}],
+    };
     const [rows, counts, workspace] = await Promise.all([
       this.prisma.notification.findMany({
         where,
@@ -50,7 +60,10 @@ export class InboxReadModel {
       title: n.title,
       context: n.context,
       excerpt: n.excerpt,
-      icon: !n.taskId && n.context.startsWith('Docs') ? 'doc' : notificationIcon(n.type as NotificationType, n.title),
+      icon:
+        !n.taskId && n.context.startsWith('Docs')
+          ? 'doc'
+          : notificationIcon(n.type as NotificationType, n.title),
       taskId: n.taskId,
       taskKey: n.task ? `${prefix}-${n.task.number}` : null,
       approvalId: n.approvalId,
@@ -65,7 +78,11 @@ export class InboxReadModel {
   /** Tab counts are unread items ("Mentions 3"); `all` is every visible item. */
   async counts(actor: Actor, now: Date = this.clock.now()): Promise<InboxCountsDto> {
     const base = this.visible(actor, now);
-    const grouped = await this.prisma.notification.groupBy({ by: ['type'], where: { AND: [base, { readAt: null }] }, _count: { _all: true } });
+    const grouped = await this.prisma.notification.groupBy({
+      by: ['type'],
+      where: { AND: [base, { readAt: null }] },
+      _count: { _all: true },
+    });
     const all = await this.prisma.notification.count({ where: base });
     const unreadOf = (types: readonly string[] | null) =>
       grouped.filter((g) => !types || types.includes(g.type)).reduce((sum, g) => sum + g._count._all, 0);

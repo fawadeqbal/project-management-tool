@@ -28,10 +28,16 @@ export const membersApi = {
   invite: (input: InviteRequest) => http.post<CreateInviteResultDto>(MEMBERS_ROUTES.invites, input),
   resend: (id: string) => http.post<InviteDto>(MEMBERS_ROUTES.resendInvite(id)),
   revoke: (id: string) => http.delete(MEMBERS_ROUTES.invite(id)),
-  changeRole: (userId: string, role: Role) => http.patch<{ userId: string; role: Role }>(MEMBERS_ROUTES.role(userId), { role }),
-  deactivate: (userId: string) => http.post<{ userId: string; status: AdminMemberDto['status'] }>(MEMBERS_ROUTES.deactivate(userId)),
-  reactivate: (userId: string) => http.post<{ userId: string; status: AdminMemberDto['status'] }>(MEMBERS_ROUTES.reactivate(userId)),
-  remove: (userId: string) => http.delete<{ userId: string; unassignedTasks: number }>(MEMBERS_ROUTES.member(userId), { body: { confirm: true } }),
+  changeRole: (userId: string, role: Role) =>
+    http.patch<{ userId: string; role: Role }>(MEMBERS_ROUTES.role(userId), { role }),
+  deactivate: (userId: string) =>
+    http.post<{ userId: string; status: AdminMemberDto['status'] }>(MEMBERS_ROUTES.deactivate(userId)),
+  reactivate: (userId: string) =>
+    http.post<{ userId: string; status: AdminMemberDto['status'] }>(MEMBERS_ROUTES.reactivate(userId)),
+  remove: (userId: string) =>
+    http.delete<{ userId: string; unassignedTasks: number }>(MEMBERS_ROUTES.member(userId), {
+      body: { confirm: true },
+    }),
 };
 
 const useSignedIn = () => !!useAuthStore((s) => s.token);
@@ -45,5 +51,10 @@ export function useInvites() {
 }
 
 export function useRoles(enabled = true) {
-  return useQuery({ queryKey: membersKeys.roles, queryFn: membersApi.roles, enabled: useSignedIn() && enabled, staleTime: Infinity });
+  return useQuery({
+    queryKey: membersKeys.roles,
+    queryFn: membersApi.roles,
+    enabled: useSignedIn() && enabled,
+    staleTime: Infinity,
+  });
 }

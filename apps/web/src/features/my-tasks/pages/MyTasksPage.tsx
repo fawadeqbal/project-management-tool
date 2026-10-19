@@ -25,7 +25,11 @@ export const MY_TASKS_TABS: ViewTab[] = [
   { id: 'board', label: 'Board', icon: 'board' },
   { id: 'calendar', label: 'Calendar', icon: 'calendar-view' },
 ];
-const TAB_PATHS: Record<string, string> = { list: '/my-tasks', board: '/my-tasks/board', calendar: '/my-tasks/calendar' };
+const TAB_PATHS: Record<string, string> = {
+  list: '/my-tasks',
+  board: '/my-tasks/board',
+  calendar: '/my-tasks/calendar',
+};
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
@@ -62,12 +66,20 @@ export function MyTasksPage() {
   const quickAddRef = useRef<HTMLInputElement>(null);
 
   // Team / other-person filters look beyond "mine".
-  const teamMemberIds = useMemo(() => (url.teamId ? (teams?.find((t) => t.id === url.teamId)?.memberIds ?? []) : null), [url.teamId, teams]);
+  const teamMemberIds = useMemo(
+    () => (url.teamId ? (teams?.find((t) => t.id === url.teamId)?.memberIds ?? []) : null),
+    [url.teamId, teams],
+  );
   const wide = !!url.assigneeId || !!url.teamId;
   const query = useMemo(
     () =>
       wide
-        ? { scope: 'workspace' as const, includeDone: view.includeDone || undefined, assigneeIds: url.assigneeId && url.assigneeId !== 'none' ? [url.assigneeId] : teamMemberIds ?? undefined }
+        ? {
+            scope: 'workspace' as const,
+            includeDone: view.includeDone || undefined,
+            assigneeIds:
+              url.assigneeId && url.assigneeId !== 'none' ? [url.assigneeId] : (teamMemberIds ?? undefined),
+          }
         : { scope: 'mine' as const, includeDone: view.includeDone || undefined },
     [wide, view.includeDone, url.assigneeId, teamMemberIds],
   );
@@ -75,12 +87,17 @@ export function MyTasksPage() {
 
   // Tasks completed here stay visible (struck through) until you leave, so Undo has context.
   const [recentlyDone, setRecentlyDone] = useState<Map<string, TaskDto>>(new Map());
-  const onCompleted = useCallback((task: TaskDto) => setRecentlyDone((m) => new Map(m).set(task.id, task)), []);
+  const onCompleted = useCallback(
+    (task: TaskDto) => setRecentlyDone((m) => new Map(m).set(task.id, task)),
+    [],
+  );
 
   const all = useMemo(() => {
     const list = tasks ?? [];
     const ids = new Set(list.map((t) => t.id));
-    const extra = [...recentlyDone.values()].filter((t) => !ids.has(t.id)).map((t) => ({ ...t, status: 'DONE' as const }));
+    const extra = [...recentlyDone.values()]
+      .filter((t) => !ids.has(t.id))
+      .map((t) => ({ ...t, status: 'DONE' as const }));
     return [...list, ...extra];
   }, [tasks, recentlyDone]);
 
@@ -95,7 +112,15 @@ export function MyTasksPage() {
     for (const p of shell?.favorites ?? []) names[p.id] = p.name;
     return names;
   }, [all, shell]);
-  const projects = useMemo(() => Object.entries(projectNames).map(([id, name]) => ({ id, name, color: shell?.favorites.find((f) => f.id === id)?.color ?? ('slate' as const) })), [projectNames, shell]);
+  const projects = useMemo(
+    () =>
+      Object.entries(projectNames).map(([id, name]) => ({
+        id,
+        name,
+        color: shell?.favorites.find((f) => f.id === id)?.color ?? ('slate' as const),
+      })),
+    [projectNames, shell],
+  );
 
   useHotkey('C', () => quickAddRef.current?.focus(), { enabled: !isLoading });
   useHotkey('1', () => void navigate(TAB_PATHS.list!));
@@ -104,7 +129,9 @@ export function MyTasksPage() {
 
   const greeting = `${greetingFor()}, ${firstName(me?.user.name) || 'there'}`;
   const filtered = activeFilterCount > 0 || hasUrlFilters(url);
-  const quickAddRow = <QuickAddRow ref={quickAddRef} onSubmit={(text) => quickAdd({ text, assignToMe: true })} />;
+  const quickAddRow = (
+    <QuickAddRow ref={quickAddRef} onSubmit={(text) => quickAdd({ text, assignToMe: true })} />
+  );
 
   let content;
   if (isLoading) content = <ListSkeleton />;
@@ -121,7 +148,16 @@ export function MyTasksPage() {
         }
       />
     );
-  else if (all.length === 0 && !filtered) content = <TaskList tasks={[]} label="My tasks" onOpen={() => undefined} empty={<MyTasksEmpty onCreate={() => openCreateTask()} />} footer={quickAddRow} />;
+  else if (all.length === 0 && !filtered)
+    content = (
+      <TaskList
+        tasks={[]}
+        label="My tasks"
+        onOpen={() => undefined}
+        empty={<MyTasksEmpty onCreate={() => openCreateTask()} />}
+        footer={quickAddRow}
+      />
+    );
   else
     content = (
       <TaskList
@@ -141,7 +177,9 @@ export function MyTasksPage() {
             }}
           />
         }
-        onAddToGroup={(g) => openCreateTask(g.id === 'today' ? { dueDate: today().toISOString().slice(0, 10) } : {})}
+        onAddToGroup={(g) =>
+          openCreateTask(g.id === 'today' ? { dueDate: today().toISOString().slice(0, 10) } : {})
+        }
         footer={quickAddRow}
       />
     );
@@ -153,11 +191,22 @@ export function MyTasksPage() {
           <h1 className={styles.title}>{greeting}</h1>
           <p className={styles.summary}>{summaryLine(tasks ?? [])}</p>
         </div>
-        <ViewTabs tabs={MY_TASKS_TABS} value="list" label="My tasks views" onChange={(id) => void navigate(TAB_PATHS[id] ?? '/my-tasks')} />
+        <ViewTabs
+          tabs={MY_TASKS_TABS}
+          value="list"
+          label="My tasks views"
+          onChange={(id) => void navigate(TAB_PATHS[id] ?? '/my-tasks')}
+        />
       </div>
 
       <div className={styles.toolbar}>
-        <FilterPopover view={view} onChange={setView} onReset={resetView} activeCount={activeFilterCount} projects={projects} />
+        <FilterPopover
+          view={view}
+          onChange={setView}
+          onReset={resetView}
+          activeCount={activeFilterCount}
+          projects={projects}
+        />
         <ViewControls view={view} onChange={setView} />
         {hasUrlFilters(url) ? (
           <Button variant="ghost" size="sm" icon="x" onClick={clearUrlFilters}>

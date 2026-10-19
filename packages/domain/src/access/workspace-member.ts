@@ -29,16 +29,30 @@ export interface MemberActor {
  * Order matters: "you're the only owner" is the more useful answer than "not on yourself".
  */
 export const MembershipRules = {
-  assertNotLastOwner(target: Pick<WorkspaceMemberProps, 'role' | 'status'>, activeOwnerCount: number, action: string): void {
+  assertNotLastOwner(
+    target: Pick<WorkspaceMemberProps, 'role' | 'status'>,
+    activeOwnerCount: number,
+    action: string,
+  ): void {
     if (target.role === 'OWNER' && target.status === 'ACTIVE' && activeOwnerCount <= 1)
-      throw new ConflictError('members.last_owner', `This is the workspace’s only owner, so you can’t ${action}. Make someone else an owner first.`);
+      throw new ConflictError(
+        'members.last_owner',
+        `This is the workspace’s only owner, so you can’t ${action}. Make someone else an owner first.`,
+      );
   },
   assertNotSelf(actor: MemberActor, target: Pick<WorkspaceMemberProps, 'userId'>, action: string): void {
-    if (actor.userId === target.userId) throw new ForbiddenError('members.self', `You can’t ${action} yourself. Ask another admin or owner to do it.`);
+    if (actor.userId === target.userId)
+      throw new ForbiddenError(
+        'members.self',
+        `You can’t ${action} yourself. Ask another admin or owner to do it.`,
+      );
   },
   assertNotOutranked(actor: MemberActor, target: Pick<WorkspaceMemberProps, 'role'>): void {
     if (ROLE_META[target.role].rank < ROLE_META[actor.role].rank)
-      throw new ForbiddenError('members.outranked', `Only an ${ROLE_META[target.role].label.toLowerCase()} can change another ${ROLE_META[target.role].label.toLowerCase()}.`);
+      throw new ForbiddenError(
+        'members.outranked',
+        `Only an ${ROLE_META[target.role].label.toLowerCase()} can change another ${ROLE_META[target.role].label.toLowerCase()}.`,
+      );
   },
 };
 
@@ -77,17 +91,27 @@ export class WorkspaceMember extends AggregateRoot<WorkspaceMemberProps> {
 
   changeRole(newRole: Role, actor: MemberActor, activeOwnerCount: number, now: Date): void {
     if (newRole === this.props.role) return;
-    if (newRole !== 'OWNER') MembershipRules.assertNotLastOwner(this.props, activeOwnerCount, 'change their role');
+    if (newRole !== 'OWNER')
+      MembershipRules.assertNotLastOwner(this.props, activeOwnerCount, 'change their role');
     MembershipRules.assertNotSelf(actor, this.props, 'change the role of');
     MembershipRules.assertNotOutranked(actor, this.props);
     assertCanAssignRole(actor.role, newRole);
     if (newRole === 'GUEST')
-      throw new ValidationError('members.to_guest', 'Guests only see the projects they’re invited to. Invite them as a guest to a project instead.');
+      throw new ValidationError(
+        'members.to_guest',
+        'Guests only see the projects they’re invited to. Invite them as a guest to a project instead.',
+      );
     if (this.props.status === 'DEACTIVATED')
       throw new ConflictError('members.deactivated', 'Reactivate this person before changing their role.');
     const from = this.props.role;
     this.props.role = newRole;
-    this.record(createEvent('member.role_changed', this.base(actor.userId, now), { userId: this.props.userId, from, to: newRole }));
+    this.record(
+      createEvent('member.role_changed', this.base(actor.userId, now), {
+        userId: this.props.userId,
+        from,
+        to: newRole,
+      }),
+    );
   }
 
   deactivate(actor: MemberActor, activeOwnerCount: number, now: Date): void {
@@ -97,7 +121,12 @@ export class WorkspaceMember extends AggregateRoot<WorkspaceMemberProps> {
     MembershipRules.assertNotOutranked(actor, this.props);
     this.props.status = 'DEACTIVATED';
     this.props.deactivatedAt = now;
-    this.record(createEvent('member.deactivated', this.base(actor.userId, now), { userId: this.props.userId, role: this.props.role }));
+    this.record(
+      createEvent('member.deactivated', this.base(actor.userId, now), {
+        userId: this.props.userId,
+        role: this.props.role,
+      }),
+    );
   }
 
   reactivate(actor: MemberActor, now: Date): void {
@@ -106,17 +135,30 @@ export class WorkspaceMember extends AggregateRoot<WorkspaceMemberProps> {
     MembershipRules.assertNotOutranked(actor, this.props);
     this.props.status = 'ACTIVE';
     this.props.deactivatedAt = null;
-    this.record(createEvent('member.reactivated', this.base(actor.userId, now), { userId: this.props.userId, role: this.props.role }));
+    this.record(
+      createEvent('member.reactivated', this.base(actor.userId, now), {
+        userId: this.props.userId,
+        role: this.props.role,
+      }),
+    );
   }
 
   /** Validates and records a permanent removal; the repository deletes the row. */
   remove(actor: MemberActor, activeOwnerCount: number, confirmed: boolean, now: Date): void {
     if (!confirmed)
-      throw new ValidationError('members.remove_unconfirmed', 'Removing someone can’t be undone. Confirm to continue, or deactivate them instead.');
+      throw new ValidationError(
+        'members.remove_unconfirmed',
+        'Removing someone can’t be undone. Confirm to continue, or deactivate them instead.',
+      );
     MembershipRules.assertNotLastOwner(this.props, activeOwnerCount, 'remove them');
     MembershipRules.assertNotSelf(actor, this.props, 'remove');
     MembershipRules.assertNotOutranked(actor, this.props);
-    this.record(createEvent('member.removed', this.base(actor.userId, now), { userId: this.props.userId, role: this.props.role }));
+    this.record(
+      createEvent('member.removed', this.base(actor.userId, now), {
+        userId: this.props.userId,
+        role: this.props.role,
+      }),
+    );
   }
 
   private base(actorId: string, now: Date) {

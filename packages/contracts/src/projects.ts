@@ -107,11 +107,18 @@ export interface BoardDto {
 // ── Requests ────────────────────────────────────────────────
 
 const WipLimitsSchema = z
-  .record(TaskStatusSchema, z.number().int().min(1, 'Use a limit of at least 1.').max(99, 'Keep WIP limits under 100.').nullable())
+  .record(
+    TaskStatusSchema,
+    z.number().int().min(1, 'Use a limit of at least 1.').max(99, 'Keep WIP limits under 100.').nullable(),
+  )
   .refine((v) => !('DONE' in v) || v.DONE == null, { message: 'The Done column can’t have a WIP limit.' });
 
 export const CreateProjectSchema = z.object({
-  name: z.string().trim().min(1, 'Name your project — it can’t be empty.').max(80, 'Keep the name under 80 characters.'),
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Name your project — it can’t be empty.')
+    .max(80, 'Keep the name under 80 characters.'),
   description: z.string().trim().max(5000).nullish(),
   color: AccentColorSchema.default('blue'),
   icon: z.string().trim().min(1).max(32).optional(),
@@ -248,10 +255,16 @@ export const TimelineQuerySchema = z.object({
 export type TimelineQuery = z.infer<typeof TimelineQuerySchema>;
 
 const scheduleDates = <T extends z.ZodRawShape>(shape: T) =>
-  z.object(shape).refine((v: { startDate?: string | null; dueDate?: string | null }) => !v.startDate || !v.dueDate || v.startDate <= v.dueDate, {
-    message: 'The due date has to be on or after the start date.',
-    path: ['dueDate'],
-  });
+  z
+    .object(shape)
+    .refine(
+      (v: { startDate?: string | null; dueDate?: string | null }) =>
+        !v.startDate || !v.dueDate || v.startDate <= v.dueDate,
+      {
+        message: 'The due date has to be on or after the start date.',
+        path: ['dueDate'],
+      },
+    );
 
 export const RescheduleTaskSchema = scheduleDates({
   startDate: DateOnlySchema,

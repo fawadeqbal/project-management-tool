@@ -34,10 +34,21 @@ export function BlockedByEditor({ task, onAdd, onRemove, readOnly }: Props) {
       <ul className={styles.blockerList}>
         {task.blockedBy.map((b) => (
           <li key={b.id} className={styles.blocker}>
-            <StatusIcon status={b.status === 'DONE' ? 'done' : 'blocked'} label={b.status === 'DONE' ? 'Done' : 'Blocking'} />
+            <StatusIcon
+              status={b.status === 'DONE' ? 'done' : 'blocked'}
+              label={b.status === 'DONE' ? 'Done' : 'Blocking'}
+            />
             <span className={styles.mono}>{b.key}</span>
             <span className={styles.blockerTitle}>· {b.title}</span>
-            {!readOnly ? <Button variant="ghost" size="sm" icon="x" aria-label={`Remove ${b.key} from blocked by`} onClick={() => onRemove(b.id)} /> : null}
+            {!readOnly ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                icon="x"
+                aria-label={`Remove ${b.key} from blocked by`}
+                onClick={() => onRemove(b.id)}
+              />
+            ) : null}
           </li>
         ))}
       </ul>

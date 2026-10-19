@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { breakDownTaskLocally, summarizeTaskLocally, type AiBreakdown, type AiProvider, type AiSummary, type AiTaskContext } from '@hearth/domain';
+import {
+  breakDownTaskLocally,
+  summarizeTaskLocally,
+  type AiBreakdown,
+  type AiProvider,
+  type AiSummary,
+  type AiTaskContext,
+} from '@hearth/domain';
 
 /** Strategy: deterministic, offline AI built from the task's own data. Always available. */
 @Injectable()

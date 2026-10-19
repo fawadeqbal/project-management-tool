@@ -5,7 +5,18 @@ import { ValidationError } from '../shared/errors';
 
 const now = new Date('2026-10-19T09:00:00Z');
 const make = (over: Partial<Parameters<typeof Task.create>[0]> = {}) =>
-  Task.create({ id: 't1', workspaceId: 'w1', keyPrefix: 'HRT', number: 142, creatorId: 'u1', title: 'Write onboarding copy', ...over }, now);
+  Task.create(
+    {
+      id: 't1',
+      workspaceId: 'w1',
+      keyPrefix: 'HRT',
+      number: 142,
+      creatorId: 'u1',
+      title: 'Write onboarding copy',
+      ...over,
+    },
+    now,
+  );
 
 describe('Task aggregate', () => {
   it('creates a task with a key and records task.created', () => {
@@ -20,7 +31,9 @@ describe('Task aggregate', () => {
   });
 
   it('rejects a start date after the due date', () => {
-    expect(() => make({ startDate: parseDateOnly('2026-10-22'), dueDate: parseDateOnly('2026-10-20') })).toThrow(/start date/);
+    expect(() =>
+      make({ startDate: parseDateOnly('2026-10-22'), dueDate: parseDateOnly('2026-10-20') }),
+    ).toThrow(/start date/);
   });
 
   it('completing sets completedAt and progress; reopening clears them', () => {

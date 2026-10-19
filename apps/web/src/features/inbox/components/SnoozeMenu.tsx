@@ -26,7 +26,19 @@ export function SnoozeMenu({
       open={open}
       onOpenChange={onOpenChange}
       trigger={trigger}
-      items={[{ id: 'snooze', heading: 'Snooze until', items: SNOOZE_OPTIONS.map((o) => ({ id: o.id, label: o.label, hint: o.hint, icon: 'clock' as const, onSelect: () => onSnooze(o.id) })) }]}
+      items={[
+        {
+          id: 'snooze',
+          heading: 'Snooze until',
+          items: SNOOZE_OPTIONS.map((o) => ({
+            id: o.id,
+            label: o.label,
+            hint: o.hint,
+            icon: 'clock' as const,
+            onSelect: () => onSnooze(o.id),
+          })),
+        },
+      ]}
     />
   );
 }

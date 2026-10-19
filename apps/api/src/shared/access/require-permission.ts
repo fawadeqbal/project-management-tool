@@ -19,7 +19,10 @@ export class PermissionGuard implements CanActivate {
 
   canActivate(ctx: ExecutionContext): boolean {
     if (ctx.getType() !== 'http') return true;
-    const permission = this.reflector.getAllAndOverride<Permission | undefined>(REQUIRED_PERMISSION, [ctx.getHandler(), ctx.getClass()]);
+    const permission = this.reflector.getAllAndOverride<Permission | undefined>(REQUIRED_PERMISSION, [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
     if (!permission) return true;
     const { actor } = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
     if (actor) this.access.assert(actor, permission);

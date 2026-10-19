@@ -8,12 +8,19 @@ describe('QuickAddRow', () => {
     const input = screen.getByRole('textbox', { name: /Add a task/ });
     fireEvent.change(input, { target: { value: 'Draft retro agenda @sara #website !high tomorrow' } });
     const chips = within(screen.getByRole('list', { name: 'Recognized details' })).getAllByRole('listitem');
-    expect(chips.map((c) => c.textContent)).toEqual(['Assignee@sara', 'Project#website', 'PriorityHigh', 'DueTomorrow']);
+    expect(chips.map((c) => c.textContent)).toEqual([
+      'Assignee@sara',
+      'Project#website',
+      'PriorityHigh',
+      'DueTomorrow',
+    ]);
   });
 
   it('shows no chips for plain text', () => {
     render(<QuickAddRow onSubmit={vi.fn()} />);
-    fireEvent.change(screen.getByRole('textbox', { name: /Add a task/ }), { target: { value: 'Just a title' } });
+    fireEvent.change(screen.getByRole('textbox', { name: /Add a task/ }), {
+      target: { value: 'Just a title' },
+    });
     expect(screen.queryByRole('list', { name: 'Recognized details' })).not.toBeInTheDocument();
   });
 

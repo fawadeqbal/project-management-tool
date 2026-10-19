@@ -14,9 +14,25 @@ export interface PropertyPopoverProps {
 }
 
 /** The popover shell every property picker shares. */
-export function PropertyPopover({ open, onOpenChange, anchorRef, renderTrigger, label, align = 'start', children }: PropertyPopoverProps) {
+export function PropertyPopover({
+  open,
+  onOpenChange,
+  anchorRef,
+  renderTrigger,
+  label,
+  align = 'start',
+  children,
+}: PropertyPopoverProps) {
   return (
-    <Popover open={open} onOpenChange={onOpenChange} anchorRef={anchorRef} renderTrigger={renderTrigger} align={align} aria-label={label} role="dialog">
+    <Popover
+      open={open}
+      onOpenChange={onOpenChange}
+      anchorRef={anchorRef}
+      renderTrigger={renderTrigger}
+      align={align}
+      aria-label={label}
+      role="dialog"
+    >
       {children}
     </Popover>
   );

@@ -25,7 +25,12 @@ export class DeleteTimeOffHandler implements ICommandHandler<DeleteTimeOffComman
     this.events.publish(
       createEvent(
         'time_off.removed',
-        { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: id, occurredAt: this.clock.now() },
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: id,
+          occurredAt: this.clock.now(),
+        },
         { userId: row.userId, startDate: toDateOnly(row.startDate), endDate: toDateOnly(row.endDate) },
       ),
     );

@@ -1,5 +1,13 @@
 import { useRef } from 'react';
-import { Avatar, PriorityIcon, ProgressBar, StatusPill, TaskCheckbox, toUiPriority, toUiStatus } from '@hearth/ui';
+import {
+  Avatar,
+  PriorityIcon,
+  ProgressBar,
+  StatusPill,
+  TaskCheckbox,
+  toUiPriority,
+  toUiStatus,
+} from '@hearth/ui';
 import type { SprintDetailDto, SprintTaskDto } from '@hearth/contracts';
 import { useTaskMutations } from '@/shared/tasks/useTaskMutations';
 import { useTaskPanel } from '@/shared/tasks/useTaskPanel';
@@ -44,7 +52,9 @@ export function SprintTaskList({ detail, onToggled, onMoveToBacklog }: Props) {
         </span>
       </div>
       <div ref={listRef} role="list">
-        {tasks.length === 0 ? <p className={styles.empty}>Nothing in this sprint yet. Add work from the backlog with Shift+S.</p> : null}
+        {tasks.length === 0 ? (
+          <p className={styles.empty}>Nothing in this sprint yet. Add work from the backlog with Shift+S.</p>
+        ) : null}
         {tasks.map((t) => {
           const done = t.status === 'DONE';
           return (
@@ -75,10 +85,20 @@ export function SprintTaskList({ detail, onToggled, onMoveToBacklog }: Props) {
                 }
               }}
             >
-              <TaskCheckbox checked={done} label={done ? `Reopen ${t.title}` : `Mark ${t.title} as done`} onChange={() => toggle(t)} tabIndex={-1} />
+              <TaskCheckbox
+                checked={done}
+                label={done ? `Reopen ${t.title}` : `Mark ${t.title} as done`}
+                onChange={() => toggle(t)}
+                tabIndex={-1}
+              />
               <PriorityIcon level={toUiPriority(t.priority)} />
               <span className={styles.key}>{t.key}</span>
-              <button type="button" tabIndex={-1} className={done ? styles.titleDone : styles.title} onClick={() => panel.open(t.key)}>
+              <button
+                type="button"
+                tabIndex={-1}
+                className={done ? styles.titleDone : styles.title}
+                onClick={() => panel.open(t.key)}
+              >
                 {t.title}
               </button>
               <span className={styles.status}>
@@ -86,7 +106,12 @@ export function SprintTaskList({ detail, onToggled, onMoveToBacklog }: Props) {
               </span>
               <PointsChip points={t.points} />
               {t.assignee ? (
-                <Avatar initials={t.assignee.initials} name={t.assignee.name} color={t.assignee.avatarColor} size={24} />
+                <Avatar
+                  initials={t.assignee.initials}
+                  name={t.assignee.name}
+                  color={t.assignee.avatarColor}
+                  size={24}
+                />
               ) : (
                 <span className={styles.avatarSpacer} aria-label="Unassigned" />
               )}

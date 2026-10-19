@@ -17,11 +17,25 @@ export class UpdateCapacityHandler implements ICommandHandler<UpdateCapacityComm
   ) {}
 
   async execute({ actor, userId, hoursPerDay }: UpdateCapacityCommand): Promise<CapacityDto> {
-    const member = await this.prisma.membership.findUnique({ where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId } } });
+    const member = await this.prisma.membership.findUnique({
+      where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId } },
+    });
     if (!member) throw new NotFoundError('Member', userId);
-    await this.prisma.membership.update({ where: { id: member.id }, data: { capacityHoursPerDay: hoursPerDay } });
+    await this.prisma.membership.update({
+      where: { id: member.id },
+      data: { capacityHoursPerDay: hoursPerDay },
+    });
     this.events.publish(
-      createEvent('capacity.changed', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: userId, occurredAt: this.clock.now() }, { from: member.capacityHoursPerDay, to: hoursPerDay }),
+      createEvent(
+        'capacity.changed',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: userId,
+          occurredAt: this.clock.now(),
+        },
+        { from: member.capacityHoursPerDay, to: hoursPerDay },
+      ),
     );
     return { userId, hoursPerDay };
   }

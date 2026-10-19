@@ -1,7 +1,12 @@
 import { useMemo, useRef, useState } from 'react';
 import { Button, EmptyState, SegmentedControl, Skeleton } from '@hearth/ui';
 import type { TimelineRowDto } from '@hearth/contracts';
-import { ProjectFilterBar, useProjectContext, useProjectFilters, matchesProjectFilters } from '@/features/projects';
+import {
+  ProjectFilterBar,
+  useProjectContext,
+  useProjectFilters,
+  matchesProjectFilters,
+} from '@/features/projects';
 import { usePermission } from '@/shared/auth/use-permission';
 import { useTaskPanel } from '@/shared/tasks/useTaskPanel';
 import { useTimeline } from '../api';
@@ -56,7 +61,14 @@ export function ProjectTimelinePage() {
         continue;
       }
       if (hidden) continue;
-      if (r.kind === 'task' && !matchesProjectFilters({ status: r.status, priority: 'NONE', assigneeId: r.assignee?.id ?? null }, { ...filters, priorities: [] })) continue;
+      if (
+        r.kind === 'task' &&
+        !matchesProjectFilters(
+          { status: r.status, priority: 'NONE', assigneeId: r.assignee?.id ?? null },
+          { ...filters, priorities: [] },
+        )
+      )
+        continue;
       out.push(r);
     }
     return out;
@@ -120,13 +132,19 @@ export function ProjectTimelinePage() {
           }
         />
       ) : rows.length === 0 ? (
-        <EmptyState icon="timeline" title="Nothing scheduled yet" description="Give tasks a start and due date and they appear here, with their dependencies." />
+        <EmptyState
+          icon="timeline"
+          title="Nothing scheduled yet"
+          description="Give tasks a start and due date and they appear here, with their dependencies."
+        />
       ) : (
         <div ref={bodyRef} className={styles.gantt} aria-label={`${project.name} timeline`} role="group">
           <TimelineTaskList
             rows={rows}
             collapsed={collapsed}
-            onToggleSection={(id) => setCollapsed((c) => (c.has(id) ? new Set([...c].filter((x) => x !== id)) : new Set([...c, id])))}
+            onToggleSection={(id) =>
+              setCollapsed((c) => (c.has(id) ? new Set([...c].filter((x) => x !== id)) : new Set([...c, id])))
+            }
             onOpen={(key) => panel.open(key)}
           />
           <TimelineChart
@@ -143,7 +161,11 @@ export function ProjectTimelinePage() {
           />
         </div>
       )}
-      <AddMilestoneDialog projectId={projectId} open={addingMilestone} onClose={() => setAddingMilestone(false)} />
+      <AddMilestoneDialog
+        projectId={projectId}
+        open={addingMilestone}
+        onClose={() => setAddingMilestone(false)}
+      />
       {upgradeElement}
     </>
   );

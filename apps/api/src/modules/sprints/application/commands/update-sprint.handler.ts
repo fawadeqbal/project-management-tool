@@ -1,7 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SprintSummaryDto } from '@hearth/contracts';
-import { NotFoundError, SPRINT_REPOSITORY, parseDateOnly, type Clock, type SprintRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SPRINT_REPOSITORY,
+  parseDateOnly,
+  type Clock,
+  type SprintRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';

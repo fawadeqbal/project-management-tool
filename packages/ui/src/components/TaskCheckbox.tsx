@@ -2,7 +2,10 @@ import { type ButtonHTMLAttributes, type MouseEvent } from 'react';
 import { cx } from '../internal/cx';
 import { Icon } from './Icon';
 
-export interface TaskCheckboxProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'role'> {
+export interface TaskCheckboxProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'onChange' | 'role'
+> {
   checked?: boolean;
   /** Accessible name. Default "Mark complete". */
   label?: string;
@@ -11,7 +14,14 @@ export interface TaskCheckboxProps extends Omit<ButtonHTMLAttributes<HTMLButtonE
 }
 
 /** Round completion checkbox used on task rows. */
-export function TaskCheckbox({ checked = false, label = 'Mark complete', onChange, onClick, className, ...rest }: TaskCheckboxProps) {
+export function TaskCheckbox({
+  checked = false,
+  label = 'Mark complete',
+  onChange,
+  onClick,
+  className,
+  ...rest
+}: TaskCheckboxProps) {
   return (
     <button
       type="button"

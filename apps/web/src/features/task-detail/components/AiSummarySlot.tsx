@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { Button, Icon, Textarea } from '@hearth/ui';
-import { AI_ROUTES, type AcceptSuggestionInput, type AcceptSuggestionResultDto, type AiSuggestionDto, type TaskDetailDto } from '@hearth/contracts';
+import {
+  AI_ROUTES,
+  type AcceptSuggestionInput,
+  type AcceptSuggestionResultDto,
+  type AiSuggestionDto,
+  type TaskDetailDto,
+} from '@hearth/contracts';
 import { http } from '@/shared/api/http';
 import { queryKeys } from '@/shared/api/query-keys';
 import { useAuthStore } from '@/shared/auth/auth-store';
@@ -17,7 +23,8 @@ export const aiApi = {
   suggestions: (taskId: string) => http.get<AiSuggestionDto[]>(AI_ROUTES.suggestions(taskId)),
   summarize: (taskId: string) => http.post<AiSuggestionDto>(AI_ROUTES.summary(taskId)),
   breakDown: (taskId: string) => http.post<AiSuggestionDto>(AI_ROUTES.breakdown(taskId)),
-  accept: (id: string, edited?: AcceptSuggestionInput['edited']) => http.post<AcceptSuggestionResultDto>(AI_ROUTES.accept(id), edited ? { edited } : {}),
+  accept: (id: string, edited?: AcceptSuggestionInput['edited']) =>
+    http.post<AcceptSuggestionResultDto>(AI_ROUTES.accept(id), edited ? { edited } : {}),
   discard: (id: string) => http.post<AiSuggestionDto>(AI_ROUTES.discard(id)),
 };
 
@@ -25,12 +32,19 @@ export const aiKeys = { suggestions: (taskId: string) => ['ai', 'suggestions', t
 
 export function usePendingSuggestions(taskId: string) {
   const token = useAuthStore((s) => s.token);
-  return useQuery({ queryKey: aiKeys.suggestions(taskId), queryFn: () => aiApi.suggestions(taskId), enabled: !!token && !taskId.startsWith('optimistic-'), staleTime: 60_000 });
+  return useQuery({
+    queryKey: aiKeys.suggestions(taskId),
+    queryFn: () => aiApi.suggestions(taskId),
+    enabled: !!token && !taskId.startsWith('optimistic-'),
+    staleTime: 60_000,
+  });
 }
 
 /** Removes a suggestion from the pending cache (accept/discard are optimistic). */
 export const dropSuggestion = (client: QueryClient, taskId: string, id: string) =>
-  client.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (list) => list?.filter((s) => s.id !== id));
+  client.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (list) =>
+    list?.filter((s) => s.id !== id),
+  );
 
 const SUMMARY_PREFIX = 'Summary: ';
 
@@ -72,20 +86,33 @@ export function AiSummarySlot({ task }: AiSummarySlotProps) {
   const generate = useOptimisticMutation<AiSuggestionDto, { taskId: string }>({
     mutationFn: ({ taskId }) => aiApi.summarize(taskId),
     affects: ({ taskId }) => [aiKeys.suggestions(taskId)],
-    onSuccess: (s, { taskId }, c) => c.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (list = []) => [s, ...list.filter((x) => x.kind !== 'summary')]),
-    errorMessage: (e) => (e.kind === 'limit_reached' ? e.message : `We couldn’t summarize this task. ${e.message}`),
+    onSuccess: (s, { taskId }, c) =>
+      c.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (list = []) => [
+        s,
+        ...list.filter((x) => x.kind !== 'summary'),
+      ]),
+    errorMessage: (e) =>
+      e.kind === 'limit_reached' ? e.message : `We couldn’t summarize this task. ${e.message}`,
   });
 
-  const accept = useOptimisticMutation<AcceptSuggestionResultDto, { taskId: string; suggestion: AiSuggestionDto; text?: string }>({
-    mutationFn: ({ suggestion, text: edited }) => aiApi.accept(suggestion.id, edited !== undefined ? { text: edited } : undefined),
+  const accept = useOptimisticMutation<
+    AcceptSuggestionResultDto,
+    { taskId: string; suggestion: AiSuggestionDto; text?: string }
+  >({
+    mutationFn: ({ suggestion, text: edited }) =>
+      aiApi.accept(suggestion.id, edited !== undefined ? { text: edited } : undefined),
     affects: ({ taskId }) => [aiKeys.suggestions(taskId), queryKeys.taskRoot],
     apply: (c, { taskId, suggestion, text: edited }) => {
       dropSuggestion(c, taskId, suggestion.id);
       const block = `${SUMMARY_PREFIX}${(edited ?? suggestion.summary?.text ?? '').trim()}`;
-      patchTaskDetail(c, taskId, (d) => ({ ...d, description: d.description?.trim() ? `${d.description.trimEnd()}\n\n${block}` : block }));
+      patchTaskDetail(c, taskId, (d) => ({
+        ...d,
+        description: d.description?.trim() ? `${d.description.trimEnd()}\n\n${block}` : block,
+      }));
     },
     onSuccess: (res, { taskId }, c) => {
-      if (res.description !== undefined) patchTaskDetail(c, taskId, (d) => ({ ...d, description: res.description ?? d.description }));
+      if (res.description !== undefined)
+        patchTaskDetail(c, taskId, (d) => ({ ...d, description: res.description ?? d.description }));
     },
     errorMessage: (e) => `The summary wasn’t added. ${e.message}`,
   });
@@ -102,7 +129,10 @@ export function AiSummarySlot({ task }: AiSummarySlotProps) {
     if (!summary) return;
     const edited = editing && draft.trim() !== summary.summary?.text ? draft.trim() : undefined;
     if (editing && !draft.trim()) return;
-    accept.mutate({ taskId: task.id, suggestion: summary, text: edited }, { onSuccess: () => show({ message: 'Summary added to the description', icon: 'sparkles' }) });
+    accept.mutate(
+      { taskId: task.id, suggestion: summary, text: edited },
+      { onSuccess: () => show({ message: 'Summary added to the description', icon: 'sparkles' }) },
+    );
   };
 
   const commands = useMemo<Command[]>(
@@ -139,13 +169,26 @@ export function AiSummarySlot({ task }: AiSummarySlotProps) {
         <span style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>· {summary.source}</span>
       </div>
       {editing ? (
-        <Textarea label="Edit the summary" hideLabel rows={4} value={draft} onChange={(e) => setDraft(e.target.value)} autoFocus maxLength={5000} />
+        <Textarea
+          label="Edit the summary"
+          hideLabel
+          rows={4}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          autoFocus
+          maxLength={5000}
+        />
       ) : (
         <p style={text}>{summary.summary?.text}</p>
       )}
       <div style={row}>
         {canEdit ? (
-          <Button variant="secondary" size="sm" onClick={add} disabled={accept.isPending || (editing && !draft.trim())}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={add}
+            disabled={accept.isPending || (editing && !draft.trim())}
+          >
             Add to description
           </Button>
         ) : null}

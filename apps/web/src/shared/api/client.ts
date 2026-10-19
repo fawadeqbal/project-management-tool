@@ -48,7 +48,8 @@ export const api = {
     update: (input: UpdateProfileInput) => http.patch<MeDto>(AUTH_ROUTES.me, input),
   },
   workspace: {
-    members: async () => items(await http.get<MemberDto[] | { items: MemberDto[] }>(WORKSPACE_ROUTES.members)),
+    members: async () =>
+      items(await http.get<MemberDto[] | { items: MemberDto[] }>(WORKSPACE_ROUTES.members)),
     teams: async () => items(await http.get<TeamDto[] | { items: TeamDto[] }>(WORKSPACE_ROUTES.teams)),
     tags: async () => items(await http.get<TagDto[] | { items: TagDto[] }>(WORKSPACE_ROUTES.tags)),
     createTag: (input: CreateTagRequest) => http.post<TagDto>(WORKSPACE_ROUTES.tags, input),
@@ -64,8 +65,10 @@ export const api = {
     update: (id: string, input: UpdateTaskInput) => http.patch<TaskDto>(TASK_ROUTES.byId(id), input),
     move: (id: string, input: MoveTaskRequest) => http.post<TaskDto>(TASK_ROUTES.move(id), input),
     remove: (id: string) => http.delete(TASK_ROUTES.byId(id)),
-    addComment: (id: string, input: CreateCommentInput) => http.post<CommentDto>(TASK_ROUTES.comments(id), input),
-    addDependency: (id: string, blockerId: string) => http.post<unknown>(TASK_ROUTES.dependencies(id), { blockerId }),
+    addComment: (id: string, input: CreateCommentInput) =>
+      http.post<CommentDto>(TASK_ROUTES.comments(id), input),
+    addDependency: (id: string, blockerId: string) =>
+      http.post<unknown>(TASK_ROUTES.dependencies(id), { blockerId }),
     removeDependency: (id: string, blockerId: string) => http.delete(TASK_ROUTES.dependency(id, blockerId)),
     follow: (id: string) => http.post<unknown>(TASK_ROUTES.follow(id)),
     unfollow: (id: string) => http.delete(TASK_ROUTES.follow(id)),

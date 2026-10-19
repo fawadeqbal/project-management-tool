@@ -21,7 +21,9 @@ const isWeekend = (d: Date) => d.getUTCDay() === 0 || d.getUTCDay() === 6;
 const fitLine = (line: typeof SPRINT24_LINE, days: number): typeof SPRINT24_LINE => {
   const out = [...line];
   while (out.length > days) {
-    const plateau = out.findIndex((v, i) => i > 0 && i < out.length - 1 && v[0] === out[i - 1]![0] && v[1] === out[i - 1]![1]);
+    const plateau = out.findIndex(
+      (v, i) => i > 0 && i < out.length - 1 && v[0] === out[i - 1]![0] && v[1] === out[i - 1]![1],
+    );
     out.splice(plateau > 0 ? plateau : 1, 1);
   }
   while (out.length < days) out.splice(out.length - 1, 0, out[out.length - 2] ?? out[0]!);
@@ -37,7 +39,10 @@ export async function seedPlanning(prisma: PrismaClient, ctx: SeedContext): Prom
   const projectId = ctx.projects['mobile'];
   if (!projectId) throw new Error('Seed planning: Mobile app v2 project missing');
 
-  await prisma.membership.updateMany({ where: { workspaceId: ctx.workspaceId }, data: { capacityHoursPerDay: 8 } });
+  await prisma.membership.updateMany({
+    where: { workspaceId: ctx.workspaceId },
+    data: { capacityHoursPerDay: 8 },
+  });
 
   // ── Completed history: two-week sprints ending before Sprint 24 starts ──
   const history: Array<[number, number, number]> = [
@@ -55,7 +60,12 @@ export async function seedPlanning(prisma: PrismaClient, ctx: SeedContext): Prom
         projectId,
         number,
         name: `Sprint ${number}`,
-        goal: number === 23 ? 'Swipe gestures and haptics prototype' : number === 22 ? 'Beta crash-free sessions above 99%' : 'Offline storage spike and deep links',
+        goal:
+          number === 23
+            ? 'Swipe gestures and haptics prototype'
+            : number === 22
+              ? 'Beta crash-free sessions above 99%'
+              : 'Offline storage spike and deep links',
         startDate,
         endDate,
         status: 'COMPLETED',
@@ -64,7 +74,11 @@ export async function seedPlanning(prisma: PrismaClient, ctx: SeedContext): Prom
         snapshots: {
           create: [
             { date: startDate, remainingPoints: committed, scopePoints: committed },
-            { date: day(ctx, -6 - offset + 7), remainingPoints: Math.round(committed / 2), scopePoints: committed },
+            {
+              date: day(ctx, -6 - offset + 7),
+              remainingPoints: Math.round(committed / 2),
+              scopePoints: committed,
+            },
             { date: endDate, remainingPoints: committed - completed, scopePoints: committed },
           ],
         },
@@ -92,7 +106,10 @@ export async function seedPlanning(prisma: PrismaClient, ctx: SeedContext): Prom
       return n >= 301 && n <= 311;
     })
     .map(([, id]) => id);
-  await prisma.task.updateMany({ where: { id: { in: sprintTaskIds } }, data: { sprintId: sprint24.id, backlogRank: null } });
+  await prisma.task.updateMany({
+    where: { id: { in: sprintTaskIds } },
+    data: { sprintId: sprint24.id, backlogRank: null },
+  });
 
   const workingDays: Date[] = [];
   for (let offset = -6; offset <= 0; offset++) {
@@ -101,15 +118,37 @@ export async function seedPlanning(prisma: PrismaClient, ctx: SeedContext): Prom
   }
   const line = fitLine(SPRINT24_LINE, workingDays.length);
   await prisma.sprintSnapshot.createMany({
-    data: workingDays.map((date, i) => ({ sprintId: sprint24.id, date, remainingPoints: line[i]![0], scopePoints: line[i]![1] })),
+    data: workingDays.map((date, i) => ({
+      sprintId: sprint24.id,
+      date,
+      remainingPoints: line[i]![0],
+      scopePoints: line[i]![1],
+    })),
   });
 
   // ── Sprint 25: planned, right after Sprint 24 ──
   await prisma.sprint.create({
-    data: { projectId, number: 25, name: 'Sprint 25', goal: null, startDate: day(ctx, 8), endDate: day(ctx, 21), status: 'PLANNED' },
+    data: {
+      projectId,
+      number: 25,
+      name: 'Sprint 25',
+      goal: null,
+      startDate: day(ctx, 8),
+      endDate: day(ctx, 21),
+      status: 'PLANNED',
+    },
   });
 
   // ── Time off: Jia, Thu–Fri this week ──
   const jia = ctx.users['JL'];
-  if (jia) await prisma.timeOff.create({ data: { workspaceId: ctx.workspaceId, userId: jia, startDate: day(ctx, 3), endDate: day(ctx, 4), reason: 'Family visit' } });
+  if (jia)
+    await prisma.timeOff.create({
+      data: {
+        workspaceId: ctx.workspaceId,
+        userId: jia,
+        startDate: day(ctx, 3),
+        endDate: day(ctx, 4),
+        reason: 'Family visit',
+      },
+    });
 }

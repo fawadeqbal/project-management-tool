@@ -48,7 +48,11 @@ function WorkspaceSwitcher() {
         },
       ]}
       trigger={
-        <button type="button" className={styles.workspace} aria-label={`Workspace: ${current.name}. Switch workspace`}>
+        <button
+          type="button"
+          className={styles.workspace}
+          aria-label={`Workspace: ${current.name}. Switch workspace`}
+        >
           <span className={styles.workspaceMark} aria-hidden="true">
             {current.name.charAt(0).toUpperCase()}
           </span>
@@ -143,8 +147,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               {onboarding.completed} of {onboarding.total}
             </span>
           </span>
-          <ProgressBar value={Math.round((onboarding.completed / onboarding.total) * 100)} label="Getting started" />
-          {onboarding.nextStep ? <span className={styles.onboardingNext}>Next: {onboarding.nextStep} →</span> : null}
+          <ProgressBar
+            value={Math.round((onboarding.completed / onboarding.total) * 100)}
+            label="Getting started"
+          />
+          {onboarding.nextStep ? (
+            <span className={styles.onboardingNext}>Next: {onboarding.nextStep} →</span>
+          ) : null}
         </Link>
       ) : null}
 

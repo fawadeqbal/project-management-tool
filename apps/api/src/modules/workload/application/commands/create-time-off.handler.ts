@@ -23,19 +23,42 @@ export class CreateTimeOffHandler implements ICommandHandler<CreateTimeOffComman
   async execute({ actor, input }: CreateTimeOffCommand): Promise<TimeOffDto> {
     const userId = input.userId ?? actor.userId;
     assertCanManageTimeOff(this.access, actor, userId);
-    const member = await this.prisma.membership.findUnique({ where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId } } });
+    const member = await this.prisma.membership.findUnique({
+      where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId } },
+    });
     if (!member) throw new NotFoundError('Member', userId);
     const startDate = parseDateOnly(input.startDate);
     const endDate = parseDateOnly(input.endDate);
-    const overlap = await this.prisma.timeOff.findFirst({ where: { workspaceId: actor.workspaceId, userId, startDate: { lte: endDate }, endDate: { gte: startDate } } });
-    if (overlap) throw new ConflictError('time_off.overlap', 'Those days overlap time off that’s already planned. Edit the existing entry instead.', { timeOffId: overlap.id });
+    const overlap = await this.prisma.timeOff.findFirst({
+      where: {
+        workspaceId: actor.workspaceId,
+        userId,
+        startDate: { lte: endDate },
+        endDate: { gte: startDate },
+      },
+    });
+    if (overlap)
+      throw new ConflictError(
+        'time_off.overlap',
+        'Those days overlap time off that’s already planned. Edit the existing entry instead.',
+        { timeOffId: overlap.id },
+      );
     const row = await this.prisma.timeOff.create({
       data: { workspaceId: actor.workspaceId, userId, startDate, endDate, reason: input.reason ?? null },
       include: { user: { select: USER_REF_SELECT } },
     });
     const dto = toTimeOffDto(row);
     this.events.publish(
-      createEvent('time_off.added', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: row.id, occurredAt: this.clock.now() }, { userId, startDate: dto.startDate, endDate: dto.endDate }),
+      createEvent(
+        'time_off.added',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: row.id,
+          occurredAt: this.clock.now(),
+        },
+        { userId, startDate: dto.startDate, endDate: dto.endDate },
+      ),
     );
     return dto;
   }

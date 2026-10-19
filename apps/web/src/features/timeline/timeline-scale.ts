@@ -32,7 +32,15 @@ export function makeScale(from: string, to: string, zoom: Zoom): Scale {
   const px = PX_PER_DAY[zoom];
   const days = diffInDays(f, t) + 1;
   const x = (d: string | Date) => diffInDays(f, typeof d === 'string' ? parseDateOnly(d) : d) * px;
-  return { from: f, to: t, px, days, width: days * px, x, dateAt: (xx: number) => toDateOnly(addDays(f, Math.floor(xx / px))) };
+  return {
+    from: f,
+    to: t,
+    px,
+    days,
+    width: days * px,
+    x,
+    dateAt: (xx: number) => toDateOnly(addDays(f, Math.floor(xx / px))),
+  };
 }
 
 export interface HeaderCell {
@@ -49,7 +57,13 @@ export function headerCells(scale: Scale, zoom: Zoom): HeaderCell[] {
   if (zoom === 'day') {
     for (let i = 0; i < scale.days; i++) {
       const d = addDays(scale.from, i);
-      cells.push({ key: toDateOnly(d), label: String(d.getUTCDate()), sub: 'SMTWTFS'[d.getUTCDay()], left: i * scale.px, width: scale.px });
+      cells.push({
+        key: toDateOnly(d),
+        label: String(d.getUTCDate()),
+        sub: 'SMTWTFS'[d.getUTCDay()],
+        left: i * scale.px,
+        width: scale.px,
+      });
     }
     return cells;
   }
@@ -68,7 +82,11 @@ export function headerCells(scale: Scale, zoom: Zoom): HeaderCell[] {
     const next = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
     const left = Math.max(0, scale.x(d));
     const end = Math.min(scale.width, scale.x(next));
-    const label = d.toLocaleDateString('en-US', { month: zoom === 'quarter' ? 'short' : 'long', year: d.getUTCMonth() === 0 ? 'numeric' : undefined, timeZone: 'UTC' });
+    const label = d.toLocaleDateString('en-US', {
+      month: zoom === 'quarter' ? 'short' : 'long',
+      year: d.getUTCMonth() === 0 ? 'numeric' : undefined,
+      timeZone: 'UTC',
+    });
     cells.push({ key: toDateOnly(d), label, left, width: end - left });
     d = next;
   }
@@ -89,14 +107,29 @@ export const barGeometry = (scale: Scale, start: string, due: string): BarGeomet
 export const milestoneX = (scale: Scale, date: string) => scale.x(date) + scale.px / 2;
 
 /** SVG path for a finish-to-start connector, in chart coordinates. */
-export function linkPath(rows: readonly TimelineRowDto[], scale: Scale, link: TimelineLinkDto): string | null {
+export function linkPath(
+  rows: readonly TimelineRowDto[],
+  scale: Scale,
+  link: TimelineLinkDto,
+): string | null {
   const a = rows.findIndex((r) => r.id === link.fromId);
   const b = rows.findIndex((r) => r.id === link.toId);
   if (a < 0 || b < 0) return null;
   const from = rows[a]!;
   const to = rows[b]!;
-  const xe = from.kind === 'task' ? barGeometry(scale, from.startDate, from.dueDate).left + barGeometry(scale, from.startDate, from.dueDate).width : from.kind === 'milestone' ? milestoneX(scale, from.date) + 7 : null;
-  const xs = to.kind === 'task' ? barGeometry(scale, to.startDate, to.dueDate).left : to.kind === 'milestone' ? milestoneX(scale, to.date) - 7 : null;
+  const xe =
+    from.kind === 'task'
+      ? barGeometry(scale, from.startDate, from.dueDate).left +
+        barGeometry(scale, from.startDate, from.dueDate).width
+      : from.kind === 'milestone'
+        ? milestoneX(scale, from.date) + 7
+        : null;
+  const xs =
+    to.kind === 'task'
+      ? barGeometry(scale, to.startDate, to.dueDate).left
+      : to.kind === 'milestone'
+        ? milestoneX(scale, to.date) - 7
+        : null;
   if (xe === null || xs === null) return null;
   const ye = a * ROW_HEIGHT + ROW_HEIGHT / 2;
   const ys = b * ROW_HEIGHT + ROW_HEIGHT / 2;
@@ -105,7 +138,11 @@ export function linkPath(rows: readonly TimelineRowDto[], scale: Scale, link: Ti
 }
 
 /** Widen the server's window so the chart always fills the viewport at coarse zooms. */
-export function chartRange(t: Pick<TimelineDto, 'from' | 'to'>, zoom: Zoom, minWidth = 900): { from: string; to: string } {
+export function chartRange(
+  t: Pick<TimelineDto, 'from' | 'to'>,
+  zoom: Zoom,
+  minWidth = 900,
+): { from: string; to: string } {
   const px = PX_PER_DAY[zoom];
   const days = diffInDays(parseDateOnly(t.from), parseDateOnly(t.to)) + 1;
   const need = Math.ceil(minWidth / px);

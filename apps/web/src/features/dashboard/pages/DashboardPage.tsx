@@ -1,9 +1,27 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { DASHBOARD_WIDGETS, type DashboardDto, type DashboardWidgetId, type ReportRangeDto } from '@hearth/contracts';
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import {
+  DASHBOARD_WIDGETS,
+  type DashboardDto,
+  type DashboardWidgetId,
+  type ReportRangeDto,
+} from '@hearth/contracts';
 import { humanizeTimeAgo } from '@hearth/domain';
 import { Button, EmptyState, SegmentedControl, Skeleton } from '@hearth/ui';
 import { ApiError } from '@/shared/api/http';
@@ -71,7 +89,10 @@ export function DashboardPage() {
     return () => clearInterval(t);
   }, []);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const saveLayout = useMutation<{ layout: DashboardWidgetId[] }, ApiError, DashboardWidgetId[]>({
     mutationFn: async (w) => {
@@ -82,7 +103,9 @@ export function DashboardPage() {
       }
     },
     onSuccess: ({ layout }) => {
-      client.setQueriesData<DashboardDto>({ queryKey: dashboardKeys.all }, (old) => (old ? { ...old, layout } : old));
+      client.setQueriesData<DashboardDto>({ queryKey: dashboardKeys.all }, (old) =>
+        old ? { ...old, layout } : old,
+      );
       setEditing(false);
       show({ message: 'Layout saved' });
     },
@@ -133,12 +156,48 @@ export function DashboardPage() {
 
   const commands = useMemo<Command[]>(
     () => [
-      { id: 'dashboard.range.2w', title: 'Dashboard range: 2 weeks', group: 'Actions', icon: 'calendar', run: () => setRange('2w') },
-      { id: 'dashboard.range.6w', title: 'Dashboard range: 6 weeks', group: 'Actions', icon: 'calendar', run: () => setRange('6w') },
-      { id: 'dashboard.range.q', title: 'Dashboard range: Quarter', group: 'Actions', icon: 'calendar', run: () => setRange('q') },
-      { id: 'dashboard.edit-layout', title: 'Edit dashboard layout', group: 'Actions', icon: 'settings', run: () => setEditing(true) },
-      { id: 'dashboard.schedule', title: 'Schedule dashboard email', group: 'Actions', icon: 'clock', run: () => setScheduleOpen(true) },
-      { id: 'dashboard.share', title: 'Copy dashboard link', group: 'Actions', icon: 'link', run: () => void share() },
+      {
+        id: 'dashboard.range.2w',
+        title: 'Dashboard range: 2 weeks',
+        group: 'Actions',
+        icon: 'calendar',
+        run: () => setRange('2w'),
+      },
+      {
+        id: 'dashboard.range.6w',
+        title: 'Dashboard range: 6 weeks',
+        group: 'Actions',
+        icon: 'calendar',
+        run: () => setRange('6w'),
+      },
+      {
+        id: 'dashboard.range.q',
+        title: 'Dashboard range: Quarter',
+        group: 'Actions',
+        icon: 'calendar',
+        run: () => setRange('q'),
+      },
+      {
+        id: 'dashboard.edit-layout',
+        title: 'Edit dashboard layout',
+        group: 'Actions',
+        icon: 'settings',
+        run: () => setEditing(true),
+      },
+      {
+        id: 'dashboard.schedule',
+        title: 'Schedule dashboard email',
+        group: 'Actions',
+        icon: 'clock',
+        run: () => setScheduleOpen(true),
+      },
+      {
+        id: 'dashboard.share',
+        title: 'Copy dashboard link',
+        group: 'Actions',
+        icon: 'link',
+        run: () => void share(),
+      },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps -- setters are stable; share reads location at call time
     [],
@@ -148,7 +207,9 @@ export function DashboardPage() {
   const onDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
-    setOrder((o) => arrayMove(o, o.indexOf(active.id as DashboardWidgetId), o.indexOf(over.id as DashboardWidgetId)));
+    setOrder((o) =>
+      arrayMove(o, o.indexOf(active.id as DashboardWidgetId), o.indexOf(over.id as DashboardWidgetId)),
+    );
   };
 
   const widget = (id: DashboardWidgetId, d: DashboardDto): ReactNode => {
@@ -217,14 +278,25 @@ export function DashboardPage() {
 
       {isLoading ? <DashboardSkeleton /> : null}
       {error && !data ? (
-        <EmptyState icon="alert" title="The dashboard didn’t load" description={error.message} primaryAction={<Button onClick={() => void refetch()}>Try again</Button>} />
+        <EmptyState
+          icon="alert"
+          title="The dashboard didn’t load"
+          description={error.message}
+          primaryAction={<Button onClick={() => void refetch()}>Try again</Button>}
+        />
       ) : null}
       {data ? (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={order} strategy={rectSortingStrategy}>
             <div className={styles.grid}>
               {order.map((id) => (
-                <SortableWidget key={id} id={id} label={WIDGET_META[id].label} wide={WIDGET_META[id].wide} editing={editing}>
+                <SortableWidget
+                  key={id}
+                  id={id}
+                  label={WIDGET_META[id].label}
+                  wide={WIDGET_META[id].wide}
+                  editing={editing}
+                >
                   {widget(id, data)}
                 </SortableWidget>
               ))}
@@ -233,7 +305,13 @@ export function DashboardPage() {
         </DndContext>
       ) : null}
 
-      <ScheduleDialog open={scheduleOpen} initial={data?.schedule?.recipients ?? []} busy={schedule.isPending} onClose={() => setScheduleOpen(false)} onSubmit={(r) => schedule.mutate(r)} />
+      <ScheduleDialog
+        open={scheduleOpen}
+        initial={data?.schedule?.recipients ?? []}
+        busy={schedule.isPending}
+        onClose={() => setScheduleOpen(false)}
+        onSubmit={(r) => schedule.mutate(r)}
+      />
       {upgrade.element}
     </div>
   );

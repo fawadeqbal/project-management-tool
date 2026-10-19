@@ -20,7 +20,10 @@ export const toSuggestionDto = (s: AiSuggestion): AiSuggestionDto => {
     kind: s.kind === 'breakdown' ? 'breakdown' : 'summary',
     status: s.status,
     source: s.source,
-    summary: s.kind === 'summary' ? { text: content.text ?? '', suggestedNextStep: content.suggestedNextStep ?? null } : null,
+    summary:
+      s.kind === 'summary'
+        ? { text: content.text ?? '', suggestedNextStep: content.suggestedNextStep ?? null }
+        : null,
     breakdown: s.kind === 'breakdown' ? { subtasks: content.subtasks ?? [] } : null,
     createdAt: s.createdAt.toISOString(),
   };
@@ -32,9 +35,15 @@ export class AiSuggestionReadModel {
 
   /** Pending suggestions for a task, newest first, one per kind. */
   async pending(workspaceId: string, taskId: string): Promise<AiSuggestionDto[]> {
-    const task = await this.prisma.task.findFirst({ where: { id: taskId, workspaceId }, select: { id: true } });
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, workspaceId },
+      select: { id: true },
+    });
     if (!task) throw new NotFoundError('Task', taskId);
-    const rows = await this.prisma.aiSuggestion.findMany({ where: { taskId, status: 'PENDING' }, orderBy: { createdAt: 'desc' } });
+    const rows = await this.prisma.aiSuggestion.findMany({
+      where: { taskId, status: 'PENDING' },
+      orderBy: { createdAt: 'desc' },
+    });
     const seen = new Set<string>();
     return rows.filter((r) => !seen.has(r.kind) && seen.add(r.kind)).map(toSuggestionDto);
   }

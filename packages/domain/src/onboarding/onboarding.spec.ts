@@ -5,7 +5,12 @@ import { budgetTone, throughputVerdict } from '../reporting/ranges';
 
 describe('onboarding', () => {
   it('merges inferred and stored steps with one next step', () => {
-    const inferred = inferOnboardingSteps({ tasksCreatedByUser: 3, activeMembers: 2, projectsFromTemplate: 0, slackConnected: false });
+    const inferred = inferOnboardingSteps({
+      tasksCreatedByUser: 3,
+      activeMembers: 2,
+      projectsFromTemplate: 0,
+      slackConnected: false,
+    });
     const p = onboardingProgress([...new Set([...inferred, 'start-from-template'])]);
     expect(p.completed).toBe(3);
     expect(p.steps.filter((s) => s.isNext).map((s) => s.id)).toEqual(['invite-teammates']);

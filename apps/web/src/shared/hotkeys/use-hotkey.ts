@@ -11,7 +11,11 @@ export interface UseHotkeyOptions extends HotkeyOptions {
  *   useHotkey(['G', 'I'], () => navigate('/inbox'));
  *   useHotkey('Mod+Enter', send, { allowInInputs: true });
  */
-export function useHotkey(keys: string | readonly string[], handler: HotkeyHandler, options: UseHotkeyOptions = {}) {
+export function useHotkey(
+  keys: string | readonly string[],
+  handler: HotkeyHandler,
+  options: UseHotkeyOptions = {},
+) {
   const ref = useRef(handler);
   useEffect(() => {
     ref.current = handler;
@@ -20,6 +24,11 @@ export function useHotkey(keys: string | readonly string[], handler: HotkeyHandl
   const id = typeof keys === 'string' ? keys : keys.join(' ');
   useEffect(() => {
     if (!enabled) return;
-    return hotkeys.register(id, (e) => ref.current(e), { allowInInputs, allowInModals, preventDefault, priority });
+    return hotkeys.register(id, (e) => ref.current(e), {
+      allowInInputs,
+      allowInModals,
+      preventDefault,
+      priority,
+    });
   }, [id, enabled, allowInInputs, allowInModals, preventDefault, priority]);
 }

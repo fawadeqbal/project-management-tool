@@ -11,12 +11,19 @@ export interface MentionCandidate {
 }
 
 const firstName = (name: string): string => (name.trim().split(/\s+/)[0] ?? '').toLowerCase();
-const emailLocal = (email?: string | null): string | null => (email ? (email.split('@')[0] ?? '').toLowerCase() : null);
-const cleanHandle = (handle: string): string => handle.toLowerCase().replace(/^[@#]/, '').replace(/[.\-_]+$/, '');
+const emailLocal = (email?: string | null): string | null =>
+  email ? (email.split('@')[0] ?? '').toLowerCase() : null;
+const cleanHandle = (handle: string): string =>
+  handle
+    .toLowerCase()
+    .replace(/^[@#]/, '')
+    .replace(/[.\-_]+$/, '');
 
 /** "@Fawad, can you…" → ['fawad']. Handles are lowercased and de-duplicated. */
 export const mentionHandles = (body: string): string[] => {
-  const handles = [...body.matchAll(/(?:^|[^\p{L}\d@._-])@([\p{L}\d._-]+)/gu)].map((m) => cleanHandle(m[1] ?? '')).filter(Boolean);
+  const handles = [...body.matchAll(/(?:^|[^\p{L}\d@._-])@([\p{L}\d._-]+)/gu)]
+    .map((m) => cleanHandle(m[1] ?? ''))
+    .filter(Boolean);
   return [...new Set(handles)];
 };
 
@@ -24,7 +31,11 @@ export const mentionHandles = (body: string): string[] => {
  * Exact match on first name, initials or email local part; with `allowPrefix`, falls back to a
  * first-name prefix ("@sa" → Sara) when exactly one person matches.
  */
-export const matchMember = <T extends MentionCandidate>(handle: string, members: readonly T[], allowPrefix = false): T | null => {
+export const matchMember = <T extends MentionCandidate>(
+  handle: string,
+  members: readonly T[],
+  allowPrefix = false,
+): T | null => {
   const h = cleanHandle(handle);
   if (!h) return null;
   const exact =
@@ -47,10 +58,17 @@ export const resolveMentions = <T extends MentionCandidate>(body: string, member
 };
 
 const slug = (s: string): string => s.toLowerCase().replace(/[^\p{L}\d]+/gu, '');
-const words = (s: string): string[] => s.toLowerCase().split(/[^\p{L}\d]+/u).filter(Boolean);
+const words = (s: string): string[] =>
+  s
+    .toLowerCase()
+    .split(/[^\p{L}\d]+/u)
+    .filter(Boolean);
 
 /** "#website" → "Website relaunch": exact slug, then slug prefix, then any word prefix. */
-export const matchProject = <T extends { id: string; name: string }>(handle: string, projects: readonly T[]): T | null => {
+export const matchProject = <T extends { id: string; name: string }>(
+  handle: string,
+  projects: readonly T[],
+): T | null => {
   const h = slug(handle);
   if (!h) return null;
   return (

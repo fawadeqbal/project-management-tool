@@ -245,7 +245,13 @@
 
 .cell[data-state='off'],
 .swatch[data-state='off'] {
-  background: repeating-linear-gradient(135deg, var(--bg-hover) 0, var(--bg-hover) 3px, transparent 3px, transparent 6px);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--bg-hover) 0,
+    var(--bg-hover) 3px,
+    transparent 3px,
+    transparent 6px
+  );
   color: var(--text-tertiary);
   border-color: var(--border-default);
   cursor: default;

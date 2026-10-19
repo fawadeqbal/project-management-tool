@@ -19,17 +19,33 @@ export interface KpiTileProps extends Omit<CardProps, 'children'> {
 }
 
 /** Metric tile used on Dashboard, Workload and Billing. */
-export function KpiTile({ label, value, delta, deltaTone = 'neutral', sub, valueTone = 'neutral', icon, className, ...rest }: KpiTileProps) {
+export function KpiTile({
+  label,
+  value,
+  delta,
+  deltaTone = 'neutral',
+  sub,
+  valueTone = 'neutral',
+  icon,
+  className,
+  ...rest
+}: KpiTileProps) {
   return (
     <Card {...rest} className={cx('ht-kpi', className)}>
       <span className="ht-kpi-label">
         {icon ? <Icon name={icon} /> : null}
         {label}
       </span>
-      <span className={cx('ht-kpi-value', valueTone !== 'neutral' && `ht-kpi-value-${valueTone}`)}>{value}</span>
+      <span className={cx('ht-kpi-value', valueTone !== 'neutral' && `ht-kpi-value-${valueTone}`)}>
+        {value}
+      </span>
       {delta || sub ? (
         <span className="ht-kpi-foot">
-          {delta ? <span className={cx('ht-kpi-delta', deltaTone !== 'neutral' && `ht-kpi-delta-${deltaTone}`)}>{delta}</span> : null}
+          {delta ? (
+            <span className={cx('ht-kpi-delta', deltaTone !== 'neutral' && `ht-kpi-delta-${deltaTone}`)}>
+              {delta}
+            </span>
+          ) : null}
           {sub ? <span>{sub}</span> : null}
         </span>
       ) : null}

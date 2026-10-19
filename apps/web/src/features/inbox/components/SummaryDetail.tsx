@@ -18,7 +18,11 @@ export function SummaryDetail({ item, ...handlers }: { item: InboxItemDto } & De
         </span>
         <h2 className={styles.detailTitle}>{task?.title ?? item.excerpt ?? item.title}</h2>
         <p className={styles.detailBy}>
-          <Avatar initials={item.actor?.initials ?? '·'} name={item.actor?.name} color={item.actor?.avatarColor ?? 'slate'} />
+          <Avatar
+            initials={item.actor?.initials ?? '·'}
+            name={item.actor?.name}
+            color={item.actor?.avatarColor ?? 'slate'}
+          />
           {item.title} · {localTime(item)}
         </p>
       </div>
@@ -34,7 +38,8 @@ export function SummaryDetail({ item, ...handlers }: { item: InboxItemDto } & De
           <dd data-tone={due?.tone}>
             {due ? (
               <>
-                {due.overdue ? <Icon name="alert" size={12} /> : null} {due.overdue ? `Overdue · ${due.label}` : due.label}
+                {due.overdue ? <Icon name="alert" size={12} /> : null}{' '}
+                {due.overdue ? `Overdue · ${due.label}` : due.label}
               </>
             ) : (
               'No due date'

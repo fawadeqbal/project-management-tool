@@ -46,11 +46,32 @@ function ProfileMenu() {
           id: 'profile',
           heading: `${user.name} · ${user.email}`,
           items: [
-            { id: 'theme', label: resolved === 'dark' ? 'Switch to light theme' : 'Switch to dark theme', icon: resolved === 'dark' ? 'sun' : 'moon', onSelect: toggle },
-            { id: 'shortcuts', label: 'Keyboard shortcuts', icon: 'command', shortcut: '?', onSelect: () => setShortcutsOpen(true) },
+            {
+              id: 'theme',
+              label: resolved === 'dark' ? 'Switch to light theme' : 'Switch to dark theme',
+              icon: resolved === 'dark' ? 'sun' : 'moon',
+              onSelect: toggle,
+            },
+            {
+              id: 'shortcuts',
+              label: 'Keyboard shortcuts',
+              icon: 'command',
+              shortcut: '?',
+              onSelect: () => setShortcutsOpen(true),
+            },
           ],
         },
-        { id: 'session', items: [{ id: 'logout', label: 'Log out', icon: 'arrow-right', onSelect: () => void registry.run('app.logout') }] },
+        {
+          id: 'session',
+          items: [
+            {
+              id: 'logout',
+              label: 'Log out',
+              icon: 'arrow-right',
+              onSelect: () => void registry.run('app.logout'),
+            },
+          ],
+        },
       ]}
       trigger={
         <button type="button" className={styles.avatarButton} aria-label={`Account menu for ${user.name}`}>
@@ -85,12 +106,22 @@ export function TopBar() {
         onClick={() => setMobileNav(!mobileNavOpen)}
       />
       <Breadcrumb />
-      <button type="button" className={styles.search} onClick={() => openPalette()} aria-keyshortcuts={isMac() ? 'Meta+K' : 'Control+K'}>
+      <button
+        type="button"
+        className={styles.search}
+        onClick={() => openPalette()}
+        aria-keyshortcuts={isMac() ? 'Meta+K' : 'Control+K'}
+      >
         <Icon name="search" />
         <span className={styles.searchLabel}>Search or jump to…</span>
         <Kbd keys={isMac() ? '⌘K' : 'Ctrl K'} className={styles.hideCompact} />
       </button>
-      <Button variant="ghost" icon="sparkles" className={styles.hideCompact} onClick={() => openPalette({ mode: 'ai' })}>
+      <Button
+        variant="ghost"
+        icon="sparkles"
+        className={styles.hideCompact}
+        onClick={() => openPalette({ mode: 'ai' })}
+      >
         Ask Hearth
       </Button>
       <Button icon="plus" onClick={() => openCreateTask()} aria-keyshortcuts="C">
@@ -110,7 +141,13 @@ export function TopBar() {
           </span>
         ) : null}
       </span>
-      <Button variant="ghost" icon="help" aria-label="Help and keyboard shortcuts" className={styles.hideCompact} onClick={() => setShortcutsOpen(true)} />
+      <Button
+        variant="ghost"
+        icon="help"
+        aria-label="Help and keyboard shortcuts"
+        className={styles.hideCompact}
+        onClick={() => setShortcutsOpen(true)}
+      />
       <ProfileMenu />
     </header>
   );

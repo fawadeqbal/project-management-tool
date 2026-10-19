@@ -19,9 +19,15 @@ export interface ProjectSchedule {
 
 /** Read port: the schedule graph around a task (its project's tasks, milestones and links). */
 export interface ScheduleReader {
-  scheduleForTask(workspaceId: string, taskId: string): Promise<{ task: ScheduleItem; schedule: ProjectSchedule } | null>;
+  scheduleForTask(
+    workspaceId: string,
+    taskId: string,
+  ): Promise<{ task: ScheduleItem; schedule: ProjectSchedule } | null>;
   /** Current dates for explicit items (Undo). Unknown ids are omitted. */
-  itemsByIds(workspaceId: string, refs: { kind: 'task' | 'milestone'; id: string }[]): Promise<ScheduleItem[]>;
+  itemsByIds(
+    workspaceId: string,
+    refs: { kind: 'task' | 'milestone'; id: string }[],
+  ): Promise<ScheduleItem[]>;
 }
 export const SCHEDULE_READER = Symbol('ScheduleReader');
 

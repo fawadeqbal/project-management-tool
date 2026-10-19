@@ -1,7 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { APPROVAL_REPOSITORY, Approval, NotFoundError, ValidationError, parseDateOnly, type Clock } from '@hearth/domain';
+import {
+  APPROVAL_REPOSITORY,
+  Approval,
+  NotFoundError,
+  ValidationError,
+  parseDateOnly,
+  type Clock,
+} from '@hearth/domain';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
@@ -21,12 +28,20 @@ export class RequestApprovalHandler implements ICommandHandler<RequestApprovalCo
   ) {}
 
   async execute({ actor, taskId, input }: RequestApprovalCommand): Promise<{ id: string }> {
-    const task = await this.prisma.task.findFirst({ where: { id: taskId, workspaceId: actor.workspaceId }, select: { id: true, projectId: true } });
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, workspaceId: actor.workspaceId },
+      select: { id: true, projectId: true },
+    });
     if (!task) throw new NotFoundError('Task', taskId);
     this.access.assert(actor, 'tasks.edit', { projectId: task.projectId });
-    const members = await this.prisma.membership.count({ where: { workspaceId: actor.workspaceId, userId: { in: input.approverIds }, status: 'ACTIVE' } });
+    const members = await this.prisma.membership.count({
+      where: { workspaceId: actor.workspaceId, userId: { in: input.approverIds }, status: 'ACTIVE' },
+    });
     if (members !== new Set(input.approverIds).size)
-      throw new ValidationError('approval.approvers', 'Some approvers aren’t active members of this workspace. Pick people from the list.');
+      throw new ValidationError(
+        'approval.approvers',
+        'Some approvers aren’t active members of this workspace. Pick people from the list.',
+      );
 
     const approval = Approval.request(
       {
@@ -44,7 +59,12 @@ export class RequestApprovalHandler implements ICommandHandler<RequestApprovalCo
     await this.approvals.save(approval);
     await this.approvals.addAttachments(
       approval.id,
-      (input.attachments ?? []).map((a) => ({ name: a.name, kind: a.kind, url: a.url, sizeBytes: a.sizeBytes })),
+      (input.attachments ?? []).map((a) => ({
+        name: a.name,
+        kind: a.kind,
+        url: a.url,
+        sizeBytes: a.sizeBytes,
+      })),
     );
     this.events.publishFrom(approval);
     return { id: approval.id };

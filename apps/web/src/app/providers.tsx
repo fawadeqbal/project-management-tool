@@ -81,7 +81,11 @@ export function ShellProviders({ children }: { children: ReactNode }) {
       client.clear();
       const next = encodeURIComponent(window.location.pathname + window.location.search);
       void navigate(`/login?next=${next}`, { replace: true });
-      toast.show({ message: 'Your session ended. Log in again to pick up where you left off.', tone: 'info', icon: 'lock' });
+      toast.show({
+        message: 'Your session ended. Log in again to pick up where you left off.',
+        tone: 'info',
+        icon: 'lock',
+      });
     });
   }, [navigate, client]);
 

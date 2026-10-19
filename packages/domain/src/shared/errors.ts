@@ -3,7 +3,8 @@
  * Hearth voice (what happened, why, how to fix). Adapters map them to transport errors
  * (HTTP status, toast copy) without the domain knowing about either.
  */
-export type DomainErrorKind = 'validation' | 'not_found' | 'forbidden' | 'conflict' | 'limit_reached' | 'invariant';
+export type DomainErrorKind =
+  'validation' | 'not_found' | 'forbidden' | 'conflict' | 'limit_reached' | 'invariant';
 
 export abstract class DomainError extends Error {
   abstract readonly kind: DomainErrorKind;
@@ -28,16 +29,23 @@ export class ValidationError extends DomainError {
 export class NotFoundError extends DomainError {
   readonly kind = 'not_found' as const;
   constructor(entity: string, id: string) {
-    super(`${entity.toLowerCase()}.not_found`, `We couldn’t find that ${entity.toLowerCase()}. It may have been deleted or moved.`, {
-      entity,
-      id,
-    });
+    super(
+      `${entity.toLowerCase()}.not_found`,
+      `We couldn’t find that ${entity.toLowerCase()}. It may have been deleted or moved.`,
+      {
+        entity,
+        id,
+      },
+    );
   }
 }
 
 export class ForbiddenError extends DomainError {
   readonly kind = 'forbidden' as const;
-  constructor(code: string, message = 'You don’t have permission to do that. Ask a workspace admin for access.') {
+  constructor(
+    code: string,
+    message = 'You don’t have permission to do that. Ask a workspace admin for access.',
+  ) {
     super(code, message);
   }
 }

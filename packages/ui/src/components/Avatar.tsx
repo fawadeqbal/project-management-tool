@@ -75,7 +75,13 @@ export function AvatarGroup({ people, max = 4, size = 28, className, ...rest }: 
           className="ht-avatar"
           role="img"
           aria-label={`${hidden} more`}
-          style={{ width: size, height: size, fontSize: 11, background: 'var(--bg-subtle)', color: 'var(--text-secondary)' }}
+          style={{
+            width: size,
+            height: size,
+            fontSize: 11,
+            background: 'var(--bg-subtle)',
+            color: 'var(--text-secondary)',
+          }}
         >
           <span aria-hidden="true">+{hidden}</span>
         </span>

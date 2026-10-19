@@ -11,10 +11,17 @@ export const REPORT_RANGE_META: Record<ReportRange, { weeks: number; label: stri
 };
 
 /** The chart's one-line answer: "Completed ≥ created for 4 of 6 weeks". */
-export const throughputVerdict = (buckets: readonly ThroughputBucket[]): { keptUp: number; weeks: number; text: string; tone: 'good' | 'bad' } => {
+export const throughputVerdict = (
+  buckets: readonly ThroughputBucket[],
+): { keptUp: number; weeks: number; text: string; tone: 'good' | 'bad' } => {
   const keptUp = buckets.filter((b) => b.completed >= b.created).length;
   const weeks = buckets.length;
-  return { keptUp, weeks, text: `Completed ≥ created for ${keptUp} of ${weeks} weeks`, tone: keptUp * 2 >= weeks ? 'good' : 'bad' };
+  return {
+    keptUp,
+    weeks,
+    text: `Completed ≥ created for ${keptUp} of ${weeks} weeks`,
+    tone: keptUp * 2 >= weeks ? 'good' : 'bad',
+  };
 };
 
 /** Budget used is a warning when it runs ahead of progress by more than 20 points, or above 90%. */

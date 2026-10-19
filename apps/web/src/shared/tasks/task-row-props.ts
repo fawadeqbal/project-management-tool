@@ -3,9 +3,23 @@ import type { TaskDto } from '@hearth/contracts';
 import { dueInfo } from './dates';
 
 /** Maps a TaskDto to the design system's TaskRow/BoardCard display props. */
-export function taskRowProps(task: TaskDto, now?: Date): Pick<
+export function taskRowProps(
+  task: TaskDto,
+  now?: Date,
+): Pick<
   TaskRowProps,
-  'id' | 'title' | 'priority' | 'status' | 'tag' | 'tagColor' | 'due' | 'dueTone' | 'assignee' | 'assigneeColor' | 'assigneeName' | 'done'
+  | 'id'
+  | 'title'
+  | 'priority'
+  | 'status'
+  | 'tag'
+  | 'tagColor'
+  | 'due'
+  | 'dueTone'
+  | 'assignee'
+  | 'assigneeColor'
+  | 'assigneeName'
+  | 'done'
 > {
   const done = task.status === 'DONE';
   const due = dueInfo(task.dueDate, { done, now });

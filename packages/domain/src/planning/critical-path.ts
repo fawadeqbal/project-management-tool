@@ -28,7 +28,10 @@ const durationOf = (n: ScheduleNode) => (n.kind === 'milestone' ? 0 : diffInDays
  * nor before all its blockers finish. Backward pass from the project finish gives latest
  * start/finish; total float = LS − ES. Zero float = critical (the only thing drawn in brand blue).
  */
-export const computeCriticalPath = (nodes: readonly ScheduleNode[], edges: readonly DependencyEdge[]): CriticalPathResult => {
+export const computeCriticalPath = (
+  nodes: readonly ScheduleNode[],
+  edges: readonly DependencyEdge[],
+): CriticalPathResult => {
   if (nodes.length === 0) return { criticalIds: [], floatDays: {}, projectFinish: null };
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const valid = edges.filter((e) => byId.has(e.blockerId) && byId.has(e.blockedId));
@@ -43,7 +46,10 @@ export const computeCriticalPath = (nodes: readonly ScheduleNode[], edges: reado
     succs.get(e.blockerId)!.push(e.blockedId);
   }
 
-  const order = topologicalOrder(nodes.map((n) => n.id), preds);
+  const order = topologicalOrder(
+    nodes.map((n) => n.id),
+    preds,
+  );
   const origin = startOfDay(new Date(Math.min(...nodes.map((n) => n.start.getTime()))));
   const day = (d: Date) => diffInDays(origin, d);
 

@@ -33,7 +33,10 @@ export class OnboardingController {
 
   @Post('onboarding/steps/:id/complete')
   @HttpCode(200)
-  complete(@CurrentActor() actor: Actor, @Param('id', new ZodValidationPipe(OnboardingStepIdSchema)) step: OnboardingStepIdDto): Promise<OnboardingDto> {
+  complete(
+    @CurrentActor() actor: Actor,
+    @Param('id', new ZodValidationPipe(OnboardingStepIdSchema)) step: OnboardingStepIdDto,
+  ): Promise<OnboardingDto> {
     return this.commands.execute(new CompleteOnboardingStepCommand(actor, step));
   }
 
@@ -50,7 +53,11 @@ export class OnboardingController {
 
   @Post('templates/:id/apply')
   @RequirePermission('projects.create')
-  apply(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(ApplyTemplateSchema)) input: ApplyTemplateInput): Promise<ApplyTemplateResultDto> {
+  apply(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ApplyTemplateSchema)) input: ApplyTemplateInput,
+  ): Promise<ApplyTemplateResultDto> {
     return this.commands.execute(new ApplyTemplateCommand(actor, id, input));
   }
 }

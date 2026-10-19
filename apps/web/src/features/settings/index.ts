@@ -16,21 +16,52 @@ export const routes: RouteObject[] = [
     handle: crumb('Settings'),
     children: [
       { index: true, element: createElement(Navigate, { to: 'members', replace: true }) },
-      { path: 'profile', handle: crumb('Account / Profile'), ...page(async () => ({ Component: (await import('./pages/ProfilePage')).ProfilePage })) },
-      { path: 'appearance', handle: crumb('Account / Appearance'), ...page(async () => ({ Component: (await import('./pages/AppearancePage')).AppearancePage })) },
-      { path: 'members', handle: crumb('Workspace / Members'), ...page(async () => ({ Component: (await import('./pages/MembersPage')).MembersPage })) },
-      { path: 'import-export', handle: crumb('Workspace / Import / export'), ...page(async () => ({ Component: (await import('./pages/ImportExportPage')).ImportExportPage })) },
-      { path: 'billing', handle: crumb('Admin / Billing'), ...page(async () => ({ Component: (await import('@/features/billing')).BillingPage })) },
-      ...['notifications', 'general', 'teams', 'fields', 'integrations', 'security', 'audit-log'].map((path) => ({
-        path,
-        ...page(async () => ({ Component: (await import('./pages/ComingSoonSettingsPage')).ComingSoonSettingsPage })),
-      })),
+      {
+        path: 'profile',
+        handle: crumb('Account / Profile'),
+        ...page(async () => ({ Component: (await import('./pages/ProfilePage')).ProfilePage })),
+      },
+      {
+        path: 'appearance',
+        handle: crumb('Account / Appearance'),
+        ...page(async () => ({ Component: (await import('./pages/AppearancePage')).AppearancePage })),
+      },
+      {
+        path: 'members',
+        handle: crumb('Workspace / Members'),
+        ...page(async () => ({ Component: (await import('./pages/MembersPage')).MembersPage })),
+      },
+      {
+        path: 'import-export',
+        handle: crumb('Workspace / Import / export'),
+        ...page(async () => ({ Component: (await import('./pages/ImportExportPage')).ImportExportPage })),
+      },
+      {
+        path: 'billing',
+        handle: crumb('Admin / Billing'),
+        ...page(async () => ({ Component: (await import('@/features/billing')).BillingPage })),
+      },
+      ...['notifications', 'general', 'teams', 'fields', 'integrations', 'security', 'audit-log'].map(
+        (path) => ({
+          path,
+          ...page(async () => ({
+            Component: (await import('./pages/ComingSoonSettingsPage')).ComingSoonSettingsPage,
+          })),
+        }),
+      ),
     ],
   },
 ];
 
 export const commands: Command[] = [
-  { id: 'settings.open', title: 'Open settings', group: 'Settings', icon: 'settings', keywords: ['preferences', 'profile', 'workspace'], run: (c) => c.navigate('/settings/members') },
+  {
+    id: 'settings.open',
+    title: 'Open settings',
+    group: 'Settings',
+    icon: 'settings',
+    keywords: ['preferences', 'profile', 'workspace'],
+    run: (c) => c.navigate('/settings/members'),
+  },
   {
     id: 'members.invite',
     title: 'Invite people',
@@ -39,10 +70,21 @@ export const commands: Command[] = [
     keywords: ['teammates', 'members', 'guest', 'add people'],
     run: (c) => {
       useInviteDialogStore.getState().setOpen(true);
-      if (!window.location.pathname.startsWith('/settings/members') && !window.location.pathname.startsWith('/home')) c.navigate('/settings/members');
+      if (
+        !window.location.pathname.startsWith('/settings/members') &&
+        !window.location.pathname.startsWith('/home')
+      )
+        c.navigate('/settings/members');
     },
   },
-  { id: 'settings.profile', title: 'Edit profile', group: 'Settings', icon: 'user-plus', keywords: ['name', 'avatar', 'job title'], run: (c) => c.navigate('/settings/profile') },
+  {
+    id: 'settings.profile',
+    title: 'Edit profile',
+    group: 'Settings',
+    icon: 'user-plus',
+    keywords: ['name', 'avatar', 'job title'],
+    run: (c) => c.navigate('/settings/profile'),
+  },
 ];
 
 /** The invite dialog bound to the shared open state (Home's "Invite" step uses it). */

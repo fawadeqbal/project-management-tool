@@ -31,7 +31,19 @@ export function PendingInvites({ canManage }: { canManage: boolean }) {
       return { prev };
     },
     onSuccess: (_d, i) => {
-      show({ message: `Invite for ${i.email} revoked`, action: 'Invite again', onAction: () => void membersApi.invite({ email: i.email, role: i.role, teamId: i.team?.id ?? null, projectId: i.project?.id ?? null }).then(refresh, fail) });
+      show({
+        message: `Invite for ${i.email} revoked`,
+        action: 'Invite again',
+        onAction: () =>
+          void membersApi
+            .invite({
+              email: i.email,
+              role: i.role,
+              teamId: i.team?.id ?? null,
+              projectId: i.project?.id ?? null,
+            })
+            .then(refresh, fail),
+      });
       refresh();
     },
     onError: (e, _i, ctx) => {
@@ -46,21 +58,36 @@ export function PendingInvites({ canManage }: { canManage: boolean }) {
         Pending invites
       </h2>
       {isLoading ? <Skeleton height={60} /> : null}
-      {data && !data.length ? <p className={styles.muted}>No pending invites. Everyone you invited has joined.</p> : null}
+      {data && !data.length ? (
+        <p className={styles.muted}>No pending invites. Everyone you invited has joined.</p>
+      ) : null}
       <ul className={styles.inviteList}>
         {data?.map((i) => (
           <li key={i.id} className={styles.invite}>
             <Icon name="clock" className={styles.inviteIcon} />
             <span className={styles.inviteText}>
               <span>{i.email}</span>
-              <span className={`${styles.inviteMeta} ${i.expired ? styles.inviteExpired : ''}`}>{i.meta}</span>
+              <span className={`${styles.inviteMeta} ${i.expired ? styles.inviteExpired : ''}`}>
+                {i.meta}
+              </span>
             </span>
             {canManage ? (
               <>
-                <button type="button" className={styles.linkStrong} onClick={() => resend.mutate(i)} disabled={resend.isPending} aria-label={`Resend invite to ${i.email}`}>
+                <button
+                  type="button"
+                  className={styles.linkStrong}
+                  onClick={() => resend.mutate(i)}
+                  disabled={resend.isPending}
+                  aria-label={`Resend invite to ${i.email}`}
+                >
                   Resend
                 </button>
-                <button type="button" className={styles.linkQuiet} onClick={() => revoke.mutate(i)} aria-label={`Revoke invite for ${i.email}`}>
+                <button
+                  type="button"
+                  className={styles.linkQuiet}
+                  onClick={() => revoke.mutate(i)}
+                  aria-label={`Revoke invite for ${i.email}`}
+                >
                   Revoke
                 </button>
               </>

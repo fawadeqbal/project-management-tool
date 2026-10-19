@@ -73,12 +73,24 @@ export const computeWorkload = (
 ): WorkloadRow[] => {
   const days = workingDaysBetween(range.from, range.to);
   const isOff = (userId: string, d: Date) =>
-    timeOff.some((t) => t.userId === userId && d.getTime() >= startOfDay(t.startDate).getTime() && d.getTime() <= startOfDay(t.endDate).getTime());
+    timeOff.some(
+      (t) =>
+        t.userId === userId &&
+        d.getTime() >= startOfDay(t.startDate).getTime() &&
+        d.getTime() <= startOfDay(t.endDate).getTime(),
+    );
 
   return people.map((p) => {
     const cells: WorkloadCell[] = days.map((d) => {
       const off = isOff(p.userId, d);
-      return { date: toDateOnly(d), planned: 0, capacity: off ? 0 : capacityIn(unit, p.capacityHoursPerDay), state: off ? 'off' : 'free', taskIds: [], items: [] };
+      return {
+        date: toDateOnly(d),
+        planned: 0,
+        capacity: off ? 0 : capacityIn(unit, p.capacityHoursPerDay),
+        state: off ? 'off' : 'free',
+        taskIds: [],
+        items: [],
+      };
     });
     const index = new Map(cells.map((c, i) => [c.date, i]));
 
@@ -87,7 +99,8 @@ export const computeWorkload = (
       const due = t.dueDate ?? t.startDate;
       if (!due) continue;
       const start = t.startDate ?? due;
-      const amount = unit === 'tasks' ? 1 : unit === 'points' ? (t.estimatePoints ?? 0) : (t.estimateHours ?? 0);
+      const amount =
+        unit === 'tasks' ? 1 : unit === 'points' ? (t.estimatePoints ?? 0) : (t.estimateHours ?? 0);
       if (amount <= 0) continue;
       const workDays = workingDaysBetween(start, due).filter((d) => !isOff(p.userId, d));
       const spread = workDays.length ? workDays : [startOfDay(due)];
@@ -115,7 +128,8 @@ export const computeWorkload = (
   });
 };
 
-const capacityIn = (unit: WorkloadUnit, hoursPerDay: number) => (unit === 'hours' ? hoursPerDay : unit === 'tasks' ? 3 : Math.max(1, Math.round(hoursPerDay / 4)));
+const capacityIn = (unit: WorkloadUnit, hoursPerDay: number) =>
+  unit === 'hours' ? hoursPerDay : unit === 'tasks' ? 3 : Math.max(1, Math.round(hoursPerDay / 4));
 
 export interface WorkloadSummary {
   capacityUsedPct: number;
@@ -133,7 +147,10 @@ export const summarizeWorkload = (rows: readonly WorkloadRow[]): WorkloadSummary
   const planned = round1(rows.reduce((a, r) => a + r.plannedTotal, 0));
   const capacity = rows.reduce((a, r) => a + r.capacityTotal, 0);
   const freeBy = rows
-    .map((r) => ({ userId: r.userId, free: round1(r.cells.reduce((a, c) => a + Math.max(0, c.capacity - c.planned), 0)) }))
+    .map((r) => ({
+      userId: r.userId,
+      free: round1(r.cells.reduce((a, c) => a + Math.max(0, c.capacity - c.planned), 0)),
+    }))
     .filter((x) => x.free > 0)
     .sort((a, b) => b.free - a.free);
   return {
@@ -179,25 +196,35 @@ export const suggestRebalance = (
   const suggestions: RebalanceSuggestion[] = [];
   const byUser = new Map(rows.map((r) => [r.userId, r]));
   for (const row of rows) {
-    const worst = [...row.cells].filter((c) => c.state === 'over').sort((a, b) => b.planned - b.capacity - (a.planned - a.capacity))[0];
+    const worst = [...row.cells]
+      .filter((c) => c.state === 'over')
+      .sort((a, b) => b.planned - b.capacity - (a.planned - a.capacity))[0];
     if (!worst) continue;
     const candidates = worst.taskIds
       .map((id) => tasks.find((t) => t.id === id))
       .filter((t): t is WorkloadTask => !!t)
       .sort((a, b) => (a.estimateHours ?? 0) - (b.estimateHours ?? 0));
     for (const task of candidates) {
-      const shares = row.cells.flatMap((c) => c.items.filter((x) => x.taskId === task.id).map((x) => ({ date: c.date, amount: x.amount })));
+      const shares = row.cells.flatMap((c) =>
+        c.items.filter((x) => x.taskId === task.id).map((x) => ({ date: c.date, amount: x.amount })),
+      );
       const taskDays = new Set(shares.map((x) => x.date));
       const perDay = Math.max(0, ...shares.map((x) => x.amount));
       const target = [...byUser.values()]
         .filter((r) => r.userId !== row.userId)
-        .map((r) => ({ r, fits: r.cells.filter((c) => taskDays.has(c.date)).every((c) => c.capacity > 0 && c.planned + perDay <= c.capacity) }))
+        .map((r) => ({
+          r,
+          fits: r.cells
+            .filter((c) => taskDays.has(c.date))
+            .every((c) => c.capacity > 0 && c.planned + perDay <= c.capacity),
+        }))
         .filter((x) => x.fits)
         .sort((a, b) => a.r.loadPct - b.r.loadPct)[0];
       if (target) {
         const name = (id: string) => names[id] ?? 'a teammate';
         const totalHours = round1(shares.reduce((a, x) => a + x.amount, 0));
-        const pct = (planned: number, capacity: number) => (capacity ? Math.round((planned / capacity) * 100) : 0);
+        const pct = (planned: number, capacity: number) =>
+          capacity ? Math.round((planned / capacity) * 100) : 0;
         suggestions.push({
           taskId: task.id,
           fromUserId: row.userId,

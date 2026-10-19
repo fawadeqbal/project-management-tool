@@ -28,7 +28,9 @@ describe('WorkloadPage', () => {
     signIn();
     mockedApi.workspace.teams.mockResolvedValue([]);
     mockedApi.workspace.members.mockResolvedValue([]);
-    mockedHttp.get.mockImplementation(async (path: string) => (path === '/workload' ? workloadFixture() : []) as never);
+    mockedHttp.get.mockImplementation(
+      async (path: string) => (path === '/workload' ? workloadFixture() : []) as never,
+    );
   });
   afterEach(() => vi.clearAllMocks());
 
@@ -55,7 +57,10 @@ describe('WorkloadPage', () => {
       expect(c).toHaveAttribute('data-state', 'off');
       expect(c).toHaveTextContent('Off');
     });
-    expect(screen.getByRole('button', { name: 'Tue 20: 3 of 8 hours planned' })).toHaveAttribute('data-state', 'light');
+    expect(screen.getByRole('button', { name: 'Tue 20: 3 of 8 hours planned' })).toHaveAttribute(
+      'data-state',
+      'light',
+    );
   });
 
   it('moves focus with arrow keys and opens the day’s tasks with Enter', async () => {

@@ -17,16 +17,20 @@ import { queryKeys } from '@/shared/api/query-keys';
 import { useOptimisticMutation } from '@/shared/hooks/useOptimisticMutation';
 
 export const inboxApi = {
-  list: (tab: InboxTabDto, unread: boolean) => http.get<InboxDto>(INBOX_ROUTES.list, { tab, unread: unread || undefined }),
+  list: (tab: InboxTabDto, unread: boolean) =>
+    http.get<InboxDto>(INBOX_ROUTES.list, { tab, unread: unread || undefined }),
   read: (id: string) => http.post<InboxTriageResultDto>(INBOX_ROUTES.read(id)),
   unread: (id: string) => http.post<InboxTriageResultDto>(INBOX_ROUTES.unread(id)),
   archive: (id: string) => http.post<InboxTriageResultDto>(INBOX_ROUTES.archive(id)),
   unarchive: (id: string) => http.post<InboxTriageResultDto>(INBOX_ROUTES.unarchive(id)),
-  snooze: (id: string, preset: SnoozePresetDto) => http.post<InboxTriageResultDto>(INBOX_ROUTES.snooze(id), { preset }),
+  snooze: (id: string, preset: SnoozePresetDto) =>
+    http.post<InboxTriageResultDto>(INBOX_ROUTES.snooze(id), { preset }),
   unsnooze: (id: string) => http.post<InboxTriageResultDto>(INBOX_ROUTES.unsnooze(id)),
-  bulk: (ids: string[], action: InboxBulkAction) => http.post<InboxTriageResultDto>(INBOX_ROUTES.bulk, { ids, action }),
+  bulk: (ids: string[], action: InboxBulkAction) =>
+    http.post<InboxTriageResultDto>(INBOX_ROUTES.bulk, { ids, action }),
   approval: (id: string) => http.get<ApprovalDetailDto>(INBOX_ROUTES.approval(id)),
-  decide: (id: string, decision: ApprovalDecisionValue, note: string | null) => http.post<ApprovalDetailDto>(INBOX_ROUTES.decide(id), { decision, note }),
+  decide: (id: string, decision: ApprovalDecisionValue, note: string | null) =>
+    http.post<ApprovalDetailDto>(INBOX_ROUTES.decide(id), { decision, note }),
 };
 
 export const inboxKeys = {
@@ -37,11 +41,19 @@ export const inboxKeys = {
 };
 
 export function useInbox(tab: InboxTabDto, unread: boolean) {
-  return useQuery({ queryKey: inboxKeys.list(tab, unread), queryFn: () => inboxApi.list(tab, unread), placeholderData: (prev) => prev });
+  return useQuery({
+    queryKey: inboxKeys.list(tab, unread),
+    queryFn: () => inboxApi.list(tab, unread),
+    placeholderData: (prev) => prev,
+  });
 }
 
 export function useApproval(id: string | null | undefined) {
-  return useQuery({ queryKey: inboxKeys.approval(id ?? ''), queryFn: () => inboxApi.approval(id!), enabled: !!id });
+  return useQuery({
+    queryKey: inboxKeys.approval(id ?? ''),
+    queryFn: () => inboxApi.approval(id!),
+    enabled: !!id,
+  });
 }
 
 // ── Optimistic cache helpers ────────────────────────────────
@@ -52,14 +64,26 @@ const tabsOf = (type: NotificationType): (keyof InboxCountsDto)[] =>
     .map(([tab]) => tab as keyof InboxCountsDto);
 
 /** Adjusts tab counts for an item changing read state or leaving the list. */
-const adjustCounts = (counts: InboxCountsDto, item: InboxItemDto, change: { unreadDelta: number; visibleDelta: number }): InboxCountsDto => {
-  const next = { ...counts, all: Math.max(0, counts.all + change.visibleDelta), unread: Math.max(0, counts.unread + change.unreadDelta) };
+const adjustCounts = (
+  counts: InboxCountsDto,
+  item: InboxItemDto,
+  change: { unreadDelta: number; visibleDelta: number },
+): InboxCountsDto => {
+  const next = {
+    ...counts,
+    all: Math.max(0, counts.all + change.visibleDelta),
+    unread: Math.max(0, counts.unread + change.unreadDelta),
+  };
   for (const tab of tabsOf(item.type)) next[tab] = Math.max(0, next[tab] + change.unreadDelta);
   return next;
 };
 
 /** Applies `fn` to every item in every cached inbox list (remove by returning null). */
-export const patchInboxItems = (client: QueryClient, ids: readonly string[], fn: (item: InboxItemDto) => InboxItemDto | null): void => {
+export const patchInboxItems = (
+  client: QueryClient,
+  ids: readonly string[],
+  fn: (item: InboxItemDto) => InboxItemDto | null,
+): void => {
   const set = new Set(ids);
   for (const [key, data] of client.getQueriesData<InboxDto>({ queryKey: inboxKeys.lists() })) {
     if (!data) continue;
@@ -83,11 +107,18 @@ export const patchInboxItems = (client: QueryClient, ids: readonly string[], fn:
 const affects = () => [inboxKeys.lists(), queryKeys.shell];
 
 export type TriageVars =
-  | { action: 'read' | 'unread' | 'archive' | 'unarchive' | 'unsnooze'; ids: string[]; restore?: InboxItemDto[] }
+  | {
+      action: 'read' | 'unread' | 'archive' | 'unarchive' | 'unsnooze';
+      ids: string[];
+      restore?: InboxItemDto[];
+    }
   | { action: 'snooze'; ids: string[]; preset: SnoozePresetDto };
 
 const run = (v: TriageVars): Promise<InboxTriageResultDto> => {
-  if (v.action === 'snooze') return v.ids.length === 1 ? inboxApi.snooze(v.ids[0]!, v.preset) : Promise.all(v.ids.map((id) => inboxApi.snooze(id, v.preset))).then((r) => r[0]!);
+  if (v.action === 'snooze')
+    return v.ids.length === 1
+      ? inboxApi.snooze(v.ids[0]!, v.preset)
+      : Promise.all(v.ids.map((id) => inboxApi.snooze(id, v.preset))).then((r) => r[0]!);
   if (v.ids.length > 1) return inboxApi.bulk(v.ids, v.action);
   const id = v.ids[0]!;
   return inboxApi[v.action](id);
@@ -99,10 +130,13 @@ const restoreItems = (client: QueryClient, items: InboxItemDto[]) => {
     if (!data) continue;
     const tab = key[3] as InboxTabDto;
     const types = INBOX_TABS[tab] as readonly string[] | null;
-    const fits = items.filter((i) => (!types || types.includes(i.type)) && !data.items.some((x) => x.id === i.id));
+    const fits = items.filter(
+      (i) => (!types || types.includes(i.type)) && !data.items.some((x) => x.id === i.id),
+    );
     if (!fits.length) continue;
     let counts = data.counts;
-    for (const i of fits) counts = adjustCounts(counts, i, { unreadDelta: Number(i.unread), visibleDelta: 1 });
+    for (const i of fits)
+      counts = adjustCounts(counts, i, { unreadDelta: Number(i.unread), visibleDelta: 1 });
     const merged = [...data.items, ...fits].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     client.setQueryData<InboxDto>(key, { items: merged, counts });
   }
@@ -130,24 +164,45 @@ export function useInboxTriage() {
       }
     },
     errorMessage: (e, v) =>
-      e.kind === 'network' ? e.message : `We couldn’t ${v.action === 'snooze' ? 'snooze' : v.action === 'archive' ? 'archive' : 'update'} that. ${e.message}`,
+      e.kind === 'network'
+        ? e.message
+        : `We couldn’t ${v.action === 'snooze' ? 'snooze' : v.action === 'archive' ? 'archive' : 'update'} that. ${e.message}`,
   });
-  return { mutate: (v: TriageVars) => mutation.mutateAsync(v).catch(() => undefined), client, isPending: mutation.isPending };
+  return {
+    mutate: (v: TriageVars) => mutation.mutateAsync(v).catch(() => undefined),
+    client,
+    isPending: mutation.isPending,
+  };
 }
 
 /** Approve / request changes, optimistic on the approval detail. */
 export function useDecideApproval(meId: string | undefined) {
-  return useOptimisticMutation<ApprovalDetailDto, { id: string; decision: ApprovalDecisionValue; note: string | null }>({
+  return useOptimisticMutation<
+    ApprovalDetailDto,
+    { id: string; decision: ApprovalDecisionValue; note: string | null }
+  >({
     mutationFn: ({ id, decision, note }) => inboxApi.decide(id, decision, note),
     affects: ({ id }) => [inboxKeys.approval(id)],
     apply: (c, { id, decision, note }) =>
       c.setQueryData<ApprovalDetailDto>(inboxKeys.approval(id), (d) => {
         if (!d) return d;
         const approvers = d.approvers.map((a) =>
-          a.user.id === meId ? { ...a, decision, note, label: decision === 'APPROVED' ? 'Approved' : 'Changes requested', decidedAt: new Date().toISOString() } : a,
+          a.user.id === meId
+            ? {
+                ...a,
+                decision,
+                note,
+                label: decision === 'APPROVED' ? 'Approved' : 'Changes requested',
+                decidedAt: new Date().toISOString(),
+              }
+            : a,
         );
         const approvedCount = approvers.filter((a) => a.decision === 'APPROVED').length;
-        const status = approvers.some((a) => a.decision === 'CHANGES_REQUESTED') ? 'CHANGES_REQUESTED' : approvedCount === approvers.length ? 'APPROVED' : 'PENDING';
+        const status = approvers.some((a) => a.decision === 'CHANGES_REQUESTED')
+          ? 'CHANGES_REQUESTED'
+          : approvedCount === approvers.length
+            ? 'APPROVED'
+            : 'PENDING';
         return {
           ...d,
           approvers,
@@ -156,7 +211,12 @@ export function useDecideApproval(meId: string | undefined) {
           myDecision: decision,
           canDecide: status === 'PENDING' && d.canDecide,
           progressLabel: `${approvedCount} of ${d.approverCount} approval${d.approverCount === 1 ? '' : 's'}`,
-          dueLabel: status === 'APPROVED' ? 'Approved' : status === 'CHANGES_REQUESTED' ? 'Changes requested' : d.dueLabel,
+          dueLabel:
+            status === 'APPROVED'
+              ? 'Approved'
+              : status === 'CHANGES_REQUESTED'
+                ? 'Changes requested'
+                : d.dueLabel,
           dueTone: status === 'PENDING' ? d.dueTone : 'default',
         };
       }),

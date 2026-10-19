@@ -72,18 +72,21 @@ export function RealtimeProvider({ children, enabled = true }: { children: React
     };
   }, [enabled, token, workspaceId, client]);
 
-  const bus = useMemo<RealtimeBus>(() => ({
-    connected,
-    subscribe: (h) => {
-      handlers.current.add(h);
-      return () => void handlers.current.delete(h);
-    },
-    emitPresence: (taskId) => socketRef.current?.emit(WS_PRESENCE, { taskId }),
-    onPresence: (h) => {
-      presenceHandlers.current.add(h);
-      return () => void presenceHandlers.current.delete(h);
-    },
-  }), [connected]);
+  const bus = useMemo<RealtimeBus>(
+    () => ({
+      connected,
+      subscribe: (h) => {
+        handlers.current.add(h);
+        return () => void handlers.current.delete(h);
+      },
+      emitPresence: (taskId) => socketRef.current?.emit(WS_PRESENCE, { taskId }),
+      onPresence: (h) => {
+        presenceHandlers.current.add(h);
+        return () => void presenceHandlers.current.delete(h);
+      },
+    }),
+    [connected],
+  );
 
   return <RealtimeContext.Provider value={bus}>{children}</RealtimeContext.Provider>;
 }

@@ -17,7 +17,11 @@ const ctx: AiTaskContext = {
     { title: 'Light mode comps', done: true },
     { title: 'Dark mode contrast fixes', done: false },
   ],
-  comments: Array.from({ length: 12 }, (_, i) => ({ author: 'Sara Ahmed', body: `Comment ${i + 1}`, createdAt: `2026-10-19T0${Math.min(9, i)}:00:00Z` })),
+  comments: Array.from({ length: 12 }, (_, i) => ({
+    author: 'Sara Ahmed',
+    body: `Comment ${i + 1}`,
+    createdAt: `2026-10-19T0${Math.min(9, i)}:00:00Z`,
+  })),
 };
 
 describe('AI providers', () => {
@@ -43,7 +47,14 @@ describe('AI providers', () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ content: [{ type: 'text', text: '{"summary":"Light mode is approved.","nextStep":"Ship light mode behind a flag"}' }] }),
+      json: async () => ({
+        content: [
+          {
+            type: 'text',
+            text: '{"summary":"Light mode is approved.","nextStep":"Ship light mode behind a flag"}',
+          },
+        ],
+      }),
     });
     const p = new AnthropicAiProvider({ apiKey: 'k', model: 'claude-haiku-4-5' }, fetchImpl);
     const s = await p.summarizeTask(ctx);
@@ -55,7 +66,10 @@ describe('AI providers', () => {
   });
 
   it('falls back to local on any error', async () => {
-    const failing = new AnthropicAiProvider({ apiKey: 'k', model: 'm' }, vi.fn().mockResolvedValue({ ok: false, status: 529, json: async () => ({}) }));
+    const failing = new AnthropicAiProvider(
+      { apiKey: 'k', model: 'm' },
+      vi.fn().mockResolvedValue({ ok: false, status: 529, json: async () => ({}) }),
+    );
     const p = new FallbackAiProvider(failing, new LocalHeuristicAiProvider());
     const s = await p.summarizeTask(ctx);
     expect(s.source).toBe('generated from 12 comments');

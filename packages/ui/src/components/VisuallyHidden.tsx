@@ -14,7 +14,12 @@ export interface SkipLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 /** "Skip to content" link, visible on keyboard focus. Render first in the app shell. */
-export function SkipLink({ targetId = 'main', children = 'Skip to content', className, ...rest }: SkipLinkProps) {
+export function SkipLink({
+  targetId = 'main',
+  children = 'Skip to content',
+  className,
+  ...rest
+}: SkipLinkProps) {
   return (
     <a href={`#${targetId}`} {...rest} className={cx('ht-skip', className)}>
       {children}

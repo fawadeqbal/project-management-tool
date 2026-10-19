@@ -9,7 +9,10 @@ import { RankBacklogCommand } from './rank-backlog.command';
 
 /** Drag-to-rank in the backlog: one row written via fractional ranking (positionBetween). */
 @CommandHandler(RankBacklogCommand)
-export class RankBacklogHandler implements ICommandHandler<RankBacklogCommand, { taskId: string; backlogRank: number }> {
+export class RankBacklogHandler implements ICommandHandler<
+  RankBacklogCommand,
+  { taskId: string; backlogRank: number }
+> {
   constructor(
     @Inject(SPRINT_TASK_STORE) private readonly tasks: SprintTaskStore,
     private readonly access: AccessService,
@@ -25,13 +28,30 @@ export class RankBacklogHandler implements ICommandHandler<RankBacklogCommand, {
       if (!t || t.projectId !== projectId) throw new NotFoundError('Task', id);
       return t;
     };
-    const [task, before, after] = await Promise.all([load(input.taskId), load(input.beforeId), load(input.afterId)]);
+    const [task, before, after] = await Promise.all([
+      load(input.taskId),
+      load(input.beforeId),
+      load(input.afterId),
+    ]);
     if (!task) throw new NotFoundError('Task', input.taskId);
-    if (task.sprintId) throw new ValidationError('backlog.in_sprint', 'That task is in a sprint. Remove it from the sprint to rank it in the backlog.');
+    if (task.sprintId)
+      throw new ValidationError(
+        'backlog.in_sprint',
+        'That task is in a sprint. Remove it from the sprint to rank it in the backlog.',
+      );
     const rank = positionBetween(before?.backlogRank ?? null, after?.backlogRank ?? null);
     await this.tasks.setBacklogRank(task.id, rank);
     this.events.publish(
-      createEvent('backlog.ranked', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: task.id, occurredAt: this.clock.now() }, { projectId, backlogRank: rank }),
+      createEvent(
+        'backlog.ranked',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: task.id,
+          occurredAt: this.clock.now(),
+        },
+        { projectId, backlogRank: rank },
+      ),
     );
     return { taskId: task.id, backlogRank: rank };
   }

@@ -1,10 +1,31 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import type { SearchProjectHitDto, SearchPersonHitDto, SearchQuery, SearchResultDto, SearchTaskHitDto } from '@hearth/contracts';
-import { diffInDays, fuzzyRank, fuzzyRankWeighted, humanizeDate, startOfDay, type Actor, type Clock } from '@hearth/domain';
+import type {
+  SearchProjectHitDto,
+  SearchPersonHitDto,
+  SearchQuery,
+  SearchResultDto,
+  SearchTaskHitDto,
+} from '@hearth/contracts';
+import {
+  diffInDays,
+  fuzzyRank,
+  fuzzyRankWeighted,
+  humanizeDate,
+  startOfDay,
+  type Actor,
+  type Clock,
+} from '@hearth/domain';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../shared/clock/clock';
-import { PROJECT_REF_SELECT, USER_REF_SELECT, accent, dateOnly, toProjectRef, toUserRef } from '../../../shared/mappers/refs';
+import {
+  PROJECT_REF_SELECT,
+  USER_REF_SELECT,
+  accent,
+  dateOnly,
+  toProjectRef,
+  toUserRef,
+} from '../../../shared/mappers/refs';
 
 /** Candidate pool per kind before fuzzy ranking: ILIKE narrows, the domain ranker orders. */
 const POOL = 200;
@@ -33,7 +54,14 @@ export class SearchReadModel {
       want('projects') && q ? this.projects(actor, q, query.limit) : [],
       want('people') && q && actor.role !== 'GUEST' ? this.people(actor, q, query.limit) : [],
     ]);
-    return { query: q, scope: query.scope, tasks, projects, people, tookMs: Math.max(1, Math.round(performance.now() - started)) };
+    return {
+      query: q,
+      scope: query.scope,
+      tasks,
+      projects,
+      people,
+      tookMs: Math.max(1, Math.round(performance.now() - started)),
+    };
   }
 
   private tokens(q: string): string[] {
@@ -50,7 +78,10 @@ export class SearchReadModel {
   }
 
   private async tasks(actor: Actor, q: string, limit: number): Promise<SearchTaskHitDto[]> {
-    const workspace = await this.prisma.workspace.findUnique({ where: { id: actor.workspaceId }, select: { keyPrefix: true } });
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: actor.workspaceId },
+      select: { keyPrefix: true },
+    });
     const prefix = workspace?.keyPrefix ?? 'HRT';
     const numberMatch = q.match(new RegExp(`^(?:${prefix}-?)?(\\d{1,7})$`, 'i'));
     const tokens = this.tokens(q);
@@ -64,7 +95,9 @@ export class SearchReadModel {
       })),
     };
     // Fuzzy fallback for abbreviations ("prc pg"): first characters of each token as a prefix pool.
-    const loose: Prisma.TaskWhereInput = { OR: tokens.map((t) => ({ title: { contains: t.slice(0, 3), mode: 'insensitive' as const } })) };
+    const loose: Prisma.TaskWhereInput = {
+      OR: tokens.map((t) => ({ title: { contains: t.slice(0, 3), mode: 'insensitive' as const } })),
+    };
     const where: Prisma.TaskWhereInput = {
       workspaceId: actor.workspaceId,
       ...(actor.role === 'GUEST' ? { projectId: { in: [...(actor.projectIds ?? [])] } } : {}),
@@ -133,13 +166,19 @@ export class SearchReadModel {
         OR: tokens.map((t) => ({ name: { contains: t.slice(0, 3), mode: 'insensitive' as const } })),
       },
       take: POOL,
-      select: { ...PROJECT_REF_SELECT, _count: { select: { tasks: { where: { status: { not: 'DONE' }, parentId: null } } } } },
+      select: {
+        ...PROJECT_REF_SELECT,
+        _count: { select: { tasks: { where: { status: { not: 'DONE' }, parentId: null } } } },
+      },
     });
-    return fuzzyRank(q, rows, (p) => [p.name], POOL).filter((r) => r.match.score >= minScore(q)).slice(0, limit).map(({ item, match }) => ({
-      ...toProjectRef(item),
-      openTaskCount: item._count.tasks,
-      score: Math.round(match.score * 10) / 10,
-    }));
+    return fuzzyRank(q, rows, (p) => [p.name], POOL)
+      .filter((r) => r.match.score >= minScore(q))
+      .slice(0, limit)
+      .map(({ item, match }) => ({
+        ...toProjectRef(item),
+        openTaskCount: item._count.tasks,
+        score: Math.round(match.score * 10) / 10,
+      }));
   }
 
   private async people(actor: Actor, q: string, limit: number): Promise<SearchPersonHitDto[]> {
@@ -158,11 +197,14 @@ export class SearchReadModel {
       take: POOL,
       include: { user: { select: { ...USER_REF_SELECT, email: true, jobTitle: true } } },
     });
-    return fuzzyRank(q, rows, (m) => [m.user.name, m.user.email, m.user.jobTitle ?? ''], POOL).filter((r) => r.match.score >= minScore(q)).slice(0, limit).map(({ item, match }) => ({
-      ...toUserRef(item.user),
-      email: item.user.email,
-      jobTitle: item.user.jobTitle,
-      score: Math.round(match.score * 10) / 10,
-    }));
+    return fuzzyRank(q, rows, (m) => [m.user.name, m.user.email, m.user.jobTitle ?? ''], POOL)
+      .filter((r) => r.match.score >= minScore(q))
+      .slice(0, limit)
+      .map(({ item, match }) => ({
+        ...toUserRef(item.user),
+        email: item.user.email,
+        jobTitle: item.user.jobTitle,
+        score: Math.round(match.score * 10) / 10,
+      }));
   }
 }

@@ -18,13 +18,36 @@ export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement
 
 /** Native `<select>` in Hearth field chrome. */
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, hideLabel, hint, error, options, placeholder, disabled, className, style, wrapperClassName, id, children, ...rest },
+  {
+    label,
+    hideLabel,
+    hint,
+    error,
+    options,
+    placeholder,
+    disabled,
+    className,
+    style,
+    wrapperClassName,
+    id,
+    children,
+    ...rest
+  },
   ref,
 ) {
   const ids = useFieldIds(id, Boolean(error || hint));
   const hasLabel = label !== undefined && label !== null;
   const control = (
-    <div className={cx('ht-input', 'ht-select', error ? 'ht-input-error' : null, disabled && 'ht-input-disabled', className)} style={style}>
+    <div
+      className={cx(
+        'ht-input',
+        'ht-select',
+        error ? 'ht-input-error' : null,
+        disabled && 'ht-input-disabled',
+        className,
+      )}
+      style={style}
+    >
       <select
         ref={ref}
         id={ids.controlId}
@@ -50,7 +73,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   );
   if (!hasLabel && !error && !hint) return control;
   return (
-    <Field ids={ids} label={label} hideLabel={hideLabel} hint={hint} error={error} className={wrapperClassName}>
+    <Field
+      ids={ids}
+      label={label}
+      hideLabel={hideLabel}
+      hint={hint}
+      error={error}
+      className={wrapperClassName}
+    >
       {control}
     </Field>
   );

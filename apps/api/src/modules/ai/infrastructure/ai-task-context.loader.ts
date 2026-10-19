@@ -28,7 +28,11 @@ export class AiTaskContextLoader {
         workspace: { select: { keyPrefix: true } },
         subtasks: { select: { title: true, status: true }, orderBy: { listPosition: 'asc' } },
         blockedBy: { include: { blocker: { select: { number: true, title: true, status: true } } } },
-        comments: { include: { author: { select: { name: true } } }, orderBy: { createdAt: 'asc' }, take: 100 },
+        comments: {
+          include: { author: { select: { name: true } } },
+          orderBy: { createdAt: 'asc' },
+          take: 100,
+        },
       },
     });
     if (!t) throw new NotFoundError('Task', taskId);
@@ -47,9 +51,17 @@ export class AiTaskContextLoader {
         status: t.status,
         dueDate: dateOnly(t.dueDate),
         today: toDateOnly(this.clock.now()),
-        blockedBy: t.blockedBy.map((d) => ({ key: `${prefix}-${d.blocker.number}`, title: d.blocker.title, status: d.blocker.status })),
+        blockedBy: t.blockedBy.map((d) => ({
+          key: `${prefix}-${d.blocker.number}`,
+          title: d.blocker.title,
+          status: d.blocker.status,
+        })),
         subtasks: t.subtasks.map((s) => ({ title: s.title, done: s.status === 'DONE' })),
-        comments: t.comments.map((c) => ({ author: c.author.name, body: c.body, createdAt: c.createdAt.toISOString() })),
+        comments: t.comments.map((c) => ({
+          author: c.author.name,
+          body: c.body,
+          createdAt: c.createdAt.toISOString(),
+        })),
       },
     };
   }

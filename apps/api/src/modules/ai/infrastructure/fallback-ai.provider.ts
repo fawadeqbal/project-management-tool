@@ -15,18 +15,28 @@ export class FallbackAiProvider implements AiProvider {
   }
 
   summarizeTask(ctx: AiTaskContext): Promise<AiSummary> {
-    return this.attempt('summarize', () => this.primary.summarizeTask(ctx), () => this.fallback.summarizeTask(ctx));
+    return this.attempt(
+      'summarize',
+      () => this.primary.summarizeTask(ctx),
+      () => this.fallback.summarizeTask(ctx),
+    );
   }
 
   breakDownTask(ctx: AiTaskContext): Promise<AiBreakdown> {
-    return this.attempt('break down', () => this.primary.breakDownTask(ctx), () => this.fallback.breakDownTask(ctx));
+    return this.attempt(
+      'break down',
+      () => this.primary.breakDownTask(ctx),
+      () => this.fallback.breakDownTask(ctx),
+    );
   }
 
   private async attempt<T>(what: string, run: () => Promise<T>, fallback: () => Promise<T>): Promise<T> {
     try {
       return await run();
     } catch (e) {
-      this.logger.warn(`${this.primary.name} failed to ${what}; using ${this.fallback.name}: ${e instanceof Error ? e.message : String(e)}`);
+      this.logger.warn(
+        `${this.primary.name} failed to ${what}; using ${this.fallback.name}: ${e instanceof Error ? e.message : String(e)}`,
+      );
       return fallback();
     }
   }

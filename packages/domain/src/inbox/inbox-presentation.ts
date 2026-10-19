@@ -50,7 +50,8 @@ export const approvalDueLabel = (
   if (status === 'CHANGES_REQUESTED') return { label: 'Changes requested', tone: 'default' };
   if (!dueDate) return null;
   const delta = diffInDays(today, dueDate);
-  if (delta < 0) return { label: `Approval overdue by ${-delta} ${delta === -1 ? 'day' : 'days'}`, tone: 'danger' };
+  if (delta < 0)
+    return { label: `Approval overdue by ${-delta} ${delta === -1 ? 'day' : 'days'}`, tone: 'danger' };
   if (delta === 0) return { label: 'Approval due today', tone: 'warning' };
   if (delta === 1) return { label: 'Approval due tomorrow', tone: 'warning' };
   if (delta < 7) return { label: `Approval due ${weekdayName(dueDate)}`, tone: 'default' };
@@ -65,9 +66,15 @@ export const approverLabel = (decision: Decision, isMe: boolean): string => {
 };
 
 /** "Jia Li asked you and Sara Ahmed to approve" — "you" first when the viewer is an approver. */
-export const approvalAskedLine = (requesterName: string, approvers: { name: string; isMe: boolean }[]): string => {
-  const names = [...approvers].sort((a, b) => Number(b.isMe) - Number(a.isMe)).map((a) => (a.isMe ? 'you' : a.name));
-  const list = names.length <= 1 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+export const approvalAskedLine = (
+  requesterName: string,
+  approvers: { name: string; isMe: boolean }[],
+): string => {
+  const names = [...approvers]
+    .sort((a, b) => Number(b.isMe) - Number(a.isMe))
+    .map((a) => (a.isMe ? 'you' : a.name));
+  const list =
+    names.length <= 1 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
   return `${requesterName} asked ${list} to approve`;
 };
 

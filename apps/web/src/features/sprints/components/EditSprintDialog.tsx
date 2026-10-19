@@ -40,10 +40,22 @@ export function EditSprintDialog({ sprint, onClose, onSave }: Props) {
     >
       <div className={styles.form}>
         <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} />
-        <Textarea label="Goal" value={goal} onChange={(e) => setGoal(e.target.value)} hint="One sentence the team can check every decision against." rows={2} />
+        <Textarea
+          label="Goal"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          hint="One sentence the team can check every decision against."
+          rows={2}
+        />
         <div className={styles.formRow}>
           <Input label="Starts" type="date" value={startDate} onChange={(e) => setStart(e.target.value)} />
-          <Input label="Ends" type="date" value={endDate} onChange={(e) => setEnd(e.target.value)} error={invalid ? 'Pick an end date on or after the start.' : undefined} />
+          <Input
+            label="Ends"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEnd(e.target.value)}
+            error={invalid ? 'Pick an end date on or after the start.' : undefined}
+          />
         </div>
       </div>
     </Dialog>

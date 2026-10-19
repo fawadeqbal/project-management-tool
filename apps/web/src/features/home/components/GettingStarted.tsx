@@ -11,7 +11,13 @@ export interface GettingStartedProps {
 }
 
 /** Checklist with visible progress; done steps stay struck through; one highlighted next step. */
-export function GettingStarted({ data, onInvite, onConnectSlack, onTemplate, onCreateTask }: GettingStartedProps) {
+export function GettingStarted({
+  data,
+  onInvite,
+  onConnectSlack,
+  onTemplate,
+  onCreateTask,
+}: GettingStartedProps) {
   if (!data)
     return (
       <section aria-label="Getting started" className={`${styles.card} ${styles.checklist}`}>
@@ -66,11 +72,26 @@ export function GettingStarted({ data, onInvite, onConnectSlack, onTemplate, onC
           {data.completed} of {data.total} done
         </span>
       </div>
-      <ProgressBar value={Math.round((data.completed / data.total) * 100)} height={8} label="Getting started" />
+      <ProgressBar
+        value={Math.round((data.completed / data.total) * 100)}
+        height={8}
+        label="Getting started"
+      />
       <ol className={styles.steps}>
         {data.steps.map((s) => (
-          <li key={s.id} className={`${styles.step} ${s.isNext ? styles.stepNext : ''}`} aria-current={s.isNext ? 'step' : undefined} data-next={s.isNext || undefined}>
-            <TaskCheckbox checked={s.done} label={s.done ? `${s.title} (done)` : s.title} disabled tabIndex={-1} aria-hidden="true" />
+          <li
+            key={s.id}
+            className={`${styles.step} ${s.isNext ? styles.stepNext : ''}`}
+            aria-current={s.isNext ? 'step' : undefined}
+            data-next={s.isNext || undefined}
+          >
+            <TaskCheckbox
+              checked={s.done}
+              label={s.done ? `${s.title} (done)` : s.title}
+              disabled
+              tabIndex={-1}
+              aria-hidden="true"
+            />
             <div className={styles.stepText}>
               <span className={s.done ? styles.stepTitleDone : styles.stepTitle}>
                 {s.title}

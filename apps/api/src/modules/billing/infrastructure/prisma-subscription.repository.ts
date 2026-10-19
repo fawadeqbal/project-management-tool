@@ -1,5 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Subscription, type BillingInterval, type Clock, type PlanId, type SubscriptionRepository } from '@hearth/domain';
+import {
+  Subscription,
+  type BillingInterval,
+  type Clock,
+  type PlanId,
+  type SubscriptionRepository,
+} from '@hearth/domain';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../shared/clock/clock';
 
@@ -16,7 +22,12 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     if (!s) {
       const now = this.clock.now();
       s = await this.prisma.subscription.create({
-        data: { workspaceId, plan: 'FREE', seats: 5, renewsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)) },
+        data: {
+          workspaceId,
+          plan: 'FREE',
+          seats: 5,
+          renewsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)),
+        },
       });
     }
     return Subscription.restore(s.id, {
@@ -34,7 +45,14 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     const s = subscription.toSnapshot();
     await this.prisma.subscription.update({
       where: { id: s.id },
-      data: { plan: s.plan, interval: s.interval, status: s.status, seats: s.seats, renewsAt: s.renewsAt, pausedUntil: s.pausedUntil },
+      data: {
+        plan: s.plan,
+        interval: s.interval,
+        status: s.status,
+        seats: s.seats,
+        renewsAt: s.renewsAt,
+        pausedUntil: s.pausedUntil,
+      },
     });
   }
 }

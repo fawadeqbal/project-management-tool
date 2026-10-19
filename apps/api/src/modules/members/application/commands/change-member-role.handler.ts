@@ -1,13 +1,22 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError, WORKSPACE_MEMBER_REPOSITORY, type Clock, type Role, type WorkspaceMemberRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  WORKSPACE_MEMBER_REPOSITORY,
+  type Clock,
+  type Role,
+  type WorkspaceMemberRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import { ChangeMemberRoleCommand } from './change-member-role.command';
 
 /** Role changes go through the WorkspaceMember aggregate (last owner, self, escalation rules). */
 @CommandHandler(ChangeMemberRoleCommand)
-export class ChangeMemberRoleHandler implements ICommandHandler<ChangeMemberRoleCommand, { userId: string; role: Role }> {
+export class ChangeMemberRoleHandler implements ICommandHandler<
+  ChangeMemberRoleCommand,
+  { userId: string; role: Role }
+> {
   constructor(
     @Inject(WORKSPACE_MEMBER_REPOSITORY) private readonly members: WorkspaceMemberRepository,
     private readonly events: DomainEventPublisher,

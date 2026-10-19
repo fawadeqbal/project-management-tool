@@ -4,7 +4,10 @@ export const PROJECT_HEALTH = ['ON_TRACK', 'AT_RISK', 'OFF_TRACK'] as const;
 export type ProjectHealth = (typeof PROJECT_HEALTH)[number];
 
 /** Health is always shown as icon + label + color (WCAG 1.4.1). */
-export const HEALTH_META: Record<ProjectHealth, { label: string; icon: string; tone: 'success' | 'warning' | 'danger' }> = {
+export const HEALTH_META: Record<
+  ProjectHealth,
+  { label: string; icon: string; tone: 'success' | 'warning' | 'danger' }
+> = {
   ON_TRACK: { label: 'On track', icon: 'status-done', tone: 'success' },
   AT_RISK: { label: 'At risk', icon: 'alert', tone: 'warning' },
   OFF_TRACK: { label: 'Off track', icon: 'status-blocked', tone: 'danger' },
@@ -27,7 +30,10 @@ export const projectProgress = (i: Pick<ProjectProgressInput, 'totalTasks' | 'do
  * due → off track; behind by >10, or overdue/blocked work piling up → at risk. Owners can
  * override; this is the default the dashboard proposes.
  */
-export const evaluateHealth = (i: ProjectProgressInput, today: Date): { health: ProjectHealth; reason: string } => {
+export const evaluateHealth = (
+  i: ProjectProgressInput,
+  today: Date,
+): { health: ProjectHealth; reason: string } => {
   const progress = projectProgress(i);
   if (i.dueDate && diffInDays(today, i.dueDate) < 0 && progress < 100)
     return { health: 'OFF_TRACK', reason: 'Past the due date with work still open.' };
@@ -37,9 +43,18 @@ export const evaluateHealth = (i: ProjectProgressInput, today: Date): { health: 
     expected = Math.min(100, Math.max(0, Math.round((diffInDays(i.startDate, today) / total) * 100)));
   }
   const gap = expected - progress;
-  if (gap > 25) return { health: 'OFF_TRACK', reason: `${progress}% done with ${expected}% of the time gone.` };
+  if (gap > 25)
+    return { health: 'OFF_TRACK', reason: `${progress}% done with ${expected}% of the time gone.` };
   if (gap > 10 || i.overdueTasks >= 3 || i.blockedTasks >= 2)
-    return { health: 'AT_RISK', reason: i.overdueTasks >= 3 ? `${i.overdueTasks} overdue tasks.` : i.blockedTasks >= 2 ? `${i.blockedTasks} blocked tasks.` : `${progress}% done with ${expected}% of the time gone.` };
+    return {
+      health: 'AT_RISK',
+      reason:
+        i.overdueTasks >= 3
+          ? `${i.overdueTasks} overdue tasks.`
+          : i.blockedTasks >= 2
+            ? `${i.blockedTasks} blocked tasks.`
+            : `${progress}% done with ${expected}% of the time gone.`,
+    };
   return { health: 'ON_TRACK', reason: 'Progress is keeping pace with the schedule.' };
 };
 

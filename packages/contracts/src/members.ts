@@ -21,9 +21,20 @@ export interface AdminMemberDto extends UserRefDto {
 
 export interface MembersOverviewDto {
   members: AdminMemberDto[];
-  counts: { members: number; guests: number; deactivated: number; pendingInvites: number; seatsUsed: number; seatLimit: number | null };
+  counts: {
+    members: number;
+    guests: number;
+    deactivated: number;
+    pendingInvites: number;
+    seatsUsed: number;
+    seatLimit: number | null;
+  };
   plan: { id: string; name: string };
-  identity: { sso: 'not_configured' | 'configured'; scim: 'available_on_enterprise' | 'enabled'; summary: string };
+  identity: {
+    sso: 'not_configured' | 'configured';
+    scim: 'available_on_enterprise' | 'enabled';
+    summary: string;
+  };
 }
 
 export interface InviteDto {
@@ -46,7 +57,10 @@ export const CreateInviteSchema = z
     teamId: IdSchema.nullish(),
     projectId: IdSchema.nullish(),
   })
-  .refine((v) => v.role !== 'GUEST' || !!v.projectId, { message: 'Pick the project this guest can see.', path: ['projectId'] });
+  .refine((v) => v.role !== 'GUEST' || !!v.projectId, {
+    message: 'Pick the project this guest can see.',
+    path: ['projectId'],
+  });
 export type CreateInviteInput = z.infer<typeof CreateInviteSchema>;
 
 export interface CreateInviteResultDto {
@@ -59,7 +73,9 @@ export const ChangeRoleSchema = z.object({ role: RoleSchema });
 export type ChangeRoleInput = z.infer<typeof ChangeRoleSchema>;
 
 export const RemoveMemberSchema = z.object({
-  confirm: z.literal(true, { errorMap: () => ({ message: 'Removing someone can’t be undone. Confirm to continue.' }) }),
+  confirm: z.literal(true, {
+    errorMap: () => ({ message: 'Removing someone can’t be undone. Confirm to continue.' }),
+  }),
 });
 export type RemoveMemberInput = z.infer<typeof RemoveMemberSchema>;
 

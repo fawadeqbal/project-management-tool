@@ -40,7 +40,10 @@ interface QuickAddRowProps {
  * "Add a task… type @ to assign, # for project, ! for priority". Enter submits; the parsed tokens
  * show as chips while typing. Esc clears and leaves.
  */
-export const QuickAddRow = forwardRef<HTMLInputElement, QuickAddRowProps>(function QuickAddRow({ onSubmit }, ref) {
+export const QuickAddRow = forwardRef<HTMLInputElement, QuickAddRowProps>(function QuickAddRow(
+  { onSubmit },
+  ref,
+) {
   const [text, setText] = useState('');
   const parsed = useMemo(() => parseQuickAdd(text, today()), [text]);
 

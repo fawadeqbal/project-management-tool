@@ -55,46 +55,46 @@ both themes come for free. Use the tokens in app code too: `--bg-*`, `--text-*`,
 
 Ported from the reference bundle:
 
-| Component | Key props |
-| --- | --- |
-| `Icon`, `ICON_NAMES`, `IconName` | `name`, `size` (16), `label` (makes it `role="img"`; without one it is decorative), `spin`, `strokeWidth` |
-| `Button` (forwardRef) | `variant` primary/secondary/ghost/danger, `size` sm/md/lg, `icon`, `iconRight`, `loading` (sets `aria-busy`), plus all button props. Icon-only buttons need `aria-label` and warn in dev without one |
-| `Kbd` | `keys: string \| string[]` |
-| `Input` (forwardRef to `<input>`) | `label`, `hideLabel`, `hint`, `error`, `icon`, `shortcut`, plus native input props |
-| `Textarea` (forwardRef) | same field chrome as `Input` |
-| `TaskCheckbox` | `checked`, `label`, `onChange(next)` |
-| `Avatar`, `AvatarGroup` | `initials`, `name`, `size` 20/24/28/32/40, `color: AccentColor`; group: `people`, `max` (4), `size` |
-| `Tag` | `color`, `children` |
-| `StatusIcon`, `StatusPill` | `status`, `size`, `label` |
-| `PriorityIcon`, `Priority` | `level`, `showLabel` |
-| `ProgressBar` | `value` (0–100), `label`, `tone` brand/success, `height` |
-| `NavItem` | `label`, `icon`, `dot`, `count`, `active`, `linkComponent` (e.g. react-router `Link`, then pass `to`), `href` |
-| `ViewTabs` | `tabs`, `value`, `onChange`, `label`. Roving tabindex; arrow keys, Home and End switch tabs |
-| `MenuItem`, `MenuHeading` | `label`, `icon`, `iconColor`, `shortcut`, `hint`, `highlighted`, `disabled`, `danger`, `onSelect` (`role="option"`) |
-| `Toast` | `message`, `action` (string or `false`), `icon`, `onAction`, `onDismiss`, `politeness` |
-| `Due` | `tone` default/danger, `children` |
-| `GroupHeader` | `label`, `count`, `status`, `icon`, `iconColor`, `collapsed`, `onToggle` (real button with `aria-expanded`), `onAdd` |
-| `TaskRow` | `id`, `title`, `priority`, `status`, `tag`, `tagColor`, `due`, `dueTone`, `assignee`, `assigneeColor`, `assigneeName`, `selected`, `done`, `compact`, `onToggleDone`, `onOpen`, `trailing`. Focusable; Enter opens |
-| `BoardCard` (forwardRef) | `id`, `title`, `priority`, `tags`, `due`, `dueTone`, `comments`, `assignee`, `assigneeColor`, `dragging`, `muted`, `onClick`. Spread dnd-kit `attributes`, `listeners` and `style` onto it |
+| Component                         | Key props                                                                                                                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Icon`, `ICON_NAMES`, `IconName`  | `name`, `size` (16), `label` (makes it `role="img"`; without one it is decorative), `spin`, `strokeWidth`                                                                                                          |
+| `Button` (forwardRef)             | `variant` primary/secondary/ghost/danger, `size` sm/md/lg, `icon`, `iconRight`, `loading` (sets `aria-busy`), plus all button props. Icon-only buttons need `aria-label` and warn in dev without one               |
+| `Kbd`                             | `keys: string \| string[]`                                                                                                                                                                                         |
+| `Input` (forwardRef to `<input>`) | `label`, `hideLabel`, `hint`, `error`, `icon`, `shortcut`, plus native input props                                                                                                                                 |
+| `Textarea` (forwardRef)           | same field chrome as `Input`                                                                                                                                                                                       |
+| `TaskCheckbox`                    | `checked`, `label`, `onChange(next)`                                                                                                                                                                               |
+| `Avatar`, `AvatarGroup`           | `initials`, `name`, `size` 20/24/28/32/40, `color: AccentColor`; group: `people`, `max` (4), `size`                                                                                                                |
+| `Tag`                             | `color`, `children`                                                                                                                                                                                                |
+| `StatusIcon`, `StatusPill`        | `status`, `size`, `label`                                                                                                                                                                                          |
+| `PriorityIcon`, `Priority`        | `level`, `showLabel`                                                                                                                                                                                               |
+| `ProgressBar`                     | `value` (0–100), `label`, `tone` brand/success, `height`                                                                                                                                                           |
+| `NavItem`                         | `label`, `icon`, `dot`, `count`, `active`, `linkComponent` (e.g. react-router `Link`, then pass `to`), `href`                                                                                                      |
+| `ViewTabs`                        | `tabs`, `value`, `onChange`, `label`. Roving tabindex; arrow keys, Home and End switch tabs                                                                                                                        |
+| `MenuItem`, `MenuHeading`         | `label`, `icon`, `iconColor`, `shortcut`, `hint`, `highlighted`, `disabled`, `danger`, `onSelect` (`role="option"`)                                                                                                |
+| `Toast`                           | `message`, `action` (string or `false`), `icon`, `onAction`, `onDismiss`, `politeness`                                                                                                                             |
+| `Due`                             | `tone` default/danger, `children`                                                                                                                                                                                  |
+| `GroupHeader`                     | `label`, `count`, `status`, `icon`, `iconColor`, `collapsed`, `onToggle` (real button with `aria-expanded`), `onAdd`                                                                                               |
+| `TaskRow`                         | `id`, `title`, `priority`, `status`, `tag`, `tagColor`, `due`, `dueTone`, `assignee`, `assigneeColor`, `assigneeName`, `selected`, `done`, `compact`, `onToggleDone`, `onOpen`, `trailing`. Focusable; Enter opens |
+| `BoardCard` (forwardRef)          | `id`, `title`, `priority`, `tags`, `due`, `dueTone`, `comments`, `assignee`, `assigneeColor`, `dragging`, `muted`, `onClick`. Spread dnd-kit `attributes`, `listeners` and `style` onto it                         |
 
 New primitives, built in the same style:
 
-| Component | Key props |
-| --- | --- |
-| `Dialog` | `open`, `onClose`, `title`, `description`, `footer`, `size` sm/md/lg, `initialFocusRef`, `role`. Portals to body, traps focus, closes on Esc, returns focus to the trigger, locks body scroll |
-| `Popover` | `open`, `onOpenChange`, `anchorRef` or `renderTrigger`, `align` start/center/end, `placement` bottom/top. Closes on outside click and Esc |
-| `DropdownMenu` | `trigger` (element), `items` (flat items or `{ id, heading, items }` sections), `label`, `align`. Keyboard: ↑, ↓, Home, End, Enter/Space, Esc, Tab and typeahead |
-| `Tooltip` | `content`, `children` (one focusable element), `delay` (400ms). Shows on hover or focus; wired with `aria-describedby` |
-| `SegmentedControl` | `options`, `value`, `onChange`, `label` (radiogroup) |
-| `Switch` | `checked`, `onChange`, `label` (`role="switch"`) |
-| `Select` | native `<select>` with `label`, `hint`, `error`, `options`, `placeholder` |
-| `Skeleton`, `Spinner` | `width`, `height`, `radius`; `size`, `label` |
-| `EmptyState` | `icon` or `illustration`, `title`, `description`, `primaryAction`, `secondaryAction` |
-| `Badge` | `tone` neutral/success/warning/danger/info/brand, `icon`, `children` |
-| `KpiTile` | `label`, `value`, `delta`, `deltaTone`, `sub`, `valueTone`, `icon` |
-| `Card` | `padding` none/sm/md/lg |
-| `VisuallyHidden`, `SkipLink` | screen-reader-only text; a "Skip to content" link that targets `#main` |
-| `Portal` | renders into `document.body` |
+| Component                    | Key props                                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Dialog`                     | `open`, `onClose`, `title`, `description`, `footer`, `size` sm/md/lg, `initialFocusRef`, `role`. Portals to body, traps focus, closes on Esc, returns focus to the trigger, locks body scroll |
+| `Popover`                    | `open`, `onOpenChange`, `anchorRef` or `renderTrigger`, `align` start/center/end, `placement` bottom/top. Closes on outside click and Esc                                                     |
+| `DropdownMenu`               | `trigger` (element), `items` (flat items or `{ id, heading, items }` sections), `label`, `align`. Keyboard: ↑, ↓, Home, End, Enter/Space, Esc, Tab and typeahead                              |
+| `Tooltip`                    | `content`, `children` (one focusable element), `delay` (400ms). Shows on hover or focus; wired with `aria-describedby`                                                                        |
+| `SegmentedControl`           | `options`, `value`, `onChange`, `label` (radiogroup)                                                                                                                                          |
+| `Switch`                     | `checked`, `onChange`, `label` (`role="switch"`)                                                                                                                                              |
+| `Select`                     | native `<select>` with `label`, `hint`, `error`, `options`, `placeholder`                                                                                                                     |
+| `Skeleton`, `Spinner`        | `width`, `height`, `radius`; `size`, `label`                                                                                                                                                  |
+| `EmptyState`                 | `icon` or `illustration`, `title`, `description`, `primaryAction`, `secondaryAction`                                                                                                          |
+| `Badge`                      | `tone` neutral/success/warning/danger/info/brand, `icon`, `children`                                                                                                                          |
+| `KpiTile`                    | `label`, `value`, `delta`, `deltaTone`, `sub`, `valueTone`, `icon`                                                                                                                            |
+| `Card`                       | `padding` none/sm/md/lg                                                                                                                                                                       |
+| `VisuallyHidden`, `SkipLink` | screen-reader-only text; a "Skip to content" link that targets `#main`                                                                                                                        |
+| `Portal`                     | renders into `document.body`                                                                                                                                                                  |
 
 Types and helpers: `Status`, `PriorityLevel`, `AccentColor`, `DomainStatus`, `DomainPriority`,
 `STATUS_LABELS`, `PRIORITY_LABELS`, `toUiStatus`, `toUiPriority`, `toDomainStatus`,

@@ -11,10 +11,38 @@ const d = parseDateOnly;
 
 describe('reporting', () => {
   const tasks = [
-    { status: 'DONE' as const, createdAt: d('2026-10-01'), startDate: d('2026-10-02'), dueDate: d('2026-10-10'), completedAt: d('2026-10-08'), projectId: 'p' },
-    { status: 'DONE' as const, createdAt: d('2026-10-05'), startDate: null, dueDate: d('2026-10-09'), completedAt: d('2026-10-12'), projectId: 'p' },
-    { status: 'TODO' as const, createdAt: d('2026-10-12'), startDate: null, dueDate: d('2026-10-15'), completedAt: null, projectId: 'p' },
-    { status: 'BLOCKED' as const, createdAt: d('2026-10-14'), startDate: null, dueDate: null, completedAt: null, projectId: 'p' },
+    {
+      status: 'DONE' as const,
+      createdAt: d('2026-10-01'),
+      startDate: d('2026-10-02'),
+      dueDate: d('2026-10-10'),
+      completedAt: d('2026-10-08'),
+      projectId: 'p',
+    },
+    {
+      status: 'DONE' as const,
+      createdAt: d('2026-10-05'),
+      startDate: null,
+      dueDate: d('2026-10-09'),
+      completedAt: d('2026-10-12'),
+      projectId: 'p',
+    },
+    {
+      status: 'TODO' as const,
+      createdAt: d('2026-10-12'),
+      startDate: null,
+      dueDate: d('2026-10-15'),
+      completedAt: null,
+      projectId: 'p',
+    },
+    {
+      status: 'BLOCKED' as const,
+      createdAt: d('2026-10-14'),
+      startDate: null,
+      dueDate: null,
+      completedAt: null,
+      projectId: 'p',
+    },
   ];
 
   it('computes KPI tiles with tone', () => {
@@ -35,7 +63,13 @@ describe('reporting', () => {
 
 describe('project health', () => {
   it('flags projects falling behind the clock', () => {
-    const base = { totalTasks: 10, overdueTasks: 0, blockedTasks: 0, startDate: d('2026-10-01'), dueDate: d('2026-10-31') };
+    const base = {
+      totalTasks: 10,
+      overdueTasks: 0,
+      blockedTasks: 0,
+      startDate: d('2026-10-01'),
+      dueDate: d('2026-10-31'),
+    };
     expect(evaluateHealth({ ...base, doneTasks: 6 }, today).health).toBe('ON_TRACK');
     expect(evaluateHealth({ ...base, doneTasks: 4 }, today).health).toBe('AT_RISK');
     expect(evaluateHealth({ ...base, doneTasks: 2 }, today).health).toBe('OFF_TRACK');
@@ -46,7 +80,10 @@ describe('project health', () => {
 describe('search, onboarding, ai query', () => {
   it('ranks exact and word-start matches first', () => {
     const items = ['Design pricing page', 'Review Q3 analytics dashboard', 'Update pricing table'];
-    expect(fuzzyRank('pric', items, (x) => [x]).map((r) => r.item)).toEqual(['Design pricing page', 'Update pricing table']);
+    expect(fuzzyRank('pric', items, (x) => [x]).map((r) => r.item)).toEqual([
+      'Design pricing page',
+      'Update pricing table',
+    ]);
     expect(fuzzyMatch('dpp', 'Design pricing page')).not.toBeNull();
     expect(fuzzyMatch('xyz', 'Design pricing page')).toBeNull();
   });
@@ -57,7 +94,11 @@ describe('search, onboarding, ai query', () => {
   });
 
   it('interprets “overdue design”', () => {
-    const q = interpretTaskQuery('Show overdue tasks for the Design team', { tags: ['Design'], teamsOrProjects: ['Design', 'Engineering'], people: ['Sara'] });
+    const q = interpretTaskQuery('Show overdue tasks for the Design team', {
+      tags: ['Design'],
+      teamsOrProjects: ['Design', 'Engineering'],
+      people: ['Sara'],
+    });
     expect(q).toMatchObject({ overdue: true, teamOrProject: 'Design' });
     expect(q.explanation).toBe('Show overdue tasks for Design');
   });
@@ -66,7 +107,20 @@ describe('search, onboarding, ai query', () => {
 describe('computeKpis without history', () => {
   it('marks deltas neutral when the previous window has nothing to compare', () => {
     const today = new Date('2026-10-19T00:00:00Z');
-    const kpis = computeKpis([{ status: 'DONE', createdAt: new Date('2026-10-10'), startDate: null, dueDate: new Date('2026-10-12'), completedAt: new Date('2026-10-11'), projectId: null }], today, 6);
+    const kpis = computeKpis(
+      [
+        {
+          status: 'DONE',
+          createdAt: new Date('2026-10-10'),
+          startDate: null,
+          dueDate: new Date('2026-10-12'),
+          completedAt: new Date('2026-10-11'),
+          projectId: null,
+        },
+      ],
+      today,
+      6,
+    );
     expect(kpis.slice(0, 3).map((k) => [k.delta, k.deltaTone])).toEqual([
       ['New', 'neutral'],
       ['New', 'neutral'],

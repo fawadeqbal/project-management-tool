@@ -4,12 +4,14 @@
  */
 export const DAY_MS = 86_400_000;
 
-export const startOfDay = (d: Date): Date => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+export const startOfDay = (d: Date): Date =>
+  new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 
 export const addDays = (d: Date, days: number): Date => new Date(startOfDay(d).getTime() + days * DAY_MS);
 
 /** Whole calendar days from `a` to `b` (positive when b is later). */
-export const diffInDays = (a: Date, b: Date): number => Math.round((startOfDay(b).getTime() - startOfDay(a).getTime()) / DAY_MS);
+export const diffInDays = (a: Date, b: Date): number =>
+  Math.round((startOfDay(b).getTime() - startOfDay(a).getTime()) / DAY_MS);
 
 export const isSameDay = (a: Date, b: Date): boolean => diffInDays(a, b) === 0;
 

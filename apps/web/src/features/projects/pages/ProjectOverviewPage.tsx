@@ -46,14 +46,25 @@ export function ProjectOverviewPage() {
           <div className={styles.cardHead}>
             <h2 className={styles.cardTitle}>About</h2>
             {canManage && !editing ? (
-              <Button variant="ghost" size="sm" icon="pencil" onClick={() => (setDraft(project.description ?? ''), setEditing(true))}>
+              <Button
+                variant="ghost"
+                size="sm"
+                icon="pencil"
+                onClick={() => (setDraft(project.description ?? ''), setEditing(true))}
+              >
                 Edit
               </Button>
             ) : null}
           </div>
           {editing ? (
             <div className={styles.descEdit}>
-              <Textarea label="Description" hideLabel rows={4} value={draft} onChange={(e) => setDraft(e.target.value)} />
+              <Textarea
+                label="Description"
+                hideLabel
+                rows={4}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
               <div className={styles.row}>
                 <Button size="sm" onClick={saveDescription}>
                   Save
@@ -64,13 +75,22 @@ export function ProjectOverviewPage() {
               </div>
             </div>
           ) : (
-            <p className={styles.description}>{project.description || 'No description yet. Say what this project is for and what done looks like.'}</p>
+            <p className={styles.description}>
+              {project.description ||
+                'No description yet. Say what this project is for and what done looks like.'}
+            </p>
           )}
           <dl className={styles.facts}>
             <div>
               <dt>Owner</dt>
               <dd>
-                <Avatar initials={project.owner.initials} name={project.owner.name} color={project.owner.avatarColor} size={20} /> {project.owner.name}
+                <Avatar
+                  initials={project.owner.initials}
+                  name={project.owner.name}
+                  color={project.owner.avatarColor}
+                  size={20}
+                />{' '}
+                {project.owner.name}
               </dd>
             </div>
             <div>
@@ -98,7 +118,11 @@ export function ProjectOverviewPage() {
             <p className={styles.suggestion}>
               <Icon name="sparkles" /> The schedule suggests <strong>{project.suggestedHealth.label}</strong>.{' '}
               {canManage ? (
-                <button type="button" className={styles.linkButton} onClick={() => setHealth(project.suggestedHealth.health)}>
+                <button
+                  type="button"
+                  className={styles.linkButton}
+                  onClick={() => setHealth(project.suggestedHealth.health)}
+                >
                   Use suggestion
                 </button>
               ) : null}
@@ -107,7 +131,15 @@ export function ProjectOverviewPage() {
           {canManage ? (
             <div className={styles.healthPicker} role="radiogroup" aria-label="Set project health">
               {PROJECT_HEALTH.map((h) => (
-                <button key={h} type="button" role="radio" aria-checked={project.health.health === h} className={styles.healthOption} data-tone={HEALTH_META[h].tone} onClick={() => setHealth(h)}>
+                <button
+                  key={h}
+                  type="button"
+                  role="radio"
+                  aria-checked={project.health.health === h}
+                  className={styles.healthOption}
+                  data-tone={HEALTH_META[h].tone}
+                  onClick={() => setHealth(h)}
+                >
                   <Icon name={asIcon(HEALTH_META[h].icon)} />
                   {HEALTH_META[h].label}
                 </button>
@@ -122,10 +154,16 @@ export function ProjectOverviewPage() {
                 {project.counts.done} of {project.counts.total} tasks · {project.progress}%
               </span>
             </div>
-            <ProgressBar value={project.progress} label="Project progress" tone={project.progress === 100 ? 'success' : 'brand'} />
+            <ProgressBar
+              value={project.progress}
+              label="Project progress"
+              tone={project.progress === 100 ? 'success' : 'brand'}
+            />
             <div className={styles.countRow}>
               <span>{project.counts.open} open</span>
-              <span data-tone={project.counts.overdue ? 'danger' : undefined}>{project.counts.overdue} overdue</span>
+              <span data-tone={project.counts.overdue ? 'danger' : undefined}>
+                {project.counts.overdue} overdue
+              </span>
               <span>{project.counts.blocked} blocked</span>
             </div>
           </div>

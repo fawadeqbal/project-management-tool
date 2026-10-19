@@ -1,7 +1,23 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { Button, EmptyState, KpiTile, SegmentedControl, Select, Skeleton, ViewTabs, type ViewTab } from '@hearth/ui';
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  Button,
+  EmptyState,
+  KpiTile,
+  SegmentedControl,
+  Select,
+  Skeleton,
+  ViewTabs,
+  type ViewTab,
+} from '@hearth/ui';
 import type { WorkloadDto, WorkloadPersonDto, WorkloadUnitDto } from '@hearth/contracts';
 import { useRegisterCommands } from '@/shared/commands';
 import type { Command } from '@/shared/commands/command';
@@ -45,23 +61,45 @@ function SummaryChips({ w }: { w: WorkloadDto }) {
   const unit = w.unit;
   return (
     <div className={styles.kpis}>
-      <KpiTile label="Team capacity used" value={`${s.capacityUsedPct}%`} sub={`${formatAmount(s.planned, unit)} of ${formatAmount(s.capacity, unit)} planned`} />
+      <KpiTile
+        label="Team capacity used"
+        value={`${s.capacityUsedPct}%`}
+        sub={`${formatAmount(s.planned, unit)} of ${formatAmount(s.capacity, unit)} planned`}
+      />
       <KpiTile
         label="Over capacity"
         icon={overThisWeek.length ? 'alert' : undefined}
-        value={overThisWeek.length ? `${overThisWeek.length} ${overThisWeek.length === 1 ? 'person' : 'people'}` : 'No one'}
+        value={
+          overThisWeek.length
+            ? `${overThisWeek.length} ${overThisWeek.length === 1 ? 'person' : 'people'}`
+            : 'No one'
+        }
         valueTone={overThisWeek.length ? 'warning' : 'neutral'}
-        sub={overThisWeek.length ? overThisWeek.map((o) => `${firstName(o.user.name)} (${o.label})`).join(', ') : 'Everyone fits this week'}
+        sub={
+          overThisWeek.length
+            ? overThisWeek.map((o) => `${firstName(o.user.name)} (${o.label})`).join(', ')
+            : 'Everyone fits this week'
+        }
       />
       <KpiTile
         label="Free capacity"
         value={formatAmount(s.freeCapacity, unit)}
-        sub={s.freeBy.length ? `Mostly ${listNames(s.freeBy.slice(0, 3).map((f) => firstName(f.user.name)))}` : 'Nobody has room'}
+        sub={
+          s.freeBy.length
+            ? `Mostly ${listNames(s.freeBy.slice(0, 3).map((f) => firstName(f.user.name)))}`
+            : 'Nobody has room'
+        }
       />
       <KpiTile
         label="Time off"
-        value={s.timeOff.length ? `${s.timeOff.length} ${s.timeOff.length === 1 ? 'person' : 'people'}` : 'No one'}
-        sub={s.timeOff.length ? s.timeOff.map((t) => `${firstName(t.user.name)} · ${t.label}`).join(', ') : 'Everyone is in'}
+        value={
+          s.timeOff.length ? `${s.timeOff.length} ${s.timeOff.length === 1 ? 'person' : 'people'}` : 'No one'
+        }
+        sub={
+          s.timeOff.length
+            ? s.timeOff.map((t) => `${firstName(t.user.name)} · ${t.label}`).join(', ')
+            : 'Everyone is in'
+        }
       />
     </div>
   );
@@ -77,7 +115,10 @@ export function WorkloadPage() {
   const teamId = params.get('team') ?? undefined;
   const { data: teams = [] } = useTeams();
 
-  const query = useMemo<WorkloadParams>(() => ({ ...rangeFor(new Date(), weekOffset), unit, projectId, teamId }), [weekOffset, unit, projectId, teamId]);
+  const query = useMemo<WorkloadParams>(
+    () => ({ ...rangeFor(new Date(), weekOffset), unit, projectId, teamId }),
+    [weekOffset, unit, projectId, teamId],
+  );
   const workload = useWorkload(query);
   const reassign = useReassign();
   const w = workload.data;
@@ -102,7 +143,10 @@ export function WorkloadPage() {
       return next;
     });
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }), useSensor(KeyboardSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor),
+  );
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     const taskId = active.data.current?.taskId as string | undefined;
     const toUserId = over?.data.current?.userId as string | undefined;
@@ -115,7 +159,14 @@ export function WorkloadPage() {
 
   const commands = useMemo<Command[]>(
     () => [
-      { id: 'workload.time-off', title: 'Add time off', group: 'Actions', icon: 'calendar', keywords: ['vacation', 'holiday', 'leave', 'workload'], run: () => setTimeOffOpen(true) },
+      {
+        id: 'workload.time-off',
+        title: 'Add time off',
+        group: 'Actions',
+        icon: 'calendar',
+        keywords: ['vacation', 'holiday', 'leave', 'workload'],
+        run: () => setTimeOffOpen(true),
+      },
       {
         id: 'workload.next-range',
         title: 'Workload: next two weeks',
@@ -137,28 +188,61 @@ export function WorkloadPage() {
         <header className={styles.header}>
           <h1 className={styles.h1}>Workload</h1>
           <span className={styles.subtitle}>
-            {w ? `${w.range.label} · ${unit === 'hours' ? 'hours planned vs. daily capacity' : `${unit} planned per day`}` : ' '}
+            {w
+              ? `${w.range.label} · ${unit === 'hours' ? 'hours planned vs. daily capacity' : `${unit} planned per day`}`
+              : ' '}
           </span>
           <span className={styles.grow} />
-          <SegmentedControl label="Unit" options={UNITS} value={unit} onChange={(id) => setParam('unit', id === 'hours' ? null : id)} />
+          <SegmentedControl
+            label="Unit"
+            options={UNITS}
+            value={unit}
+            onChange={(id) => setParam('unit', id === 'hours' ? null : id)}
+          />
           {projectId ? (
-            <ViewTabs tabs={PROJECT_VIEW_TABS} value="workload" onChange={(id) => void navigate(viewPath(projectId, id))} />
+            <ViewTabs
+              tabs={PROJECT_VIEW_TABS}
+              value="workload"
+              onChange={(id) => void navigate(viewPath(projectId, id))}
+            />
           ) : null}
         </header>
         <div className={styles.toolbar}>
           <div className={styles.rangeNav} role="group" aria-label="Date range">
-            <Button size="sm" variant="secondary" icon="chevron-right" className={styles.flip} aria-label="Previous two weeks" onClick={() => setParam('week', String(weekOffset - 1))} />
-            <Button size="sm" variant="secondary" onClick={() => setParam('week', null)} disabled={weekOffset === 0} title="Today (T)">
+            <Button
+              size="sm"
+              variant="secondary"
+              icon="chevron-right"
+              className={styles.flip}
+              aria-label="Previous two weeks"
+              onClick={() => setParam('week', String(weekOffset - 1))}
+            />
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setParam('week', null)}
+              disabled={weekOffset === 0}
+              title="Today (T)"
+            >
               Today
             </Button>
-            <Button size="sm" variant="secondary" icon="chevron-right" aria-label="Next two weeks" onClick={() => setParam('week', String(weekOffset + 1))} />
+            <Button
+              size="sm"
+              variant="secondary"
+              icon="chevron-right"
+              aria-label="Next two weeks"
+              onClick={() => setParam('week', String(weekOffset + 1))}
+            />
           </div>
           <Select
             label="Team"
             hideLabel
             value={teamId ?? ''}
             onChange={(e) => setParam('team', e.target.value || null)}
-            options={[{ value: '', label: 'All teams' }, ...teams.map((t) => ({ value: t.id, label: t.name }))]}
+            options={[
+              { value: '', label: 'All teams' },
+              ...teams.map((t) => ({ value: t.id, label: t.name })),
+            ]}
             className={styles.teamSelect}
           />
           <span className={styles.grow} />
@@ -173,7 +257,11 @@ export function WorkloadPage() {
             <Skeleton height={320} />
           </div>
         ) : w.people.length === 0 ? (
-          <EmptyState icon="users" title="No one to show" description="Nobody in this team or project has work planned in these two weeks. Try All teams." />
+          <EmptyState
+            icon="users"
+            title="No one to show"
+            description="Nobody in this team or project has work planned in these two weeks. Try All teams."
+          />
         ) : (
           <>
             <SummaryChips w={w} />
@@ -222,7 +310,9 @@ export function WorkloadPage() {
             </p>
           </>
         )}
-        {timeOffOpen ? <TimeOffDialog onClose={() => setTimeOffOpen(false)} defaultDate={isoToday()} /> : null}
+        {timeOffOpen ? (
+          <TimeOffDialog onClose={() => setTimeOffOpen(false)} defaultDate={isoToday()} />
+        ) : null}
       </main>
     </DndContext>
   );

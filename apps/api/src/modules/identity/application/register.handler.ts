@@ -16,13 +16,27 @@ const AVATAR_COLORS = ['blue', 'green', 'violet', 'sky', 'amber', 'rose'] as con
 
 /** Derives a short task-key prefix from the workspace name: "Acme Studio" → "AS", "Hearth" → "HEA". */
 export const keyPrefixFor = (name: string): string => {
-  const words = name.toUpperCase().replace(/[^A-Z0-9 ]/g, '').split(/\s+/).filter(Boolean);
-  const prefix = words.length > 1 ? words.map((w) => w[0]).join('').slice(0, 4) : (words[0] ?? 'HRT').slice(0, 3);
+  const words = name
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, '')
+    .split(/\s+/)
+    .filter(Boolean);
+  const prefix =
+    words.length > 1
+      ? words
+          .map((w) => w[0])
+          .join('')
+          .slice(0, 4)
+      : (words[0] ?? 'HRT').slice(0, 3);
   return prefix.length >= 2 ? prefix : 'HRT';
 };
 
 const slugify = (name: string) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'workspace';
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40) || 'workspace';
 
 /**
  * Sign-up: creates the person, their first workspace (Owner), a Free subscription and the
@@ -40,7 +54,10 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand, AuthRes
 
   async execute({ input }: RegisterCommand): Promise<AuthResponseDto> {
     if (await this.prisma.user.findUnique({ where: { email: input.email } }))
-      throw new ConflictError('user.email_taken', 'That email already has an account. Sign in instead, or use a different email.');
+      throw new ConflictError(
+        'user.email_taken',
+        'That email already has an account. Sign in instead, or use a different email.',
+      );
 
     const now = this.clock.now();
     const firstName = input.name.split(/\s+/)[0] ?? input.name;
@@ -60,10 +77,16 @@ export class RegisterHandler implements ICommandHandler<RegisterCommand, AuthRes
       });
       let slug = slugify(workspaceName);
       if (await tx.workspace.findUnique({ where: { slug } })) slug = `${slug}-${user.id.slice(-6)}`;
-      const workspace = await tx.workspace.create({ data: { name: workspaceName, slug, keyPrefix: keyPrefixFor(workspaceName) } });
+      const workspace = await tx.workspace.create({
+        data: { name: workspaceName, slug, keyPrefix: keyPrefixFor(workspaceName) },
+      });
       await tx.membership.create({ data: { workspaceId: workspace.id, userId: user.id, role: 'OWNER' } });
-      await tx.subscription.create({ data: { workspaceId: workspace.id, plan: 'FREE', seats: 5, renewsAt: addDays(now, 30) } });
-      await tx.onboardingProgress.create({ data: { workspaceId: workspace.id, userId: user.id, completedSteps: ['create-workspace'] } });
+      await tx.subscription.create({
+        data: { workspaceId: workspace.id, plan: 'FREE', seats: 5, renewsAt: addDays(now, 30) },
+      });
+      await tx.onboardingProgress.create({
+        data: { workspaceId: workspace.id, userId: user.id, completedSteps: ['create-workspace'] },
+      });
       return { userId: user.id, workspaceId: workspace.id };
     });
 

@@ -14,10 +14,21 @@ vi.mock('@/shared/api/client', () => ({
     auth: { login: vi.fn(), register: vi.fn() },
     me: { get: vi.fn(), update: vi.fn() },
     workspace: { members: vi.fn(), teams: vi.fn(), tags: vi.fn(), shell: vi.fn(), createTag: vi.fn() },
-    tasks: { list: vi.fn(), get: vi.fn(), getByKey: vi.fn(), update: vi.fn(), quickAdd: vi.fn(), create: vi.fn(), move: vi.fn(), remove: vi.fn() },
+    tasks: {
+      list: vi.fn(),
+      get: vi.fn(),
+      getByKey: vi.fn(),
+      update: vi.fn(),
+      quickAdd: vi.fn(),
+      create: vi.fn(),
+      move: vi.fn(),
+      remove: vi.fn(),
+    },
   },
 }));
-vi.mock('socket.io-client', () => ({ io: () => ({ on: vi.fn(), emit: vi.fn(), removeAllListeners: vi.fn(), disconnect: vi.fn() }) }));
+vi.mock('socket.io-client', () => ({
+  io: () => ({ on: vi.fn(), emit: vi.fn(), removeAllListeners: vi.fn(), disconnect: vi.fn() }),
+}));
 
 const mocked = vi.mocked(api, true);
 
@@ -33,7 +44,10 @@ const renderAt = (path: string) => {
 
 describe('app routes', () => {
   beforeEach(() => {
-    useUiStore.setState({ palette: { open: false, mode: 'search', scope: 'all', initialQuery: '' }, shortcutsOpen: false });
+    useUiStore.setState({
+      palette: { open: false, mode: 'search', scope: 'all', initialQuery: '' },
+      shortcutsOpen: false,
+    });
     mocked.me.get.mockResolvedValue(testMe);
     mocked.workspace.shell.mockResolvedValue({
       favorites: [{ id: 'p1', name: 'Website relaunch', color: 'blue' }],
@@ -44,7 +58,9 @@ describe('app routes', () => {
     mocked.workspace.members.mockResolvedValue([]);
     mocked.workspace.teams.mockResolvedValue([]);
     mocked.workspace.tags.mockResolvedValue([]);
-    mocked.tasks.list.mockResolvedValue([makeTask({ id: 'a', key: 'HRT-142', title: 'Write onboarding checklist copy', dueDate: todayIso() })]);
+    mocked.tasks.list.mockResolvedValue([
+      makeTask({ id: 'a', key: 'HRT-142', title: 'Write onboarding checklist copy', dueDate: todayIso() }),
+    ]);
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -65,8 +81,13 @@ describe('app routes', () => {
     expect(router.state.location.pathname).toBe('/my-tasks');
     const nav = screen.getByRole('navigation', { name: 'Main' });
     expect(within(nav).getByRole('link', { name: /My tasks/ })).toHaveAttribute('aria-current', 'page');
-    expect(await within(nav).findByRole('link', { name: 'Website relaunch' })).toHaveAttribute('href', '/projects/p1');
-    expect(within(screen.getByRole('navigation', { name: 'Breadcrumb' })).getByText('My tasks')).toBeInTheDocument();
+    expect(await within(nav).findByRole('link', { name: 'Website relaunch' })).toHaveAttribute(
+      'href',
+      '/projects/p1',
+    );
+    expect(
+      within(screen.getByRole('navigation', { name: 'Breadcrumb' })).getByText('My tasks'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Notifications, 3 unread' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#main');
     unmount();

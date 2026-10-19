@@ -14,7 +14,10 @@ export class PrismaSprintRepository implements SprintRepository {
   }
 
   async findActive(projectId: string): Promise<Sprint | null> {
-    const row = await this.prisma.sprint.findFirst({ where: { projectId, status: 'ACTIVE' }, include: { project: { select: { workspaceId: true } } } });
+    const row = await this.prisma.sprint.findFirst({
+      where: { projectId, status: 'ACTIVE' },
+      include: { project: { select: { workspaceId: true } } },
+    });
     return row ? this.restore(row, row.project.workspaceId) : null;
   }
 
@@ -44,7 +47,11 @@ export class PrismaSprintRepository implements SprintRepository {
       committedPoints: s.committedPoints,
       completedAt: s.completedAt,
     };
-    await this.prisma.sprint.upsert({ where: { id: s.id }, create: { id: s.id, projectId: s.projectId, ...data }, update: data });
+    await this.prisma.sprint.upsert({
+      where: { id: s.id },
+      create: { id: s.id, projectId: s.projectId, ...data },
+      update: data,
+    });
   }
 
   private restore(row: SprintRow, workspaceId: string): Sprint {

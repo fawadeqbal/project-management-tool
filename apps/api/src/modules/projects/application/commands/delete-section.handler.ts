@@ -1,6 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError, PROJECT_REPOSITORY, type Actor, type Clock, type ProjectRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  PROJECT_REPOSITORY,
+  type Actor,
+  type Clock,
+  type ProjectRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';

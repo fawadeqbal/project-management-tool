@@ -48,7 +48,11 @@ export function SettingsNav() {
         <div key={group.heading} className={styles.navGroup}>
           <h2 className={styles.navHeading}>{group.heading}</h2>
           {group.items.map((item) => (
-            <NavLink key={item.path} to={`/settings/${item.path}`} className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}>
+            <NavLink
+              key={item.path}
+              to={`/settings/${item.path}`}
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+            >
               {item.label}
             </NavLink>
           ))}

@@ -27,19 +27,28 @@ export class ReportingController {
   ) {}
 
   @Get()
-  dashboard(@CurrentActor() actor: Actor, @Query(new ZodValidationPipe(DashboardQuerySchema)) query: DashboardQuery): Promise<DashboardDto> {
+  dashboard(
+    @CurrentActor() actor: Actor,
+    @Query(new ZodValidationPipe(DashboardQuerySchema)) query: DashboardQuery,
+  ): Promise<DashboardDto> {
     return this.queries.execute(new GetDashboardQuery(actor, query));
   }
 
   @Post('schedule')
   @RequireFeature('dashboards')
-  schedule(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(ScheduleDashboardSchema)) input: ScheduleDashboardInput) {
+  schedule(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(ScheduleDashboardSchema)) input: ScheduleDashboardInput,
+  ) {
     return this.commands.execute(new ScheduleDashboardCommand(actor, input));
   }
 
   @Patch('layout')
   @RequireFeature('dashboards')
-  layout(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(UpdateDashboardLayoutSchema)) input: UpdateDashboardLayoutInput) {
+  layout(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(UpdateDashboardLayoutSchema)) input: UpdateDashboardLayoutInput,
+  ) {
     return this.commands.execute(new SaveDashboardLayoutCommand(actor, input));
   }
 }

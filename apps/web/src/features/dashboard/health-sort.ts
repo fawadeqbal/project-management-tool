@@ -26,7 +26,10 @@ const value = (r: ProjectHealthRowDto, key: HealthSortKey): string | number => {
 };
 
 /** Pure, stable sort for the project health table (worst health first when ascending). */
-export const sortHealthRows = (rows: readonly ProjectHealthRowDto[], sort: HealthSort | null): ProjectHealthRowDto[] => {
+export const sortHealthRows = (
+  rows: readonly ProjectHealthRowDto[],
+  sort: HealthSort | null,
+): ProjectHealthRowDto[] => {
   if (!sort) return [...rows];
   const sign = sort.dir === 'asc' ? 1 : -1;
   return rows

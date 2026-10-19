@@ -27,11 +27,22 @@ export class TeammatesJoinedHandler extends DomainEventSubscriber {
   protected async on(event: DomainEvent): Promise<void> {
     const inviterId = (event.payload as { invitedById?: string }).invitedById;
     if (!inviterId) return;
-    const accepted = await this.prisma.invite.count({ where: { workspaceId: event.workspaceId, invitedById: inviterId, status: 'ACCEPTED' } });
+    const accepted = await this.prisma.invite.count({
+      where: { workspaceId: event.workspaceId, invitedById: inviterId, status: 'ACCEPTED' },
+    });
     if (accepted < TEAMMATES_GOAL) return;
     if (await this.store.complete(event.workspaceId, inviterId, 'invite-teammates'))
       this.events.publish(
-        createEvent('onboarding.step_completed', { workspaceId: event.workspaceId, actorId: inviterId, aggregateId: inviterId, occurredAt: this.clock.now() }, { step: 'invite-teammates' }),
+        createEvent(
+          'onboarding.step_completed',
+          {
+            workspaceId: event.workspaceId,
+            actorId: inviterId,
+            aggregateId: inviterId,
+            occurredAt: this.clock.now(),
+          },
+          { step: 'invite-teammates' },
+        ),
       );
   }
 }

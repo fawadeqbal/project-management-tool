@@ -47,7 +47,10 @@ const summary: AiSuggestionDto = {
   kind: 'summary',
   status: 'PENDING',
   source: 'generated from 12 comments',
-  summary: { text: 'Light mode is approved. Blocked until Marketing confirms final plan names (HRT-182).', suggestedNextStep: null },
+  summary: {
+    text: 'Light mode is approved. Blocked until Marketing confirms final plan names (HRT-182).',
+    suggestedNextStep: null,
+  },
   breakdown: null,
   createdAt: '2026-10-19T09:00:00.000Z',
 };
@@ -57,7 +60,10 @@ describe('AiSummarySlot', () => {
   afterEach(() => vi.clearAllMocks());
 
   it('shows a labelled summary with its source; Add to description writes only on click', async () => {
-    serve([summary], summary, { suggestion: { ...summary, status: 'ACCEPTED' }, description: `${task.description}\n\nSummary: ${summary.summary!.text}` });
+    serve([summary], summary, {
+      suggestion: { ...summary, status: 'ACCEPTED' },
+      description: `${task.description}\n\nSummary: ${summary.summary!.text}`,
+    });
     const { client, unmount } = renderApp(<AiSummarySlot task={task} />);
     client.setQueryData(queryKeys.task('t188'), task);
     expect(await screen.findByRole('region', { name: 'AI summary' })).toBeInTheDocument();
@@ -66,7 +72,9 @@ describe('AiSummarySlot', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add to description' }));
     // Optimistic: the card leaves and the description gains the summary right away.
     await waitFor(() => expect(screen.queryByRole('region', { name: 'AI summary' })).not.toBeInTheDocument());
-    expect((client.getQueryData(queryKeys.task('t188')) as TaskDetailDto).description).toContain('Summary: Light mode is approved.');
+    expect((client.getQueryData(queryKeys.task('t188')) as TaskDetailDto).description).toContain(
+      'Summary: Light mode is approved.',
+    );
     expect(http.post).toHaveBeenCalledWith('/ai/suggestions/s1/accept', {});
     expect(await screen.findByText('Summary added to the description')).toBeInTheDocument();
     unmount();
@@ -76,9 +84,15 @@ describe('AiSummarySlot', () => {
     serve([summary], summary, { suggestion: { ...summary, status: 'ACCEPTED' }, description: 'x' });
     const { unmount } = renderApp(<AiSummarySlot task={task} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Edit' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Edit the summary' }), { target: { value: 'Light mode approved; ship it.' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Edit the summary' }), {
+      target: { value: 'Light mode approved; ship it.' },
+    });
     fireEvent.click(screen.getByRole('button', { name: 'Add to description' }));
-    await waitFor(() => expect(http.post).toHaveBeenCalledWith('/ai/suggestions/s1/accept', { edited: { text: 'Light mode approved; ship it.' } }));
+    await waitFor(() =>
+      expect(http.post).toHaveBeenCalledWith('/ai/suggestions/s1/accept', {
+        edited: { text: 'Light mode approved; ship it.' },
+      }),
+    );
     unmount();
   });
 
@@ -99,8 +113,21 @@ describe('BreakdownSlot', () => {
   afterEach(() => vi.clearAllMocks());
 
   it('proposes subtasks with checkboxes and adds only the chosen ones', async () => {
-    const breakdown: AiSuggestionDto = { ...summary, id: 'b1', kind: 'breakdown', summary: null, source: 'generated from the title (design task)', breakdown: { subtasks: ['Sketch layouts', 'Create comps', 'Review with stakeholders'] } };
-    serve([], breakdown, { suggestion: { ...breakdown, status: 'ACCEPTED' }, createdSubtasks: [{ id: 'n1', key: 'HRT-330', title: 'Sketch layouts' }, { id: 'n2', key: 'HRT-331', title: 'Review with stakeholders' }] });
+    const breakdown: AiSuggestionDto = {
+      ...summary,
+      id: 'b1',
+      kind: 'breakdown',
+      summary: null,
+      source: 'generated from the title (design task)',
+      breakdown: { subtasks: ['Sketch layouts', 'Create comps', 'Review with stakeholders'] },
+    };
+    serve([], breakdown, {
+      suggestion: { ...breakdown, status: 'ACCEPTED' },
+      createdSubtasks: [
+        { id: 'n1', key: 'HRT-330', title: 'Sketch layouts' },
+        { id: 'n2', key: 'HRT-331', title: 'Review with stakeholders' },
+      ],
+    });
     const { unmount } = renderApp(<BreakdownSlot task={task} onAddSubtask={vi.fn()} />);
     fireEvent.click(await screen.findByRole('button', { name: 'Break down' }));
     expect(await screen.findByRole('region', { name: 'Suggested subtasks' })).toBeInTheDocument();
@@ -110,7 +137,11 @@ describe('BreakdownSlot', () => {
     fireEvent.click(comps);
     expect(comps).toHaveAttribute('aria-checked', 'false');
     fireEvent.click(screen.getByRole('button', { name: 'Add 2 subtasks' }));
-    await waitFor(() => expect(http.post).toHaveBeenCalledWith('/ai/suggestions/b1/accept', { edited: { subtasks: ['Sketch layouts', 'Review with stakeholders'] } }));
+    await waitFor(() =>
+      expect(http.post).toHaveBeenCalledWith('/ai/suggestions/b1/accept', {
+        edited: { subtasks: ['Sketch layouts', 'Review with stakeholders'] },
+      }),
+    );
     expect(await screen.findByText('Added 2 subtasks')).toBeInTheDocument();
     unmount();
   });

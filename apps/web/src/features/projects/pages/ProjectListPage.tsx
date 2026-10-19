@@ -41,7 +41,9 @@ export function ProjectListPage() {
           compact={!!panel.openKey}
           activeTaskId={visible.find((t) => t.key === panel.openKey)?.id ?? null}
           onOpen={(t) => panel.open(t.key)}
-          onAddToGroup={(g) => openCreateTask({ projectId, ...(g.status && isTaskStatus(g.status) ? { status: g.status } : {}) })}
+          onAddToGroup={(g) =>
+            openCreateTask({ projectId, ...(g.status && isTaskStatus(g.status) ? { status: g.status } : {}) })
+          }
           empty={
             <EmptyState
               icon="list"

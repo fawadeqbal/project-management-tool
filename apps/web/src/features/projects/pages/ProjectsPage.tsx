@@ -15,7 +15,9 @@ export function ProjectsPage() {
     <div className={styles.page}>
       <div className={styles.titleRow}>
         <h1 className={styles.title}>Projects</h1>
-        <span className={styles.meta}>{projects ? `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}` : ''}</span>
+        <span className={styles.meta}>
+          {projects ? `${projects.length} ${projects.length === 1 ? 'project' : 'projects'}` : ''}
+        </span>
         <span className={styles.grow} />
         {canCreate ? (
           <Button icon="plus" onClick={() => openCreate()}>
@@ -48,10 +50,17 @@ export function ProjectsPage() {
           title="No projects yet"
           description={
             <>
-              Group related tasks, set a due date and track health in one place. Press <Kbd keys={['Mod', 'K']} /> and type “Create project”.
+              Group related tasks, set a due date and track health in one place. Press{' '}
+              <Kbd keys={['Mod', 'K']} /> and type “Create project”.
             </>
           }
-          primaryAction={canCreate ? <Button icon="plus" onClick={() => openCreate()}>Create project</Button> : undefined}
+          primaryAction={
+            canCreate ? (
+              <Button icon="plus" onClick={() => openCreate()}>
+                Create project
+              </Button>
+            ) : undefined
+          }
         />
       )}
     </div>

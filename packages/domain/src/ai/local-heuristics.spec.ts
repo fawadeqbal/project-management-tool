@@ -15,8 +15,16 @@ const pricing: AiTaskContext = {
     { title: 'Dark mode contrast fixes', done: false },
   ],
   comments: [
-    { author: 'Sara Ahmed', body: '@Fawad the annual toggle label is 3.9:1 in dark mode', createdAt: '2026-10-19T08:00:00Z' },
-    { author: 'Mo Khan', body: 'Nav is ready for the new pricing link once this lands.', createdAt: '2026-10-19T09:00:00Z' },
+    {
+      author: 'Sara Ahmed',
+      body: '@Fawad the annual toggle label is 3.9:1 in dark mode',
+      createdAt: '2026-10-19T08:00:00Z',
+    },
+    {
+      author: 'Mo Khan',
+      body: 'Nav is ready for the new pricing link once this lands.',
+      createdAt: '2026-10-19T09:00:00Z',
+    },
   ],
 };
 
@@ -27,7 +35,9 @@ describe('local AI heuristics', () => {
     expect(a.source).toBe('generated from 2 comments');
     expect(a.text).toContain('“Light mode comps” is done.');
     expect(a.text).toContain('Blocked until “Final plan names from Marketing” (HRT-182) is done.');
-    expect(a.text).toContain('Suggested next step: ship what’s done (light mode comps) behind a flag while HRT-182 is open.');
+    expect(a.text).toContain(
+      'Suggested next step: ship what’s done (light mode comps) behind a flag while HRT-182 is open.',
+    );
     expect(a.text).toContain('due today');
   });
 
@@ -41,7 +51,12 @@ describe('local AI heuristics', () => {
   });
 
   it('prefers bullet steps from the description', () => {
-    const b = breakDownTaskLocally({ ...pricing, title: 'Fix broken links', description: '- Crawl the blog\n- Patch redirects', subtasks: [] });
+    const b = breakDownTaskLocally({
+      ...pricing,
+      title: 'Fix broken links',
+      description: '- Crawl the blog\n- Patch redirects',
+      subtasks: [],
+    });
     expect(b.subtasks.slice(0, 2)).toEqual(['Crawl the blog', 'Patch redirects']);
     expect(b.subtasks.length).toBeGreaterThanOrEqual(3);
   });

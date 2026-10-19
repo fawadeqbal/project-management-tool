@@ -104,11 +104,20 @@ export const parseChord = (raw: string): KeyChord => {
 
 /** "G I" → two chords; ["G", "I"] → two chords; "Mod+K" → one chord. */
 export const parseHotkey = (keys: string | readonly string[]): KeyChord[] => {
-  const list = typeof keys === 'string' ? (keys.trim() === '' ? [] : keys.trim() === ' ' ? [' '] : keys.trim().split(/\s+/)) : keys;
+  const list =
+    typeof keys === 'string'
+      ? keys.trim() === ''
+        ? []
+        : keys.trim() === ' '
+          ? [' ']
+          : keys.trim().split(/\s+/)
+      : keys;
   return list.filter((k) => k.length > 0).map(parseChord);
 };
 
-export const chordFromEvent = (e: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>): KeyChord => ({
+export const chordFromEvent = (
+  e: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>,
+): KeyChord => ({
   key: normalizeKey(e.key),
   mod: e.metaKey || e.ctrlKey,
   shift: e.shiftKey,
@@ -131,7 +140,10 @@ export const isTypingTarget = (target: EventTarget | null): boolean => {
     const type = (target as HTMLInputElement).type;
     return !['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'color'].includes(type);
   }
-  return target.closest('[contenteditable="true"], [contenteditable=""], [contenteditable="plaintext-only"]') !== null;
+  return (
+    target.closest('[contenteditable="true"], [contenteditable=""], [contenteditable="plaintext-only"]') !==
+    null
+  );
 };
 
 const isModalOpen = (doc: Document | undefined): boolean =>
@@ -142,11 +154,21 @@ const isInsideLayer = (target: EventTarget | null): boolean =>
   target instanceof Element && target.closest('[data-ht-layer]:not([data-hotkeys-passthrough])') !== null;
 
 /** Display form for Kbd: "Mod+K" → "⌘K" on macOS, "Ctrl K" elsewhere. */
-export const isMac = (): boolean => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+export const isMac = (): boolean =>
+  typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 export const formatChord = (raw: string): string => {
   const c = parseChord(raw);
   const mac = isMac();
-  const key = c.key === ' ' ? 'Space' : c.key === 'escape' ? 'Esc' : c.key === 'enter' ? '↵' : c.key.length === 1 ? c.key.toUpperCase() : c.key[0]!.toUpperCase() + c.key.slice(1);
+  const key =
+    c.key === ' '
+      ? 'Space'
+      : c.key === 'escape'
+        ? 'Esc'
+        : c.key === 'enter'
+          ? '↵'
+          : c.key.length === 1
+            ? c.key.toUpperCase()
+            : c.key[0]!.toUpperCase() + c.key.slice(1);
   return `${c.mod ? (mac ? '⌘' : 'Ctrl+') : ''}${c.shift && shiftMatters(c.key) ? (mac ? '⇧' : 'Shift+') : ''}${c.alt ? (mac ? '⌥' : 'Alt+') : ''}${key}`;
 };
 
@@ -169,7 +191,11 @@ export class HotkeyService {
     };
   }
 
-  register(keys: string | readonly string[], handler: HotkeyHandler, options: HotkeyOptions = {}): () => void {
+  register(
+    keys: string | readonly string[],
+    handler: HotkeyHandler,
+    options: HotkeyOptions = {},
+  ): () => void {
     const sequence = parseHotkey(keys);
     if (sequence.length === 0) return () => undefined;
     const id = this.nextId++;
@@ -189,7 +215,8 @@ export class HotkeyService {
     if (['shift', 'meta', 'control', 'alt'].includes(normalizeKey(e.key))) return false;
     const chord = chordFromEvent(e);
     const typing = isTypingTarget(e.target);
-    const modal = isModalOpen(typeof document !== 'undefined' ? document : undefined) || isInsideLayer(e.target);
+    const modal =
+      isModalOpen(typeof document !== 'undefined' ? document : undefined) || isInsideLayer(e.target);
 
     const eligible = (b: Binding, last: KeyChord) => {
       if (last.mod) return true;
@@ -200,14 +227,21 @@ export class HotkeyService {
     };
 
     // Highest priority first, then newest, so a page can override a global key.
-    const ordered = [...this.bindings].sort((a, b) => (b.options.priority ?? 0) - (a.options.priority ?? 0) || b.id - a.id);
+    const ordered = [...this.bindings].sort(
+      (a, b) => (b.options.priority ?? 0) - (a.options.priority ?? 0) || b.id - a.id,
+    );
 
     // 1) Complete a pending sequence.
     if (this.pending && this.now() - this.pending.at <= SEQUENCE_TIMEOUT_MS) {
       const first = this.pending.chord;
       this.pending = null;
       for (const b of ordered) {
-        if (b.sequence.length === 2 && chordMatches(b.sequence[0]!, first) && chordMatches(b.sequence[1]!, chord) && eligible(b, chord)) {
+        if (
+          b.sequence.length === 2 &&
+          chordMatches(b.sequence[0]!, first) &&
+          chordMatches(b.sequence[1]!, chord) &&
+          eligible(b, chord)
+        ) {
           if (this.fire(b, e)) return true;
         }
       }
@@ -215,7 +249,9 @@ export class HotkeyService {
     this.pending = null;
 
     // 2) Start a sequence: the key is the first chord of some two-key binding.
-    const starts = ordered.some((b) => b.sequence.length === 2 && chordMatches(b.sequence[0]!, chord) && eligible(b, chord));
+    const starts = ordered.some(
+      (b) => b.sequence.length === 2 && chordMatches(b.sequence[0]!, chord) && eligible(b, chord),
+    );
     if (starts) {
       this.pending = { chord, at: this.now() };
       return false;

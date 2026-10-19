@@ -3,9 +3,17 @@
 @import './components.css';
 
 /* Base: theme by setting data-theme="light" | "dark" on <html>. */
-*, *::before, *::after { box-sizing: border-box; }
-html { color-scheme: light; }
-html[data-theme="dark"] { color-scheme: dark; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  color-scheme: light;
+}
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -14,12 +22,21 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
-::selection { background: var(--brand-subtle); }
-a { color: var(--text-link); }
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--brand-subtle);
+}
+a {
+  color: var(--text-link);
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -148,9 +148,12 @@ async function request<T>(method: string, path: string, opts: RequestOptions = {
 export const http = {
   get: <T>(path: string, query?: QueryParams, opts?: Omit<RequestOptions, 'query' | 'body'>) =>
     request<T>('GET', path, { ...opts, query }),
-  post: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'body'>) => request<T>('POST', path, { ...opts, body: body ?? {} }),
-  patch: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'body'>) => request<T>('PATCH', path, { ...opts, body }),
-  put: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'body'>) => request<T>('PUT', path, { ...opts, body }),
+  post: <T>(path: string, body?: unknown, opts?: Omit<RequestOptions, 'body'>) =>
+    request<T>('POST', path, { ...opts, body: body ?? {} }),
+  patch: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'body'>) =>
+    request<T>('PATCH', path, { ...opts, body }),
+  put: <T>(path: string, body: unknown, opts?: Omit<RequestOptions, 'body'>) =>
+    request<T>('PUT', path, { ...opts, body }),
   delete: <T = void>(path: string, opts?: RequestOptions) => request<T>('DELETE', path, opts),
   request,
 };

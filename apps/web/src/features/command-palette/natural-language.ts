@@ -20,7 +20,35 @@ export interface NlInterpretation {
   params: Record<string, string>;
 }
 
-const STOP = new Set(['show', 'me', 'my', 'all', 'the', 'tasks', 'task', 'for', 'in', 'of', 'with', 'that', 'are', 'is', 'and', 'what', 'whats', 'list', 'find', 'items', 'team', 'project', 'assigned', 'to', 'by', 'a', 'on']);
+const STOP = new Set([
+  'show',
+  'me',
+  'my',
+  'all',
+  'the',
+  'tasks',
+  'task',
+  'for',
+  'in',
+  'of',
+  'with',
+  'that',
+  'are',
+  'is',
+  'and',
+  'what',
+  'whats',
+  'list',
+  'find',
+  'items',
+  'team',
+  'project',
+  'assigned',
+  'to',
+  'by',
+  'a',
+  'on',
+]);
 
 const STATUS_WORDS: Record<string, TaskStatus> = {
   blocked: 'BLOCKED',
@@ -45,10 +73,19 @@ const PRIORITY_WORDS: Record<string, Priority> = {
   low: 'LOW',
 };
 
-const norm = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, ' ').replace(/\s+/g, ' ').trim();
+const norm = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 /** Finds the entity whose name (or first name) matches one of the words. */
-const findByWords = <T extends { name: string }>(words: string[], items: readonly T[], used: Set<number>): T | null => {
+const findByWords = <T extends { name: string }>(
+  words: string[],
+  items: readonly T[],
+  used: Set<number>,
+): T | null => {
   for (const item of items) {
     const name = norm(item.name);
     const parts = name.split(' ');
@@ -56,7 +93,10 @@ const findByWords = <T extends { name: string }>(words: string[], items: readonl
       if (used.has(i)) continue;
       // multi-word names ("website relaunch")
       const span = words.slice(i, i + parts.length).join(' ');
-      if (span === name || (parts.length > 1 && words[i] === parts[0] && name.startsWith(words[i]!) && words[i]!.length >= 4)) {
+      if (
+        span === name ||
+        (parts.length > 1 && words[i] === parts[0] && name.startsWith(words[i]!) && words[i]!.length >= 4)
+      ) {
         for (let k = i; k < i + (span === name ? parts.length : 1); k++) used.add(k);
         return item;
       }

@@ -30,7 +30,10 @@ export class JwtAuthGuard implements CanActivate {
 
     if (!this.reflector.getAllAndOverride<boolean>(NO_WORKSPACE, targets)) {
       const workspaceHeader = req.headers['x-workspace-id'];
-      req.actor = await this.actors.resolve(sub, typeof workspaceHeader === 'string' ? workspaceHeader : null);
+      req.actor = await this.actors.resolve(
+        sub,
+        typeof workspaceHeader === 'string' ? workspaceHeader : null,
+      );
     }
     return true;
   }

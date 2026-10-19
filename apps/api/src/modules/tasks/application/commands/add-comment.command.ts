@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { CommentDto, CreateCommentInput } from '@hearth/contracts';
-import { createEvent, NotFoundError, TASK_REPOSITORY, type Actor, type Clock, type TaskRepository } from '@hearth/domain';
+import {
+  createEvent,
+  NotFoundError,
+  TASK_REPOSITORY,
+  type Actor,
+  type Clock,
+  type TaskRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -46,7 +53,13 @@ export class AddCommentHandler implements ICommandHandler<AddCommentCommand, Com
       .map((m) => m.id)
       .filter((id) => id !== actor.userId);
 
-    const comment = await this.relations.createComment({ taskId: task.id, authorId: actor.userId, body: input.body, parentId: parent?.id ?? null, createdAt: now });
+    const comment = await this.relations.createComment({
+      taskId: task.id,
+      authorId: actor.userId,
+      body: input.body,
+      parentId: parent?.id ?? null,
+      createdAt: now,
+    });
     await this.relations.follow(task.id, [actor.userId]);
 
     const body = input.body.trim();

@@ -53,7 +53,8 @@ const PER_GROUP = 5;
 export const MAX_GROUPS = 4;
 
 /** Label indices for a match on the label field (field 0); other fields don't highlight. */
-const labelIndices = (m: FuzzyMatch & { field: number }, offset = 0) => (m.field === 0 ? m.indices.map((i) => i - offset).filter((i) => i >= 0) : []);
+const labelIndices = (m: FuzzyMatch & { field: number }, offset = 0) =>
+  m.field === 0 ? m.indices.map((i) => i - offset).filter((i) => i >= 0) : [];
 
 export interface BuildInput {
   query: string;
@@ -71,7 +72,14 @@ export interface PaletteGroup {
 }
 
 /** Ranks every source and returns at most MAX_GROUPS non-empty groups, AI first. */
-export function buildPaletteGroups({ query, scope, tasks, commands, members, ai }: BuildInput): PaletteGroup[] {
+export function buildPaletteGroups({
+  query,
+  scope,
+  tasks,
+  commands,
+  members,
+  ai,
+}: BuildInput): PaletteGroup[] {
   const q = query.trim();
   const groups: PaletteGroup[] = [];
   const want = (s: PaletteScope) => scope === 'all' || scope === s;
@@ -80,13 +88,28 @@ export function buildPaletteGroups({ query, scope, tasks, commands, members, ai 
     groups.push({
       id: 'ai',
       label: GROUP_LABELS.ai,
-      items: [{ id: 'ai:filter', group: 'ai', kind: 'ai', label: ai.label, icon: 'sparkles', iconColor: 'var(--brand-primary)', shortcut: ['↵'], indices: [], score: 1e6, href: ai.href }],
+      items: [
+        {
+          id: 'ai:filter',
+          group: 'ai',
+          kind: 'ai',
+          label: ai.label,
+          icon: 'sparkles',
+          iconColor: 'var(--brand-primary)',
+          shortcut: ['↵'],
+          indices: [],
+          score: 1e6,
+          href: ai.href,
+        },
+      ],
     });
   }
 
   if (want('tasks')) {
     const pool = q ? tasks : [...tasks].sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
-    const ranked = q ? rank(q, pool, (t) => [t.title, t.key, t.project?.name ?? '', ...t.tags.map((x) => x.name)]) : pool.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
+    const ranked = q
+      ? rank(q, pool, (t) => [t.title, t.key, t.project?.name ?? '', ...t.tags.map((x) => x.name)])
+      : pool.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
     const items = ranked.slice(0, PER_GROUP).map(({ item: t, match }) => ({
       id: `task:${t.id}`,
       group: 'tasks' as const,
@@ -105,7 +128,9 @@ export function buildPaletteGroups({ query, scope, tasks, commands, members, ai 
 
   if (want('commands') || scope === 'projects') {
     const pool = scope === 'projects' ? commands.filter((c) => c.group === 'Projects') : commands;
-    const ranked = q ? rank(q, pool, (c) => [c.title, ...(c.keywords ?? [])]) : pool.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
+    const ranked = q
+      ? rank(q, pool, (c) => [c.title, ...(c.keywords ?? [])])
+      : pool.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
     const byGroup = new Map<PaletteGroupId, PaletteItem[]>();
     for (const { item: c, match } of ranked) {
       const g = COMMAND_GROUP[c.group];
@@ -135,7 +160,9 @@ export function buildPaletteGroups({ query, scope, tasks, commands, members, ai 
   }
 
   if (want('people') && (q || scope === 'people')) {
-    const ranked = q ? rank(q, members, (m) => [m.name, m.email, m.jobTitle ?? '']) : members.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
+    const ranked = q
+      ? rank(q, members, (m) => [m.name, m.email, m.jobTitle ?? ''])
+      : members.map((item) => ({ item, match: { score: 0, indices: [], field: 0 } }));
     const items = ranked.slice(0, PER_GROUP).map(({ item: m, match }) => ({
       id: `person:${m.id}`,
       group: 'people' as const,
@@ -154,7 +181,9 @@ export function buildPaletteGroups({ query, scope, tasks, commands, members, ai 
   if (q) {
     // Keep AI first; order the rest by their best match.
     const [aiGroup, ...rest] = groups[0]?.id === 'ai' ? groups : [null, ...groups];
-    rest.sort((a, b) => Math.max(...b!.items.map((i) => i.score)) - Math.max(...a!.items.map((i) => i.score)));
+    rest.sort(
+      (a, b) => Math.max(...b!.items.map((i) => i.score)) - Math.max(...a!.items.map((i) => i.score)),
+    );
     return [...(aiGroup ? [aiGroup] : []), ...(rest as PaletteGroup[])].slice(0, MAX_GROUPS);
   }
   return groups.slice(0, MAX_GROUPS);

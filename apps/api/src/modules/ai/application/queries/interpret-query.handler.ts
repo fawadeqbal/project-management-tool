@@ -1,6 +1,12 @@
 import { QueryHandler, type IQueryHandler } from '@nestjs/cqrs';
 import type { AiTaskFilterDto, InterpretResultDto } from '@hearth/contracts';
-import { PRIORITY_META, STATUS_META, interpretTaskQuery, type Priority, type TaskStatus } from '@hearth/domain';
+import {
+  PRIORITY_META,
+  STATUS_META,
+  interpretTaskQuery,
+  type Priority,
+  type TaskStatus,
+} from '@hearth/domain';
 import { PrismaService } from '../../../../shared/prisma/prisma.service';
 import { InterpretQueryQuery } from './interpret-query.query';
 
@@ -17,16 +23,32 @@ export class InterpretQueryHandler implements IQueryHandler<InterpretQueryQuery,
     const guest = actor.role === 'GUEST';
     const [tags, teams, projects, people] = await Promise.all([
       this.prisma.tag.findMany({ where: { workspaceId: actor.workspaceId }, select: { name: true } }),
-      guest ? [] : this.prisma.team.findMany({ where: { workspaceId: actor.workspaceId }, select: { id: true, name: true } }),
+      guest
+        ? []
+        : this.prisma.team.findMany({
+            where: { workspaceId: actor.workspaceId },
+            select: { id: true, name: true },
+          }),
       this.prisma.project.findMany({
-        where: { workspaceId: actor.workspaceId, archivedAt: null, ...(guest ? { id: { in: [...(actor.projectIds ?? [])] } } : {}) },
+        where: {
+          workspaceId: actor.workspaceId,
+          archivedAt: null,
+          ...(guest ? { id: { in: [...(actor.projectIds ?? [])] } } : {}),
+        },
         select: { id: true, name: true },
       }),
       guest
         ? []
-        : this.prisma.membership.findMany({ where: { workspaceId: actor.workspaceId, status: 'ACTIVE' }, select: { user: { select: { id: true, name: true } } } }),
+        : this.prisma.membership.findMany({
+            where: { workspaceId: actor.workspaceId, status: 'ACTIVE' },
+            select: { user: { select: { id: true, name: true } } },
+          }),
     ]);
-    const firstNames = people.map((p) => ({ id: p.user.id, name: p.user.name, first: p.user.name.split(' ')[0]! }));
+    const firstNames = people.map((p) => ({
+      id: p.user.id,
+      name: p.user.name,
+      first: p.user.name.split(' ')[0]!,
+    }));
     const result = interpretTaskQuery(query, {
       tags: tags.map((t) => t.name),
       teamsOrProjects: [...teams.map((t) => t.name), ...projects.map((p) => p.name)],
@@ -83,14 +105,17 @@ export class InterpretQueryHandler implements IQueryHandler<InterpretQueryQuery,
     }
 
     const params: Record<string, string> = {};
-    for (const [k, v] of Object.entries(filter)) if (v !== undefined && v !== false) params[k] = v === true ? '1' : String(v);
+    for (const [k, v] of Object.entries(filter))
+      if (v !== undefined && v !== false) params[k] = v === true ? '1' : String(v);
     const search = new URLSearchParams(params).toString();
     return {
       query,
       recognized,
       filter,
       params,
-      explanation: recognized ? [`Show ${head.length ? `${head.join(', ')} ` : ''}tasks`, ...tail].join(' ') : `Search tasks for “${query.trim()}”`,
+      explanation: recognized
+        ? [`Show ${head.length ? `${head.join(', ')} ` : ''}tasks`, ...tail].join(' ')
+        : `Search tasks for “${query.trim()}”`,
       href: `/my-tasks${search ? `?${search}` : ''}`,
     };
   }

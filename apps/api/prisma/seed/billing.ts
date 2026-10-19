@@ -15,8 +15,22 @@ export async function seedBilling(prisma: PrismaClient, ctx: SeedContext): Promi
 
   await prisma.subscription.upsert({
     where: { workspaceId },
-    create: { workspaceId, plan: 'PRO', interval: 'MONTHLY', status: 'ACTIVE', seats: 10, renewsAt: firstOfNextMonth },
-    update: { plan: 'PRO', interval: 'MONTHLY', status: 'ACTIVE', seats: 10, renewsAt: firstOfNextMonth, pausedUntil: null },
+    create: {
+      workspaceId,
+      plan: 'PRO',
+      interval: 'MONTHLY',
+      status: 'ACTIVE',
+      seats: 10,
+      renewsAt: firstOfNextMonth,
+    },
+    update: {
+      plan: 'PRO',
+      interval: 'MONTHLY',
+      status: 'ACTIVE',
+      seats: 10,
+      renewsAt: firstOfNextMonth,
+      pausedUntil: null,
+    },
   });
 
   // 18 GB of files is unrealistic to create as Attachment rows; the read model uses max(counter, attachments).
@@ -35,10 +49,34 @@ export async function seedBilling(prisma: PrismaClient, ctx: SeedContext): Promi
   const fawad = ctx.users.FI!;
   const sara = ctx.users.SA!;
   const invites = [
-    { email: 'lena@acme.com', role: 'MEMBER' as const, teamId: ctx.teams.Design ?? null, projectId: null, invitedById: sara, sent: -2, token: 'seed-invite-lena' },
-    { email: 'omar@acme.com', role: 'MEMBER' as const, teamId: ctx.teams.Engineering ?? null, projectId: null, invitedById: fawad, sent: -5, token: 'seed-invite-omar' },
+    {
+      email: 'lena@acme.com',
+      role: 'MEMBER' as const,
+      teamId: ctx.teams.Design ?? null,
+      projectId: null,
+      invitedById: sara,
+      sent: -2,
+      token: 'seed-invite-lena',
+    },
+    {
+      email: 'omar@acme.com',
+      role: 'MEMBER' as const,
+      teamId: ctx.teams.Engineering ?? null,
+      projectId: null,
+      invitedById: fawad,
+      sent: -5,
+      token: 'seed-invite-omar',
+    },
     // Guests: shown as "expires in 2 days" (sent 5 days ago, 7-day expiry).
-    { email: 'kate@northwind.co', role: 'GUEST' as const, teamId: null, projectId: ctx.projects.web ?? null, invitedById: fawad, sent: -5, token: 'seed-invite-kate' },
+    {
+      email: 'kate@northwind.co',
+      role: 'GUEST' as const,
+      teamId: null,
+      projectId: ctx.projects.web ?? null,
+      invitedById: fawad,
+      sent: -5,
+      token: 'seed-invite-kate',
+    },
   ];
   for (const i of invites)
     await prisma.invite.create({
@@ -58,7 +96,14 @@ export async function seedBilling(prisma: PrismaClient, ctx: SeedContext): Promi
 
   await prisma.onboardingProgress.upsert({
     where: { workspaceId_userId: { workspaceId, userId: fawad } },
-    create: { workspaceId, userId: fawad, completedSteps: ['create-workspace', 'start-from-template', 'create-first-task'] },
-    update: { completedSteps: ['create-workspace', 'start-from-template', 'create-first-task'], dismissedAt: null },
+    create: {
+      workspaceId,
+      userId: fawad,
+      completedSteps: ['create-workspace', 'start-from-template', 'create-first-task'],
+    },
+    update: {
+      completedSteps: ['create-workspace', 'start-from-template', 'create-first-task'],
+      dismissedAt: null,
+    },
   });
 }

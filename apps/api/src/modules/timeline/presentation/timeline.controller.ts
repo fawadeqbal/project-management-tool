@@ -29,7 +29,11 @@ export class TimelineController {
   ) {}
 
   @Get('projects/:id/timeline')
-  timeline(@CurrentActor() actor: Actor, @Param('id') id: string, @Query(new ZodValidationPipe(TimelineQuerySchema)) range: TimelineQuery): Promise<TimelineDto> {
+  timeline(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Query(new ZodValidationPipe(TimelineQuerySchema)) range: TimelineQuery,
+  ): Promise<TimelineDto> {
     return this.queries.execute(new GetTimelineQuery(actor, id, range));
   }
 
@@ -49,7 +53,10 @@ export class TimelineController {
   @HttpCode(200)
   @RequirePermission('tasks.edit')
   @RequireFeature('timeline')
-  apply(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(ApplyScheduleSchema)) input: ApplyScheduleInput): Promise<{ updated: ScheduleItemInput[] }> {
+  apply(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(ApplyScheduleSchema)) input: ApplyScheduleInput,
+  ): Promise<{ updated: ScheduleItemInput[] }> {
     return this.commands.execute(new ApplyScheduleCommand(actor, input));
   }
 }

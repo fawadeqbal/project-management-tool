@@ -10,7 +10,9 @@ export function NotificationSettings() {
       open={open}
       onOpenChange={setOpen}
       align="end"
-      renderTrigger={(p) => <Button {...p} variant="ghost" size="sm" icon="settings" aria-label="Notification settings" />}
+      renderTrigger={(p) => (
+        <Button {...p} variant="ghost" size="sm" icon="settings" aria-label="Notification settings" />
+      )}
     >
       <div className={styles.settings}>
         <strong>You’re notified when</strong>

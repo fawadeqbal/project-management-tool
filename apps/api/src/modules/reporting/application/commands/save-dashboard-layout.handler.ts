@@ -8,7 +8,10 @@ import { DashboardPreferencesStore } from '../../infrastructure/dashboard-prefer
 import { SaveDashboardLayoutCommand } from './save-dashboard-layout.command';
 
 @CommandHandler(SaveDashboardLayoutCommand)
-export class SaveDashboardLayoutHandler implements ICommandHandler<SaveDashboardLayoutCommand, { layout: DashboardWidgetId[] }> {
+export class SaveDashboardLayoutHandler implements ICommandHandler<
+  SaveDashboardLayoutCommand,
+  { layout: DashboardWidgetId[] }
+> {
   constructor(
     private readonly prefs: DashboardPreferencesStore,
     private readonly events: DomainEventPublisher,
@@ -19,7 +22,16 @@ export class SaveDashboardLayoutHandler implements ICommandHandler<SaveDashboard
     await this.prefs.saveLayout(actor.workspaceId, actor.userId, input.widgets);
     const layout = await this.prefs.layout(actor.workspaceId, actor.userId);
     this.events.publish(
-      createEvent('dashboard.layout_saved', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: actor.userId, occurredAt: this.clock.now() }, { widgets: layout }),
+      createEvent(
+        'dashboard.layout_saved',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: actor.userId,
+          occurredAt: this.clock.now(),
+        },
+        { widgets: layout },
+      ),
     );
     return { layout };
   }

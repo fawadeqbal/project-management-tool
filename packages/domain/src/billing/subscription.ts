@@ -17,7 +17,8 @@ export interface SubscriptionProps {
   pausedUntil: Date | null;
 }
 
-const addMonths = (d: Date, months: number): Date => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + months, d.getUTCDate()));
+const addMonths = (d: Date, months: number): Date =>
+  new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + months, d.getUTCDate()));
 
 /**
  * Subscription aggregate (no payment provider: changes apply immediately). Downgrades that lose
@@ -46,11 +47,25 @@ export class Subscription extends AggregateRoot<SubscriptionProps> {
    * Switches plan and/or interval. `activeSeats` must fit the new plan's seat limit. Returns the
    * features lost (empty for upgrades) so the caller can echo them back.
    */
-  changePlan(input: { plan: PlanId; interval: BillingInterval; confirm: boolean; activeSeats: number }, actorId: string, now: Date): { lostFeatures: Feature[] } {
+  changePlan(
+    input: { plan: PlanId; interval: BillingInterval; confirm: boolean; activeSeats: number },
+    actorId: string,
+    now: Date,
+  ): { lostFeatures: Feature[] } {
     if (input.plan === 'ENTERPRISE')
-      throw new ValidationError('billing.enterprise_contact', 'Enterprise is set up with our team. Use “Talk to sales” and we’ll reply within a day.');
-    if (input.plan === this.props.plan && input.interval === this.props.interval && this.props.status === 'ACTIVE')
-      throw new ConflictError('billing.same_plan', `You’re already on ${PLANS[input.plan].name}, billed ${input.interval.toLowerCase()}.`);
+      throw new ValidationError(
+        'billing.enterprise_contact',
+        'Enterprise is set up with our team. Use “Talk to sales” and we’ll reply within a day.',
+      );
+    if (
+      input.plan === this.props.plan &&
+      input.interval === this.props.interval &&
+      this.props.status === 'ACTIVE'
+    )
+      throw new ConflictError(
+        'billing.same_plan',
+        `You’re already on ${PLANS[input.plan].name}, billed ${input.interval.toLowerCase()}.`,
+      );
     const change = describePlanChange(this.props.plan, input.plan);
     const lostFeatures = change.lostFeatures as Feature[];
     if (lostFeatures.length && !input.confirm)
@@ -71,23 +86,44 @@ export class Subscription extends AggregateRoot<SubscriptionProps> {
     this.props.interval = input.interval;
     this.props.status = 'ACTIVE';
     this.props.pausedUntil = null;
-    if (seatLimit !== null) this.props.seats = Math.min(seatLimit, Math.max(this.props.seats, input.activeSeats));
+    if (seatLimit !== null)
+      this.props.seats = Math.min(seatLimit, Math.max(this.props.seats, input.activeSeats));
     else this.props.seats = Math.max(this.props.seats, input.activeSeats);
-    this.record(createEvent('billing.plan_changed', this.base(actorId, now), { from, to: input.plan, interval: input.interval, direction: change.direction, lostFeatures }));
+    this.record(
+      createEvent('billing.plan_changed', this.base(actorId, now), {
+        from,
+        to: input.plan,
+        interval: input.interval,
+        direction: change.direction,
+        lostFeatures,
+      }),
+    );
     return { lostFeatures };
   }
 
   pause(months: number, actorId: string, now: Date): void {
-    if (![1, 2, 3].includes(months)) throw new ValidationError('billing.pause_months', 'You can pause for 1, 2 or 3 months.');
-    if (this.props.plan === 'FREE') throw new ConflictError('billing.pause_free', 'The Free plan has nothing to pause — you’re not being billed.');
-    if (this.props.status === 'CANCELED') throw new ConflictError('billing.canceled', 'This plan is already canceled. Resume it first.');
+    if (![1, 2, 3].includes(months))
+      throw new ValidationError('billing.pause_months', 'You can pause for 1, 2 or 3 months.');
+    if (this.props.plan === 'FREE')
+      throw new ConflictError(
+        'billing.pause_free',
+        'The Free plan has nothing to pause — you’re not being billed.',
+      );
+    if (this.props.status === 'CANCELED')
+      throw new ConflictError('billing.canceled', 'This plan is already canceled. Resume it first.');
     this.props.status = 'PAUSED';
     this.props.pausedUntil = addMonths(now, months);
-    this.record(createEvent('billing.paused', this.base(actorId, now), { until: this.props.pausedUntil.toISOString(), months }));
+    this.record(
+      createEvent('billing.paused', this.base(actorId, now), {
+        until: this.props.pausedUntil.toISOString(),
+        months,
+      }),
+    );
   }
 
   resume(actorId: string, now: Date): void {
-    if (this.props.status === 'ACTIVE') throw new ConflictError('billing.active', 'Billing is already active.');
+    if (this.props.status === 'ACTIVE')
+      throw new ConflictError('billing.active', 'Billing is already active.');
     this.props.status = 'ACTIVE';
     this.props.pausedUntil = null;
     this.record(createEvent('billing.resumed', this.base(actorId, now), {}));
@@ -95,10 +131,17 @@ export class Subscription extends AggregateRoot<SubscriptionProps> {
 
   /** Cancels at the end of the current period; the workspace stays usable until then. */
   cancel(confirm: boolean, actorId: string, now: Date): void {
-    if (!confirm) throw new ValidationError('billing.cancel_unconfirmed', `Confirm to cancel. You keep ${PLANS[this.props.plan].name} until ${formatShortDate(this.props.renewsAt)}.`);
-    if (this.props.status === 'CANCELED') throw new ConflictError('billing.canceled', 'This plan is already canceled.');
+    if (!confirm)
+      throw new ValidationError(
+        'billing.cancel_unconfirmed',
+        `Confirm to cancel. You keep ${PLANS[this.props.plan].name} until ${formatShortDate(this.props.renewsAt)}.`,
+      );
+    if (this.props.status === 'CANCELED')
+      throw new ConflictError('billing.canceled', 'This plan is already canceled.');
     this.props.status = 'CANCELED';
-    this.record(createEvent('billing.canceled', this.base(actorId, now), { endsAt: this.props.renewsAt.toISOString() }));
+    this.record(
+      createEvent('billing.canceled', this.base(actorId, now), { endsAt: this.props.renewsAt.toISOString() }),
+    );
   }
 
   private base(actorId: string, now: Date) {
@@ -108,7 +151,11 @@ export class Subscription extends AggregateRoot<SubscriptionProps> {
 
 /** Only owners touch billing (the role matrix's billing.manage), stated in plain words. */
 export const assertCanManageBilling = (canManage: boolean): void => {
-  if (!canManage) throw new ForbiddenError('forbidden.billing.manage', 'Only workspace owners can change billing. Ask an owner to make this change.');
+  if (!canManage)
+    throw new ForbiddenError(
+      'forbidden.billing.manage',
+      'Only workspace owners can change billing. Ask an owner to make this change.',
+    );
 };
 
 export interface SubscriptionRepository {

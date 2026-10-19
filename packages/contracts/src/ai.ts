@@ -24,7 +24,11 @@ export const AcceptSuggestionSchema = z.object({
   edited: z
     .object({
       text: z.string().trim().min(1, 'The summary can’t be empty.').max(5000).optional(),
-      subtasks: z.array(z.string().trim().min(1).max(500)).min(1, 'Pick at least one subtask.').max(12).optional(),
+      subtasks: z
+        .array(z.string().trim().min(1).max(500))
+        .min(1, 'Pick at least one subtask.')
+        .max(12)
+        .optional(),
     })
     .optional(),
 });

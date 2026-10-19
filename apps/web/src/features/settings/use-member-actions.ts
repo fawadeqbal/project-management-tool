@@ -7,7 +7,11 @@ import { useOptimisticMutation } from '@/shared/hooks/useOptimisticMutation';
 import { useToast } from '@/shared/toast';
 import { membersApi, membersKeys } from './api';
 
-const patchMember = (client: ReturnType<typeof useQueryClient>, userId: string, patch: Partial<AdminMemberDto>) =>
+const patchMember = (
+  client: ReturnType<typeof useQueryClient>,
+  userId: string,
+  patch: Partial<AdminMemberDto>,
+) =>
   client.setQueryData<MembersOverviewDto>(membersKeys.overview, (old) =>
     old ? { ...old, members: old.members.map((m) => (m.id === userId ? { ...m, ...patch } : m)) } : old,
   );
@@ -24,7 +28,11 @@ export function useMemberActions() {
     affects,
     apply: (c, { member, role }) => patchMember(c, member.id, { role }),
     onSuccess: (_d, { member, role }) => {
-      show({ message: `${member.name} is now ${ROLE_META[role].label === 'Admin' ? 'an' : 'a'} ${ROLE_META[role].label}`, action: 'Undo', onAction: () => changeRole.mutate({ member: { ...member, role }, role: member.role }) });
+      show({
+        message: `${member.name} is now ${ROLE_META[role].label === 'Admin' ? 'an' : 'a'} ${ROLE_META[role].label}`,
+        action: 'Undo',
+        onAction: () => changeRole.mutate({ member: { ...member, role }, role: member.role }),
+      });
       afterwards();
     },
     errorMessage: (e) => e.message,
@@ -45,7 +53,11 @@ export function useMemberActions() {
     affects,
     apply: (c, m) => patchMember(c, m.id, { status: 'DEACTIVATED' }),
     onSuccess: (_d, m) => {
-      show({ message: `${m.name} deactivated — their work stays`, action: 'Undo', onAction: () => reactivate.mutate({ ...m, status: 'DEACTIVATED' }) });
+      show({
+        message: `${m.name} deactivated — their work stays`,
+        action: 'Undo',
+        onAction: () => reactivate.mutate({ ...m, status: 'DEACTIVATED' }),
+      });
       afterwards();
     },
   });
@@ -59,8 +71,13 @@ export function useMemberActions() {
       }
     },
     onSuccess: ({ unassignedTasks }, m) => {
-      client.setQueryData<MembersOverviewDto>(membersKeys.overview, (old) => (old ? { ...old, members: old.members.filter((x) => x.id !== m.id) } : old));
-      show({ message: `${m.name} removed${unassignedTasks ? ` · ${unassignedTasks} open task${unassignedTasks === 1 ? '' : 's'} now unassigned` : ''}`, tone: 'info' });
+      client.setQueryData<MembersOverviewDto>(membersKeys.overview, (old) =>
+        old ? { ...old, members: old.members.filter((x) => x.id !== m.id) } : old,
+      );
+      show({
+        message: `${m.name} removed${unassignedTasks ? ` · ${unassignedTasks} open task${unassignedTasks === 1 ? '' : 's'} now unassigned` : ''}`,
+        tone: 'info',
+      });
       void client.invalidateQueries({ queryKey: membersKeys.all });
       afterwards();
     },

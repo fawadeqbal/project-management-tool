@@ -158,7 +158,14 @@ export class Task extends AggregateRoot<TaskProps> {
     const from = this.props.title;
     this.props.title = next;
     this.touch(now);
-    this.record(createEvent('task.renamed', this.eventBase(actorId, now), { key: this.key.toString(), from, to: next, projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.renamed', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        from,
+        to: next,
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
   describe(description: string | null, actorId: string, now: Date): void {
@@ -166,7 +173,13 @@ export class Task extends AggregateRoot<TaskProps> {
     if (next === this.props.description) return;
     this.props.description = next;
     this.touch(now);
-    this.record(createEvent('task.updated', this.eventBase(actorId, now), { key: this.key.toString(), fields: ['description'], projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.updated', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        fields: ['description'],
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
   changeStatus(next: TaskStatus, actorId: string, now: Date): void {
@@ -238,22 +251,45 @@ export class Task extends AggregateRoot<TaskProps> {
     const from = this.props.priority;
     this.props.priority = priority;
     this.touch(now);
-    this.record(createEvent('task.priority_changed', this.eventBase(actorId, now), { key: this.key.toString(), from, to: priority, projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.priority_changed', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        from,
+        to: priority,
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
   estimate(points: number | null, hours: number | null, actorId: string, now: Date): void {
     this.applyEstimate(points, hours);
     this.touch(now);
-    this.record(createEvent('task.updated', this.eventBase(actorId, now), { key: this.key.toString(), fields: ['estimate'], projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.updated', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        fields: ['estimate'],
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
   setProgress(progress: number, actorId: string, now: Date): void {
     this.props.progress = Math.round(Guard.inRange(progress, 0, 100, 'progress'));
     this.touch(now);
-    this.record(createEvent('task.updated', this.eventBase(actorId, now), { key: this.key.toString(), fields: ['progress'], projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.updated', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        fields: ['progress'],
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
-  moveTo(location: { projectId?: string | null; sectionId?: string | null; sprintId?: string | null }, actorId: string, now: Date): void {
+  moveTo(
+    location: { projectId?: string | null; sectionId?: string | null; sprintId?: string | null },
+    actorId: string,
+    now: Date,
+  ): void {
     const fromProjectId = this.props.projectId;
     if (location.projectId !== undefined) this.props.projectId = location.projectId;
     if (location.sectionId !== undefined) this.props.sectionId = location.sectionId;
@@ -264,11 +300,23 @@ export class Task extends AggregateRoot<TaskProps> {
       if (location.sprintId === undefined) this.props.sprintId = null;
     }
     this.touch(now);
-    this.record(createEvent('task.moved', this.eventBase(actorId, now), { key: this.key.toString(), fromProjectId, toProjectId: this.props.projectId }));
+    this.record(
+      createEvent('task.moved', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        fromProjectId,
+        toProjectId: this.props.projectId,
+      }),
+    );
   }
 
   markDeleted(actorId: string, now: Date): void {
-    this.record(createEvent('task.deleted', this.eventBase(actorId, now), { key: this.key.toString(), title: this.props.title, projectId: this.props.projectId }));
+    this.record(
+      createEvent('task.deleted', this.eventBase(actorId, now), {
+        key: this.key.toString(),
+        title: this.props.title,
+        projectId: this.props.projectId,
+      }),
+    );
   }
 
   // ── Internals ─────────────────────────────────────────────
@@ -276,8 +324,15 @@ export class Task extends AggregateRoot<TaskProps> {
   private applyStatus(next: TaskStatus, now: Date): void {
     const current = taskStatusState(this.props.status);
     if (!current.canTransitionTo(next))
-      throw new InvariantViolation('task.status.transition', `A task can’t move from ${this.props.status} to ${next}.`);
-    const ctx: TaskStatusContext = { completedAt: this.props.completedAt, startDate: this.props.startDate, progress: this.props.progress };
+      throw new InvariantViolation(
+        'task.status.transition',
+        `A task can’t move from ${this.props.status} to ${next}.`,
+      );
+    const ctx: TaskStatusContext = {
+      completedAt: this.props.completedAt,
+      startDate: this.props.startDate,
+      progress: this.props.progress,
+    };
     current.onExit(ctx, now);
     taskStatusState(next).onEnter(ctx, now);
     this.props.status = next;
@@ -296,7 +351,10 @@ export class Task extends AggregateRoot<TaskProps> {
 
   private static assertSchedule(start: Date | null, due: Date | null): void {
     if (start && due && start.getTime() > due.getTime())
-      throw new ValidationError('task.schedule.order', 'The start date is after the due date — pick a start on or before the due date.');
+      throw new ValidationError(
+        'task.schedule.order',
+        'The start date is after the due date — pick a start on or before the due date.',
+      );
   }
 
   private touch(now: Date): void {
@@ -308,4 +366,5 @@ export class Task extends AggregateRoot<TaskProps> {
   }
 }
 
-const sameDate = (a: Date | null, b: Date | null) => (a === null ? b === null : b !== null && a.getTime() === b.getTime());
+const sameDate = (a: Date | null, b: Date | null) =>
+  a === null ? b === null : b !== null && a.getTime() === b.getTime();

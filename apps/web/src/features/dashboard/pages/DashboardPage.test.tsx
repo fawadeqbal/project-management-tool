@@ -15,12 +15,22 @@ vi.mock('@/shared/api/http', async (orig) => ({
 }));
 
 const mocked = vi.mocked(http);
-const limit = { feature: 'dashboards', allowed: false, featureName: 'Dashboards', pitch: 'Answer “are we on track?” without a spreadsheet.', requiredPlan: 'BUSINESS', requiredPlanName: 'Business', currentPlan: 'PRO' };
+const limit = {
+  feature: 'dashboards',
+  allowed: false,
+  featureName: 'Dashboards',
+  pitch: 'Answer “are we on track?” without a spreadsheet.',
+  requiredPlan: 'BUSINESS',
+  requiredPlanName: 'Business',
+  currentPlan: 'PRO',
+};
 
 describe('DashboardPage', () => {
   beforeEach(() => {
     signIn({ ...testMe, workspace: { ...testMe.workspace, role: 'OWNER' } });
-    mocked.get.mockImplementation(async (path: string) => (path.startsWith('/billing/limits') ? limit : dashboardFixture) as never);
+    mocked.get.mockImplementation(
+      async (path: string) => (path.startsWith('/billing/limits') ? limit : dashboardFixture) as never,
+    );
   });
   afterEach(() => vi.clearAllMocks());
 
@@ -42,26 +52,44 @@ describe('DashboardPage', () => {
     const { unmount } = renderApp(<DashboardPage />, { route: '/dashboards' });
     await screen.findByText('Mobile app v2');
     const table = screen.getByRole('table', { name: 'Project health' });
-    const names = () => within(table).getAllByRole('link').map((a) => a.textContent);
+    const names = () =>
+      within(table)
+        .getAllByRole('link')
+        .map((a) => a.textContent);
     expect(names()).toEqual(['Website relaunch', 'Q4 brand campaign', 'Mobile app v2']);
 
     fireEvent.click(within(table).getByRole('button', { name: /Progress/ }));
     expect(names()).toEqual(['Mobile app v2', 'Q4 brand campaign', 'Website relaunch']);
-    expect(within(table).getByRole('columnheader', { name: /Progress/ })).toHaveAttribute('aria-sort', 'ascending');
+    expect(within(table).getByRole('columnheader', { name: /Progress/ })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+    );
 
     fireEvent.click(within(table).getByRole('button', { name: /Progress/ }));
     expect(names()).toEqual(['Website relaunch', 'Q4 brand campaign', 'Mobile app v2']);
-    expect(within(table).getByRole('columnheader', { name: /Progress/ })).toHaveAttribute('aria-sort', 'descending');
+    expect(within(table).getByRole('columnheader', { name: /Progress/ })).toHaveAttribute(
+      'aria-sort',
+      'descending',
+    );
 
     fireEvent.click(within(table).getByRole('button', { name: /Health/ }));
     expect(names()[0]).toBe('Mobile app v2');
-    expect(within(table).getByRole('link', { name: 'Mobile app v2' })).toHaveAttribute('href', '/projects/p3');
+    expect(within(table).getByRole('link', { name: 'Mobile app v2' })).toHaveAttribute(
+      'href',
+      '/projects/p3',
+    );
     unmount();
   });
 
   it('opens the upgrade prompt when saving the layout hits the plan limit', async () => {
     mocked.patch.mockRejectedValue(
-      new ApiError({ status: 402, kind: 'limit_reached', code: 'plan.feature.dashboards', message: 'Dashboards is part of Business.', details: { feature: 'dashboards', requiredPlan: 'BUSINESS' } }),
+      new ApiError({
+        status: 402,
+        kind: 'limit_reached',
+        code: 'plan.feature.dashboards',
+        message: 'Dashboards is part of Business.',
+        details: { feature: 'dashboards', requiredPlan: 'BUSINESS' },
+      }),
     );
     const { unmount } = renderApp(<DashboardPage />, { route: '/dashboards' });
     await screen.findByText('251');
@@ -78,6 +106,8 @@ describe('sortHealthRows', () => {
   it('is stable and puts the worst health first ascending', () => {
     const sorted = sortHealthRows(dashboardFixture.projects, { key: 'health', dir: 'asc' });
     expect(sorted.map((r) => r.health)).toEqual(['OFF_TRACK', 'AT_RISK', 'ON_TRACK']);
-    expect(sortHealthRows(dashboardFixture.projects, { key: 'budget', dir: 'desc' })[0]!.project.name).toBe('Mobile app v2');
+    expect(sortHealthRows(dashboardFixture.projects, { key: 'budget', dir: 'desc' })[0]!.project.name).toBe(
+      'Mobile app v2',
+    );
   });
 });

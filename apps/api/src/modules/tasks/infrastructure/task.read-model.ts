@@ -1,10 +1,34 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import type { ActivityDto, CommentDto, ListTasksQuery, TaskDetailDto, TaskDto, TaskRefDto, UserRefDto } from '@hearth/contracts';
-import { NotFoundError, parseDateOnly, startOfDay, ValidationError, type Actor, type Clock } from '@hearth/domain';
+import type {
+  ActivityDto,
+  CommentDto,
+  ListTasksQuery,
+  TaskDetailDto,
+  TaskDto,
+  TaskRefDto,
+  UserRefDto,
+} from '@hearth/contracts';
+import {
+  NotFoundError,
+  parseDateOnly,
+  startOfDay,
+  ValidationError,
+  type Actor,
+  type Clock,
+} from '@hearth/domain';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
 import { CLOCK } from '../../../shared/clock/clock';
-import { accent, dateOnly, iso, PROJECT_REF_SELECT, toProjectRef, toTaskRef, toUserRef, USER_REF_SELECT } from '../../../shared/mappers/refs';
+import {
+  accent,
+  dateOnly,
+  iso,
+  PROJECT_REF_SELECT,
+  toProjectRef,
+  toTaskRef,
+  toUserRef,
+  USER_REF_SELECT,
+} from '../../../shared/mappers/refs';
 import { resolveMentions } from '../application/mentions';
 import { activitySummary, isHiddenActivity } from './activity-summary';
 
@@ -56,7 +80,10 @@ export class TaskReadModel {
   /** Tasks by id (same shape as `list`), in the order given. Unknown ids are skipped. */
   async byIds(workspaceId: string, ids: readonly string[]): Promise<TaskDto[]> {
     if (!ids.length) return [];
-    const rows = await this.prisma.task.findMany({ where: { workspaceId, id: { in: [...ids] } }, include: TASK_INCLUDE });
+    const rows = await this.prisma.task.findMany({
+      where: { workspaceId, id: { in: [...ids] } },
+      include: TASK_INCLUDE,
+    });
     const dtos = new Map((await this.toDtos(workspaceId, rows)).map((t) => [t.id, t]));
     return ids.map((id) => dtos.get(id)).filter((t): t is TaskDto => !!t);
   }
@@ -71,7 +98,10 @@ export class TaskReadModel {
   async idForKey(workspaceId: string, key: string): Promise<string> {
     const number = parseKeyNumber(key);
     const row = number
-      ? await this.prisma.task.findUnique({ where: { workspaceId_number: { workspaceId, number } }, select: { id: true, workspace: { select: { keyPrefix: true } } } })
+      ? await this.prisma.task.findUnique({
+          where: { workspaceId_number: { workspaceId, number } },
+          select: { id: true, workspace: { select: { keyPrefix: true } } },
+        })
       : null;
     const prefix = KEY_PATTERN.exec(key.trim())?.[1]?.toUpperCase();
     if (!row || (prefix && prefix !== row.workspace.keyPrefix)) throw new NotFoundError('Task', key);
@@ -99,8 +129,16 @@ export class TaskReadModel {
 
     const [keyPrefix, subtaskRows, commentRows, activityRows, members] = await Promise.all([
       this.keyPrefix(workspaceId),
-      this.prisma.task.findMany({ where: { parentId: id, workspaceId }, include: TASK_INCLUDE, orderBy: [{ listPosition: 'asc' }, { createdAt: 'asc' }] }),
-      this.prisma.comment.findMany({ where: { taskId: id }, include: COMMENT_INCLUDE, orderBy: { createdAt: 'asc' } }),
+      this.prisma.task.findMany({
+        where: { parentId: id, workspaceId },
+        include: TASK_INCLUDE,
+        orderBy: [{ listPosition: 'asc' }, { createdAt: 'asc' }],
+      }),
+      this.prisma.comment.findMany({
+        where: { taskId: id },
+        include: COMMENT_INCLUDE,
+        orderBy: { createdAt: 'asc' },
+      }),
       this.prisma.activity.findMany({
         where: { taskId: id },
         include: { actor: { select: USER_REF_SELECT } },
@@ -140,7 +178,10 @@ export class TaskReadModel {
 
   async comment(workspaceId: string, commentId: string): Promise<CommentDto> {
     const [row, members] = await Promise.all([
-      this.prisma.comment.findFirst({ where: { id: commentId, task: { workspaceId } }, include: COMMENT_INCLUDE }),
+      this.prisma.comment.findFirst({
+        where: { id: commentId, task: { workspaceId } },
+        include: COMMENT_INCLUDE,
+      }),
       this.members(workspaceId),
     ]);
     if (!row) throw new NotFoundError('Comment', commentId);
@@ -154,7 +195,9 @@ export class TaskReadModel {
 
     if (q.scope === 'mine') and.push({ assigneeId: actor.userId });
     if (q.scope === 'project' && !q.projectId)
-      throw new ValidationError('tasks.project_required', 'Pick a project to list its tasks.', { field: 'projectId' });
+      throw new ValidationError('tasks.project_required', 'Pick a project to list its tasks.', {
+        field: 'projectId',
+      });
     if (q.projectId) and.push({ projectId: q.projectId });
     if (q.sprintId) and.push({ sprintId: q.sprintId });
     // Guests only ever see the projects they were invited to.
@@ -174,7 +217,13 @@ export class TaskReadModel {
     }
 
     if (q.tags?.length)
-      and.push({ tags: { some: { OR: q.tags.map((name) => ({ tag: { name: { equals: name, mode: 'insensitive' as const } } })) } } });
+      and.push({
+        tags: {
+          some: {
+            OR: q.tags.map((name) => ({ tag: { name: { equals: name, mode: 'insensitive' as const } } })),
+          },
+        },
+      });
 
     const range = rangeFilter(q.from, q.to);
     if (range) and.push(range);
@@ -199,7 +248,11 @@ export class TaskReadModel {
     const [keyPrefix, doneCounts] = await Promise.all([
       prefix ?? this.keyPrefix(workspaceId),
       withSubtasks.length
-        ? this.prisma.task.groupBy({ by: ['parentId'], where: { parentId: { in: withSubtasks }, status: 'DONE' }, _count: { _all: true } })
+        ? this.prisma.task.groupBy({
+            by: ['parentId'],
+            where: { parentId: { in: withSubtasks }, status: 'DONE' },
+            _count: { _all: true },
+          })
         : Promise.resolve([]),
     ]);
     const done = new Map(doneCounts.map((g) => [g.parentId, g._count._all]));
@@ -207,7 +260,10 @@ export class TaskReadModel {
   }
 
   private async keyPrefix(workspaceId: string): Promise<string> {
-    const ws = await this.prisma.workspace.findUnique({ where: { id: workspaceId }, select: { keyPrefix: true } });
+    const ws = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: { keyPrefix: true },
+    });
     if (!ws) throw new NotFoundError('Workspace', workspaceId);
     return ws.keyPrefix;
   }
@@ -242,7 +298,9 @@ const toTaskDto = (r: TaskRow, keyPrefix: string, subtaskDoneCount: number): Tas
   estimateHours: r.estimateHours,
   progress: r.progress,
   epic: r.epic,
-  tags: r.tags.map((t) => ({ id: t.tag.id, name: t.tag.name, color: accent(t.tag.color) })).sort((a, b) => a.name.localeCompare(b.name)),
+  tags: r.tags
+    .map((t) => ({ id: t.tag.id, name: t.tag.name, color: accent(t.tag.color) }))
+    .sort((a, b) => a.name.localeCompare(b.name)),
   commentCount: r._count.comments,
   subtaskCount: r._count.subtasks,
   subtaskDoneCount,
@@ -284,4 +342,5 @@ const rangeFilter = (fromStr?: string, toStr?: string): Prisma.TaskWhereInput | 
   return { OR: or };
 };
 
-const asRecord = (v: Prisma.JsonValue): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
+const asRecord = (v: Prisma.JsonValue): Record<string, unknown> =>
+  v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {};

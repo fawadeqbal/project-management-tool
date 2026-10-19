@@ -1,4 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import { useMatches, useNavigate } from 'react-router-dom';
 import { hotkeys as defaultHotkeys, type HotkeyService } from '@/shared/hotkeys/hotkey-service';
 import { useUiStore } from '@/shared/layout/ui-store';

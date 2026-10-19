@@ -1,4 +1,12 @@
-import { useEffect, useId, useRef, type HTMLAttributes, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import {
+  useEffect,
+  useId,
+  useRef,
+  type HTMLAttributes,
+  type KeyboardEvent,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { cx } from '../internal/cx';
 import { getFocusable, restoreFocus } from '../internal/focus';
 import { lockBodyScroll } from '../internal/scroll-lock';
@@ -134,7 +142,14 @@ export function Dialog({
                 </p>
               ) : null}
             </div>
-            <Button ref={closeRef} variant="ghost" size="sm" icon="x" aria-label={closeLabel} onClick={() => onCloseRef.current()} />
+            <Button
+              ref={closeRef}
+              variant="ghost"
+              size="sm"
+              icon="x"
+              aria-label={closeLabel}
+              onClick={() => onCloseRef.current()}
+            />
           </div>
           {children !== undefined && children !== null ? (
             <div ref={bodyRef} className="ht-dialog-body">

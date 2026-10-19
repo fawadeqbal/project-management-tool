@@ -7,7 +7,14 @@ import { parseDateOnly } from '../shared/dates';
 
 const now = new Date('2026-10-19T12:00:00Z');
 const member = (over: Partial<WorkspaceMemberProps> = {}) =>
-  WorkspaceMember.restore('m1', { workspaceId: 'w', userId: 'u-target', role: 'MEMBER', status: 'ACTIVE', deactivatedAt: null, ...over });
+  WorkspaceMember.restore('m1', {
+    workspaceId: 'w',
+    userId: 'u-target',
+    role: 'MEMBER',
+    status: 'ACTIVE',
+    deactivatedAt: null,
+    ...over,
+  });
 const owner = { userId: 'u-owner', role: 'OWNER' as const };
 const admin = { userId: 'u-admin', role: 'ADMIN' as const };
 
@@ -16,7 +23,10 @@ describe('WorkspaceMember role changes', () => {
     const m = member();
     m.changeRole('ADMIN', owner, 1, now);
     expect(m.role).toBe('ADMIN');
-    expect(m.pullEvents()[0]).toMatchObject({ type: 'member.role_changed', payload: { from: 'MEMBER', to: 'ADMIN', userId: 'u-target' } });
+    expect(m.pullEvents()[0]).toMatchObject({
+      type: 'member.role_changed',
+      payload: { from: 'MEMBER', to: 'ADMIN', userId: 'u-target' },
+    });
   });
 
   it('blocks escalation: an admin cannot make an owner', () => {
@@ -34,7 +44,9 @@ describe('WorkspaceMember role changes', () => {
   });
 
   it('forbids changing your own role', () => {
-    expect(() => member({ userId: 'u-admin', role: 'ADMIN' }).changeRole('MEMBER', admin, 1, now)).toThrow(/yourself/);
+    expect(() => member({ userId: 'u-admin', role: 'ADMIN' }).changeRole('MEMBER', admin, 1, now)).toThrow(
+      /yourself/,
+    );
   });
 
   it('does not turn members into guests', () => {
@@ -53,7 +65,9 @@ describe('WorkspaceMember deactivate / reactivate / remove', () => {
   });
 
   it('cannot deactivate yourself or the last owner', () => {
-    expect(() => member({ userId: 'u-admin', role: 'ADMIN' }).deactivate(admin, 1, now)).toThrow(ForbiddenError);
+    expect(() => member({ userId: 'u-admin', role: 'ADMIN' }).deactivate(admin, 1, now)).toThrow(
+      ForbiddenError,
+    );
     expect(() => member({ role: 'OWNER' }).deactivate(owner, 1, now)).toThrow(ConflictError);
   });
 
@@ -74,12 +88,28 @@ describe('invites', () => {
 
   it('describes pending invites in plain words', () => {
     const today = parseDateOnly('2026-10-19');
-    expect(inviteMeta({ role: 'MEMBER', teamName: 'Design', sentAt: parseDateOnly('2026-10-17'), expiresAt: parseDateOnly('2026-10-24') }, today)).toBe(
-      'Member · Design · sent 2 days ago',
-    );
-    expect(inviteMeta({ role: 'GUEST', projectName: 'Website relaunch', sentAt: parseDateOnly('2026-10-14'), expiresAt: parseDateOnly('2026-10-21') }, today)).toBe(
-      'Guest · Website relaunch · expires in 2 days',
-    );
+    expect(
+      inviteMeta(
+        {
+          role: 'MEMBER',
+          teamName: 'Design',
+          sentAt: parseDateOnly('2026-10-17'),
+          expiresAt: parseDateOnly('2026-10-24'),
+        },
+        today,
+      ),
+    ).toBe('Member · Design · sent 2 days ago');
+    expect(
+      inviteMeta(
+        {
+          role: 'GUEST',
+          projectName: 'Website relaunch',
+          sentAt: parseDateOnly('2026-10-14'),
+          expiresAt: parseDateOnly('2026-10-21'),
+        },
+        today,
+      ),
+    ).toBe('Guest · Website relaunch · expires in 2 days');
   });
 });
 

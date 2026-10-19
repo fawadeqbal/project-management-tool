@@ -28,7 +28,13 @@ vi.mock('@/shared/api/client', () => ({
 const mocked = vi.mocked(api, true);
 
 const detail: TaskDetailDto = {
-  ...makeTask({ id: 't188', key: 'HRT-188', title: 'Design pricing page in light and dark mode', priority: 'URGENT', status: 'IN_PROGRESS' }),
+  ...makeTask({
+    id: 't188',
+    key: 'HRT-188',
+    title: 'Design pricing page in light and dark mode',
+    priority: 'URGENT',
+    status: 'IN_PROGRESS',
+  }),
   description: 'Light and dark comps.',
   creator: { id: 'u1', name: 'Fawad Iqbal', initials: 'FI', avatarColor: 'blue' },
   subtasks: [
@@ -75,15 +81,23 @@ describe('TaskPanelHost', () => {
     // A tiny stateful "server" so the refetch after saving returns the new title.
     let current = detail;
     mocked.tasks.getByKey.mockImplementation(async () => current);
-    mocked.tasks.update.mockImplementation(async (_id, patch) => (current = { ...current, ...patch } as TaskDetailDto));
+    mocked.tasks.update.mockImplementation(
+      async (_id, patch) => (current = { ...current, ...patch } as TaskDetailDto),
+    );
     const { unmount } = renderApp(<TaskPanelHost />, { route: '/my-tasks?task=HRT-188' });
-    fireEvent.click(await screen.findByRole('button', { name: /Design pricing page in light and dark mode\. Edit title/ }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Design pricing page in light and dark mode\. Edit title/ }),
+    );
     const input = screen.getByRole('textbox', { name: 'Task title' });
     fireEvent.change(input, { target: { value: 'Design pricing page v2' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     // Optimistic: the new title shows right away.
-    expect(await screen.findByRole('button', { name: /Design pricing page v2\. Edit title/ })).toBeInTheDocument();
-    await waitFor(() => expect(mocked.tasks.update).toHaveBeenCalledWith('t188', { title: 'Design pricing page v2' }));
+    expect(
+      await screen.findByRole('button', { name: /Design pricing page v2\. Edit title/ }),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(mocked.tasks.update).toHaveBeenCalledWith('t188', { title: 'Design pricing page v2' }),
+    );
     expect(await screen.findByText('Saved')).toBeInTheDocument();
     unmount();
   });
@@ -95,7 +109,9 @@ describe('TaskPanelHost', () => {
     fireEvent.change(input, { target: { value: 'Something else' } });
     fireEvent.keyDown(input, { key: 'Escape' });
     expect(mocked.tasks.update).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: /Design pricing page in light and dark mode\. Edit title/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Design pricing page in light and dark mode\. Edit title/ }),
+    ).toBeInTheDocument();
     unmount();
   });
 

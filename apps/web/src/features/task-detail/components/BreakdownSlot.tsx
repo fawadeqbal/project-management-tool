@@ -24,8 +24,21 @@ const card: CSSProperties = {
   border: '1px dashed var(--border-focus)',
   borderRadius: 10,
 };
-const list: CSSProperties = { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 4 };
-const item: CSSProperties = { display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, padding: '3px 0' };
+const list: CSSProperties = {
+  listStyle: 'none',
+  margin: 0,
+  padding: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+};
+const item: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  fontSize: 14,
+  padding: '3px 0',
+};
 
 /**
  * "Break down" next to Subtasks: asks the AI for 3–6 subtasks, shows them labelled with their
@@ -45,13 +58,20 @@ export function BreakdownSlot({ task }: BreakdownSlotProps) {
     mutationFn: ({ taskId }) => aiApi.breakDown(taskId),
     affects: ({ taskId }) => [aiKeys.suggestions(taskId)],
     onSuccess: (s, { taskId }, c) => {
-      c.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (l = []) => [s, ...l.filter((x) => x.kind !== 'breakdown')]);
+      c.setQueryData<AiSuggestionDto[]>(aiKeys.suggestions(taskId), (l = []) => [
+        s,
+        ...l.filter((x) => x.kind !== 'breakdown'),
+      ]);
       setOpen(true);
     },
-    errorMessage: (e) => (e.kind === 'limit_reached' ? e.message : `We couldn’t break this task down. ${e.message}`),
+    errorMessage: (e) =>
+      e.kind === 'limit_reached' ? e.message : `We couldn’t break this task down. ${e.message}`,
   });
 
-  const accept = useOptimisticMutation<AcceptSuggestionResultDto, { taskId: string; id: string; titles: string[] }>({
+  const accept = useOptimisticMutation<
+    AcceptSuggestionResultDto,
+    { taskId: string; id: string; titles: string[] }
+  >({
     mutationFn: ({ id, titles }) => aiApi.accept(id, { subtasks: titles }),
     affects: ({ taskId }) => [aiKeys.suggestions(taskId), queryKeys.taskRoot, queryKeys.tasks.all],
     apply: (c, { taskId, id }) => dropSuggestion(c, taskId, id),
@@ -85,7 +105,13 @@ export function BreakdownSlot({ task }: BreakdownSlotProps) {
     if (!suggestion || !titles.length) return;
     accept.mutate(
       { taskId: task.id, id: suggestion.id, titles },
-      { onSuccess: (res) => show({ message: `Added ${res.createdSubtasks?.length ?? titles.length} subtasks`, icon: 'sparkles' }) },
+      {
+        onSuccess: (res) =>
+          show({
+            message: `Added ${res.createdSubtasks?.length ?? titles.length} subtasks`,
+            icon: 'sparkles',
+          }),
+      },
     );
     setOpen(false);
   };
@@ -112,7 +138,11 @@ export function BreakdownSlot({ task }: BreakdownSlotProps) {
           loading={generate.isPending}
           onClick={() => (suggestion ? setOpen(!open) : generate.mutate({ taskId: task.id }))}
         >
-          {generate.isPending ? 'Breaking down…' : suggestion ? `Review ${proposed.length} suggested` : 'Break down'}
+          {generate.isPending
+            ? 'Breaking down…'
+            : suggestion
+              ? `Review ${proposed.length} suggested`
+              : 'Break down'}
         </Button>
       )}
     >
@@ -126,14 +156,22 @@ export function BreakdownSlot({ task }: BreakdownSlotProps) {
           <ul style={list}>
             {proposed.map((title, i) => (
               <li key={`${i}-${title}`} style={item}>
-                <TaskCheckbox checked={chosen.has(i)} label={`Include “${title}”`} onChange={() => toggle(i)} />
-                <span style={{ color: chosen.has(i) ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{title}</span>
+                <TaskCheckbox
+                  checked={chosen.has(i)}
+                  label={`Include “${title}”`}
+                  onChange={() => toggle(i)}
+                />
+                <span style={{ color: chosen.has(i) ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>
+                  {title}
+                </span>
               </li>
             ))}
           </ul>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             <Button variant="secondary" size="sm" onClick={add} disabled={!titles.length || accept.isPending}>
-              {titles.length ? `Add ${titles.length} subtask${titles.length === 1 ? '' : 's'}` : 'Pick subtasks to add'}
+              {titles.length
+                ? `Add ${titles.length} subtask${titles.length === 1 ? '' : 's'}`
+                : 'Pick subtasks to add'}
             </Button>
             <Button
               variant="ghost"

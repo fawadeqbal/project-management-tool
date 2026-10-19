@@ -8,32 +8,67 @@ import { loadProjectTimelinePage } from '@/features/timeline';
 import { projectNameFor } from './api';
 import { useProjectsUi } from './projects-ui';
 
-const projectCrumb: RouteHandle['crumb'] = ({ params }) => `Projects / ${projectNameFor(params.projectId) ?? 'Project'}`;
+const projectCrumb: RouteHandle['crumb'] = ({ params }) =>
+  `Projects / ${projectNameFor(params.projectId) ?? 'Project'}`;
 
 function ProjectIndexRedirect() {
   const { projectId } = useParams();
   return createElement(Navigate, { to: `/projects/${projectId}/board`, replace: true });
 }
 
-const page = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) => async () => ({ Component: (await load())[name] });
+const page =
+  <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
+  async () => ({ Component: (await load())[name] });
 
 /** Public surface of the "projects" feature: its routes and the commands it contributes to ⌘K. */
 export const routes: RouteObject[] = [
-  { path: 'projects', lazy: page(() => import('./pages/ProjectsPage'), 'ProjectsPage'), handle: { crumb: 'Projects' } satisfies RouteHandle },
-  { path: 'teams/:teamId', lazy: page(() => import('./pages/TeamPage'), 'TeamPage'), handle: { crumb: 'Teams' } satisfies RouteHandle },
-  { path: 'my-tasks/board', lazy: page(() => import('./pages/MyTasksBoardPage'), 'MyTasksBoardPage'), handle: { crumb: 'My tasks / Board' } satisfies RouteHandle },
+  {
+    path: 'projects',
+    lazy: page(() => import('./pages/ProjectsPage'), 'ProjectsPage'),
+    handle: { crumb: 'Projects' } satisfies RouteHandle,
+  },
+  {
+    path: 'teams/:teamId',
+    lazy: page(() => import('./pages/TeamPage'), 'TeamPage'),
+    handle: { crumb: 'Teams' } satisfies RouteHandle,
+  },
+  {
+    path: 'my-tasks/board',
+    lazy: page(() => import('./pages/MyTasksBoardPage'), 'MyTasksBoardPage'),
+    handle: { crumb: 'My tasks / Board' } satisfies RouteHandle,
+  },
   {
     path: 'projects/:projectId',
     lazy: page(() => import('./pages/ProjectLayout'), 'ProjectLayout'),
     handle: { crumb: projectCrumb } satisfies RouteHandle,
     children: [
       { index: true, Component: ProjectIndexRedirect },
-      { path: 'overview', lazy: page(() => import('./pages/ProjectOverviewPage'), 'ProjectOverviewPage'), handle: { crumb: 'Overview' } satisfies RouteHandle },
-      { path: 'list', lazy: page(() => import('./pages/ProjectListPage'), 'ProjectListPage'), handle: { crumb: 'List' } satisfies RouteHandle },
-      { path: 'board', lazy: page(() => import('./pages/ProjectBoardPage'), 'ProjectBoardPage'), handle: { crumb: 'Board' } satisfies RouteHandle },
+      {
+        path: 'overview',
+        lazy: page(() => import('./pages/ProjectOverviewPage'), 'ProjectOverviewPage'),
+        handle: { crumb: 'Overview' } satisfies RouteHandle,
+      },
+      {
+        path: 'list',
+        lazy: page(() => import('./pages/ProjectListPage'), 'ProjectListPage'),
+        handle: { crumb: 'List' } satisfies RouteHandle,
+      },
+      {
+        path: 'board',
+        lazy: page(() => import('./pages/ProjectBoardPage'), 'ProjectBoardPage'),
+        handle: { crumb: 'Board' } satisfies RouteHandle,
+      },
       // Timeline and Calendar views are owned by their features; they expose lazy page loaders.
-      { path: 'timeline', lazy: async () => ({ Component: await loadProjectTimelinePage() }), handle: { crumb: 'Timeline' } satisfies RouteHandle },
-      { path: 'calendar', lazy: async () => ({ Component: await loadProjectCalendarPage() }), handle: { crumb: 'Calendar' } satisfies RouteHandle },
+      {
+        path: 'timeline',
+        lazy: async () => ({ Component: await loadProjectTimelinePage() }),
+        handle: { crumb: 'Timeline' } satisfies RouteHandle,
+      },
+      {
+        path: 'calendar',
+        lazy: async () => ({ Component: await loadProjectCalendarPage() }),
+        handle: { crumb: 'Calendar' } satisfies RouteHandle,
+      },
     ],
   },
 ];

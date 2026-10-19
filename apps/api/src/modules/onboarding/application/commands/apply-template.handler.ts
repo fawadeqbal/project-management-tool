@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { ApplyTemplateResultDto } from '@hearth/contracts';
-import { createEvent, findTemplate, NotFoundError, startOfDay, type Clock, type TaskCreated } from '@hearth/domain';
+import {
+  createEvent,
+  findTemplate,
+  NotFoundError,
+  startOfDay,
+  type Clock,
+  type TaskCreated,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -39,16 +46,33 @@ export class ApplyTemplateHandler implements ICommandHandler<ApplyTemplateComman
       now,
     });
 
-    const base = (aggregateId: string) => ({ workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId, occurredAt: now });
-    this.events.publish(createEvent('project.created', base(project.id), { name: project.name, teamId: project.teamId, ownerId: actor.userId }));
+    const base = (aggregateId: string) => ({
+      workspaceId: actor.workspaceId,
+      actorId: actor.userId,
+      aggregateId,
+      occurredAt: now,
+    });
     this.events.publish(
-      ...tasks.map(
-        (t): TaskCreated =>
-          createEvent('task.created', base(t.id), { key: `${keyPrefix}-${t.number}`, title: t.title, projectId: project.id, assigneeId: t.assigneeId }),
+      createEvent('project.created', base(project.id), {
+        name: project.name,
+        teamId: project.teamId,
+        ownerId: actor.userId,
+      }),
+    );
+    this.events.publish(
+      ...tasks.map((t): TaskCreated =>
+        createEvent('task.created', base(t.id), {
+          key: `${keyPrefix}-${t.number}`,
+          title: t.title,
+          projectId: project.id,
+          assigneeId: t.assigneeId,
+        }),
       ),
     );
     if (await this.store.complete(actor.workspaceId, actor.userId, 'start-from-template'))
-      this.events.publish(createEvent('onboarding.step_completed', base(actor.userId), { step: 'start-from-template' }));
+      this.events.publish(
+        createEvent('onboarding.step_completed', base(actor.userId), { step: 'start-from-template' }),
+      );
 
     return {
       project: { id: project.id, name: project.name, color: accent(project.color, 'blue') },

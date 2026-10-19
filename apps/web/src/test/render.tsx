@@ -13,7 +13,15 @@ import { ToastRegion, useToastStore } from '@/shared/toast';
 type MemoryRouter = ReturnType<typeof createMemoryRouter>;
 
 export const testMe: MeDto = {
-  user: { id: 'u1', email: 'fawad@acme.com', name: 'Fawad Iqbal', initials: 'FI', avatarColor: 'blue', jobTitle: 'Designer', theme: 'light' },
+  user: {
+    id: 'u1',
+    email: 'fawad@acme.com',
+    name: 'Fawad Iqbal',
+    initials: 'FI',
+    avatarColor: 'blue',
+    jobTitle: 'Designer',
+    theme: 'light',
+  },
   workspace: { id: 'w1', name: 'Acme Studio', slug: 'acme', keyPrefix: 'HRT', role: 'MEMBER' },
   workspaces: [{ id: 'w1', name: 'Acme Studio', slug: 'acme', keyPrefix: 'HRT', role: 'MEMBER' }],
   permissions: [...ROLE_PERMISSIONS.MEMBER],
@@ -57,7 +65,9 @@ export function renderApp(
   ui: ReactElement,
   { route = '/', path = '*' }: { route?: string; path?: string } = {},
 ): RenderResult & { client: QueryClient; router: MemoryRouter } {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } } });
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, staleTime: Infinity }, mutations: { retry: false } },
+  });
   const detach = hotkeys.attach(window);
   useToastStore.getState().clear();
   const Shell = ({ children }: { children: ReactNode }) => (

@@ -54,7 +54,10 @@ export interface TaskOrdering {
 /** Columns and relations around the aggregate: ordering, tags, followers, comments, dependencies. */
 export interface TaskRelations {
   /** Highest positions in the task's board column (project + status) and list (project + parent). */
-  lastPositions(workspaceId: string, scope: { projectId: string | null; status: TaskStatus; parentId: string | null }): Promise<{ board: number | null; list: number | null }>;
+  lastPositions(
+    workspaceId: string,
+    scope: { projectId: string | null; status: TaskStatus; parentId: string | null },
+  ): Promise<{ board: number | null; list: number | null }>;
   positionsOf(workspaceId: string, ids: readonly string[]): Promise<Map<string, TaskOrdering>>;
   setOrdering(taskId: string, ordering: Partial<TaskOrdering>): Promise<void>;
   setEpic(taskId: string, epic: string | null): Promise<void>;
@@ -68,7 +71,13 @@ export interface TaskRelations {
   /** Returns false when the edge didn't exist. */
   removeDependency(edge: DependencyEdge): Promise<boolean>;
   findComment(taskId: string, commentId: string): Promise<{ id: string; authorId: string } | null>;
-  createComment(input: { taskId: string; authorId: string; body: string; parentId: string | null; createdAt: Date }): Promise<{ id: string }>;
+  createComment(input: {
+    taskId: string;
+    authorId: string;
+    body: string;
+    parentId: string | null;
+    createdAt: Date;
+  }): Promise<{ id: string }>;
 }
 
 export const TASK_DIRECTORY = Symbol('TaskDirectory');

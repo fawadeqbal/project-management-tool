@@ -20,13 +20,17 @@ export const sprintsApi = {
   list: (projectId: string) => http.get<SprintSummaryDto[]>(SPRINT_ROUTES.list(projectId)),
   detail: (id: string) => http.get<SprintDetailDto>(SPRINT_ROUTES.byId(id)),
   backlog: (projectId: string) => http.get<SprintTaskDto[]>(SPRINT_ROUTES.backlog(projectId)),
-  plan: (projectId: string, input: CreateSprintInput) => http.post<SprintSummaryDto>(SPRINT_ROUTES.list(projectId), input),
-  update: (id: string, input: UpdateSprintInput) => http.patch<SprintSummaryDto>(SPRINT_ROUTES.byId(id), input),
+  plan: (projectId: string, input: CreateSprintInput) =>
+    http.post<SprintSummaryDto>(SPRINT_ROUTES.list(projectId), input),
+  update: (id: string, input: UpdateSprintInput) =>
+    http.patch<SprintSummaryDto>(SPRINT_ROUTES.byId(id), input),
   start: (id: string) => http.post<SprintSummaryDto>(SPRINT_ROUTES.start(id)),
-  complete: (id: string, input: CompleteSprintInput) => http.post<RetrospectiveDto>(SPRINT_ROUTES.complete(id), input),
+  complete: (id: string, input: CompleteSprintInput) =>
+    http.post<RetrospectiveDto>(SPRINT_ROUTES.complete(id), input),
   addTask: (id: string, taskId: string) => http.post<SprintSummaryDto>(SPRINT_ROUTES.tasks(id), { taskId }),
   removeTask: (id: string, taskId: string) => http.delete<SprintSummaryDto>(SPRINT_ROUTES.task(id, taskId)),
-  rank: (projectId: string, input: RankBacklogInput) => http.post<{ taskId: string; backlogRank: number }>(SPRINT_ROUTES.rank(projectId), input),
+  rank: (projectId: string, input: RankBacklogInput) =>
+    http.post<{ taskId: string; backlogRank: number }>(SPRINT_ROUTES.rank(projectId), input),
 };
 
 export const sprintKeys = {
@@ -37,15 +41,27 @@ export const sprintKeys = {
 };
 
 export function useSprints(projectId: string | undefined) {
-  return useQuery({ queryKey: sprintKeys.list(projectId ?? ''), queryFn: () => sprintsApi.list(projectId!), enabled: !!projectId });
+  return useQuery({
+    queryKey: sprintKeys.list(projectId ?? ''),
+    queryFn: () => sprintsApi.list(projectId!),
+    enabled: !!projectId,
+  });
 }
 
 export function useSprintDetail(id: string | null | undefined) {
-  return useQuery({ queryKey: sprintKeys.detail(id ?? ''), queryFn: () => sprintsApi.detail(id!), enabled: !!id });
+  return useQuery({
+    queryKey: sprintKeys.detail(id ?? ''),
+    queryFn: () => sprintsApi.detail(id!),
+    enabled: !!id,
+  });
 }
 
 export function useBacklog(projectId: string | undefined) {
-  return useQuery({ queryKey: sprintKeys.backlog(projectId ?? ''), queryFn: () => sprintsApi.backlog(projectId!), enabled: !!projectId });
+  return useQuery({
+    queryKey: sprintKeys.backlog(projectId ?? ''),
+    queryFn: () => sprintsApi.backlog(projectId!),
+    enabled: !!projectId,
+  });
 }
 
 /** 402 → upgrade dialog; anything else → the API's human message in a toast. */
@@ -92,11 +108,13 @@ export function useSprintMutations(projectId: string) {
   const start = usePlanningMutation({
     mutationFn: (id: string) => sprintsApi.start(id),
     affects: [sprintKeys.all],
-    onSuccess: (s: SprintSummaryDto) => toast.show({ message: `${s.name} started · ${s.committedPoints} points committed`, icon: 'zap' }),
+    onSuccess: (s: SprintSummaryDto) =>
+      toast.show({ message: `${s.name} started · ${s.committedPoints} points committed`, icon: 'zap' }),
   });
 
   const complete = usePlanningMutation({
-    mutationFn: ({ id, moveUnfinishedTo }: { id: string; moveUnfinishedTo: 'backlog' | 'next' }) => sprintsApi.complete(id, { moveUnfinishedTo }),
+    mutationFn: ({ id, moveUnfinishedTo }: { id: string; moveUnfinishedTo: 'backlog' | 'next' }) =>
+      sprintsApi.complete(id, { moveUnfinishedTo }),
     affects: [sprintKeys.all],
   });
 
@@ -112,35 +130,50 @@ export function useSprintMutations(projectId: string) {
   });
 
   const add = usePlanningMutation({
-    mutationFn: ({ sprintId, task }: { sprintId: string; task: SprintTaskDto }) => sprintsApi.addTask(sprintId, task.id),
+    mutationFn: ({ sprintId, task }: { sprintId: string; task: SprintTaskDto }) =>
+      sprintsApi.addTask(sprintId, task.id),
     affects: [sprintKeys.backlog(projectId), sprintKeys.all],
     apply: ({ sprintId, task }) => {
-      client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) => old?.filter((t) => t.id !== task.id));
-      client.setQueryData<SprintDetailDto>(sprintKeys.detail(sprintId), (old) => (old ? { ...old, tasks: [...old.tasks, { ...task, sprintId }] } : old));
+      client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) =>
+        old?.filter((t) => t.id !== task.id),
+      );
+      client.setQueryData<SprintDetailDto>(sprintKeys.detail(sprintId), (old) =>
+        old ? { ...old, tasks: [...old.tasks, { ...task, sprintId }] } : old,
+      );
     },
   });
 
   const remove = usePlanningMutation({
-    mutationFn: ({ sprintId, task }: { sprintId: string; task: SprintTaskDto }) => sprintsApi.removeTask(sprintId, task.id),
+    mutationFn: ({ sprintId, task }: { sprintId: string; task: SprintTaskDto }) =>
+      sprintsApi.removeTask(sprintId, task.id),
     affects: [sprintKeys.backlog(projectId), sprintKeys.all],
     apply: ({ sprintId, task }) => {
-      client.setQueryData<SprintDetailDto>(sprintKeys.detail(sprintId), (old) => (old ? { ...old, tasks: old.tasks.filter((t) => t.id !== task.id) } : old));
-      client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) => (old ? [{ ...task, sprintId: null }, ...old] : old));
+      client.setQueryData<SprintDetailDto>(sprintKeys.detail(sprintId), (old) =>
+        old ? { ...old, tasks: old.tasks.filter((t) => t.id !== task.id) } : old,
+      );
+      client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) =>
+        old ? [{ ...task, sprintId: null }, ...old] : old,
+      );
     },
   });
 
   const rank = usePlanningMutation({
     mutationFn: (input: RankBacklogInput) => sprintsApi.rank(projectId, input),
     affects: [sprintKeys.backlog(projectId)],
-    apply: (input) => client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) => (old ? applyRank(old, input) : old)),
+    apply: (input) =>
+      client.setQueryData<SprintTaskDto[]>(sprintKeys.backlog(projectId), (old) =>
+        old ? applyRank(old, input) : old,
+      ),
   });
 
   return useMemo(
     () => ({
       start: (id: string) => start.mutateAsync(id).catch(() => undefined),
-      complete: (id: string, moveUnfinishedTo: 'backlog' | 'next') => complete.mutateAsync({ id, moveUnfinishedTo }).catch(() => undefined),
+      complete: (id: string, moveUnfinishedTo: 'backlog' | 'next') =>
+        complete.mutateAsync({ id, moveUnfinishedTo }).catch(() => undefined),
       plan: (input: CreateSprintInput = {}) => plan.mutateAsync(input).catch(() => undefined),
-      update: (id: string, input: UpdateSprintInput) => update.mutateAsync({ id, input }).catch(() => undefined),
+      update: (id: string, input: UpdateSprintInput) =>
+        update.mutateAsync({ id, input }).catch(() => undefined),
       addToSprint: (sprintId: string, sprintName: string, task: SprintTaskDto) => {
         void add
           .mutateAsync({ sprintId, task })

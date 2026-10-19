@@ -32,7 +32,12 @@ export function TaskPage() {
   }
   return (
     <div className={styles.page}>
-      <TaskDetailView task={task} mode="page" onOpenTask={(k) => void navigate(`/tasks/${k}`)} onDeleted={() => void navigate('/my-tasks', { replace: true })} />
+      <TaskDetailView
+        task={task}
+        mode="page"
+        onOpenTask={(k) => void navigate(`/tasks/${k}`)}
+        onDeleted={() => void navigate('/my-tasks', { replace: true })}
+      />
     </div>
   );
 }

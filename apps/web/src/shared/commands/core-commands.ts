@@ -10,7 +10,14 @@ export interface CoreCommandDeps {
 
 /** App-level commands that belong to no single feature (navigation, theme, shell). */
 export const createCoreCommands = (deps: CoreCommandDeps): Command[] => [
-  { id: 'nav.home', title: 'Go to Home', group: 'Navigate', icon: 'home', shortcut: ['G', 'H'], run: (c) => c.navigate('/home') },
+  {
+    id: 'nav.home',
+    title: 'Go to Home',
+    group: 'Navigate',
+    icon: 'home',
+    shortcut: ['G', 'H'],
+    run: (c) => c.navigate('/home'),
+  },
   {
     id: 'nav.my-tasks',
     title: 'Go to My tasks',
@@ -47,8 +54,22 @@ export const createCoreCommands = (deps: CoreCommandDeps): Command[] => [
     keywords: ['new', 'add', 'todo'],
     run: () => deps.openCreateTask(),
   },
-  { id: 'app.toggle-theme', title: 'Toggle theme', group: 'Settings', icon: 'moon', keywords: ['dark', 'light', 'mode', 'appearance'], run: () => deps.toggleTheme() },
-  { id: 'app.toggle-sidebar', title: 'Toggle sidebar', group: 'Settings', icon: 'layers', shortcut: ['['], run: () => deps.toggleSidebar() },
+  {
+    id: 'app.toggle-theme',
+    title: 'Toggle theme',
+    group: 'Settings',
+    icon: 'moon',
+    keywords: ['dark', 'light', 'mode', 'appearance'],
+    run: () => deps.toggleTheme(),
+  },
+  {
+    id: 'app.toggle-sidebar',
+    title: 'Toggle sidebar',
+    group: 'Settings',
+    icon: 'layers',
+    shortcut: ['['],
+    run: () => deps.toggleSidebar(),
+  },
   {
     id: 'app.shortcuts',
     title: 'Show keyboard shortcuts',
@@ -58,5 +79,12 @@ export const createCoreCommands = (deps: CoreCommandDeps): Command[] => [
     keywords: ['help', 'keys', 'hotkeys'],
     run: () => deps.showShortcuts(),
   },
-  { id: 'app.logout', title: 'Log out', group: 'Settings', icon: 'arrow-right', keywords: ['sign out', 'exit'], run: () => deps.logOut() },
+  {
+    id: 'app.logout',
+    title: 'Log out',
+    group: 'Settings',
+    icon: 'arrow-right',
+    keywords: ['sign out', 'exit'],
+    run: () => deps.logOut(),
+  },
 ];

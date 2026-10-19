@@ -25,7 +25,11 @@ export class AiUsageMeter {
       where: { workspaceId_metric_period: { workspaceId, metric: METRIC, period: this.period() } },
       select: { value: true },
     });
-    (await this.plans.policyFor(workspaceId)).assertWithinLimit('ai_credits', Number(row?.value ?? 0n), amount);
+    (await this.plans.policyFor(workspaceId)).assertWithinLimit(
+      'ai_credits',
+      Number(row?.value ?? 0n),
+      amount,
+    );
   }
 
   async record(workspaceId: string, amount = 1): Promise<void> {

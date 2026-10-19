@@ -20,11 +20,17 @@ describe('Inbox & approvals (e2e)', () => {
   let jia: UserClient;
   let mo: UserClient;
 
-  const inbox = async (who: UserClient, query = '') => (await who.get(`/inbox${query}`).expect(200)).body as InboxDto;
+  const inbox = async (who: UserClient, query = '') =>
+    (await who.get(`/inbox${query}`).expect(200)).body as InboxDto;
 
   beforeAll(async () => {
     app = await createTestApp();
-    [fawad, sara, jia, mo] = await Promise.all([asUser(app), asUser(app, 'sara@acme.com'), asUser(app, 'jia@acme.com'), asUser(app, 'mo@acme.com')]);
+    [fawad, sara, jia, mo] = await Promise.all([
+      asUser(app),
+      asUser(app, 'sara@acme.com'),
+      asUser(app, 'jia@acme.com'),
+      asUser(app, 'mo@acme.com'),
+    ]);
   });
   afterAll(async () => {
     await app.close();
@@ -37,10 +43,19 @@ describe('Inbox & approvals (e2e)', () => {
       ['Sara Ahmed mentioned you', true],
       ['Mo Khan assigned you a task', true],
     ]);
-    expect(body.items[1]).toMatchObject({ type: 'MENTION', context: 'Website relaunch · HRT-188', taskKey: 'HRT-188', icon: 'comment' });
+    expect(body.items[1]).toMatchObject({
+      type: 'MENTION',
+      context: 'Website relaunch · HRT-188',
+      taskKey: 'HRT-188',
+      icon: 'comment',
+    });
     expect(body.items[1]!.actor).toMatchObject({ name: 'Sara Ahmed', initials: 'SA' });
     expect(body.items[0]!.approvalId).toBeTruthy();
-    expect(body.items.find((i) => i.title.includes('changed status'))).toMatchObject({ icon: 'status-blocked', time: 'Yesterday', unread: false });
+    expect(body.items.find((i) => i.title.includes('changed status'))).toMatchObject({
+      icon: 'status-blocked',
+      time: 'Yesterday',
+      unread: false,
+    });
     expect(body.counts).toMatchObject({ all: 7, mentions: 1, assigned: 1, approvals: 1, unread: 3 });
 
     const approvals = await inbox(fawad, '?tab=approvals');
@@ -51,9 +66,19 @@ describe('Inbox & approvals (e2e)', () => {
 
   it('notifies Fawad when Sara @mentions him on HRT-188', async () => {
     const task = (await fawad.get('/tasks/key/HRT-188').expect(200)).body as { id: string };
-    await sara.post(`/tasks/${task.id}/comments`, { body: '@Fawad the toggle passes 4.6:1 now — good to ship?' }).expect(201);
-    const mention = await eventually(async () => (await inbox(fawad, '?tab=mentions')).items.find((i) => i.excerpt?.includes('4.6:1')));
-    expect(mention).toMatchObject({ type: 'MENTION', title: 'Sara Ahmed mentioned you', context: 'Website relaunch · HRT-188', unread: true, taskKey: 'HRT-188' });
+    await sara
+      .post(`/tasks/${task.id}/comments`, { body: '@Fawad the toggle passes 4.6:1 now — good to ship?' })
+      .expect(201);
+    const mention = await eventually(async () =>
+      (await inbox(fawad, '?tab=mentions')).items.find((i) => i.excerpt?.includes('4.6:1')),
+    );
+    expect(mention).toMatchObject({
+      type: 'MENTION',
+      title: 'Sara Ahmed mentioned you',
+      context: 'Website relaunch · HRT-188',
+      unread: true,
+      taskKey: 'HRT-188',
+    });
     expect((await inbox(fawad)).counts.mentions).toBe(2);
     // Sara doesn't notify herself
     expect((await inbox(sara)).items.some((i) => i.excerpt?.includes('4.6:1'))).toBe(false);
@@ -83,8 +108,12 @@ describe('Inbox & approvals (e2e)', () => {
     await fawad.post(`/inbox/${item.id}/unsnooze`).expect(200);
     expect((await inbox(fawad)).items.some((i) => i.id === item.id)).toBe(true);
     // A snooze that already ended brings it back.
-    await fawad.post(`/inbox/${item.id}/snooze`, { until: new Date(Date.now() - 60_000).toISOString() }).expect(400);
-    await fawad.post(`/inbox/${item.id}/snooze`, { until: new Date(Date.now() + 1500).toISOString() }).expect(200);
+    await fawad
+      .post(`/inbox/${item.id}/snooze`, { until: new Date(Date.now() - 60_000).toISOString() })
+      .expect(400);
+    await fawad
+      .post(`/inbox/${item.id}/snooze`, { until: new Date(Date.now() + 1500).toISOString() })
+      .expect(200);
     await new Promise((r) => setTimeout(r, 1700));
     expect((await inbox(fawad)).items.some((i) => i.id === item.id)).toBe(true);
     await fawad.post(`/inbox/${item.id}/snooze`, {}).expect(400);
@@ -118,18 +147,32 @@ describe('Inbox & approvals (e2e)', () => {
       ['Sara Ahmed', 'Approved'],
       ['Fawad Iqbal', 'Waiting on you'],
     ]);
-    expect(detail.attachments.map((a) => a.label)).toEqual(['Homepage copy v3 · Doc', 'hero-v3.png · 1.2 MB']);
+    expect(detail.attachments.map((a) => a.label)).toEqual([
+      'Homepage copy v3 · Doc',
+      'hero-v3.png · 1.2 MB',
+    ]);
   });
 
   it('lets only approvers decide, resolves to APPROVED and notifies Jia', async () => {
     const item = (await inbox(fawad, '?tab=approvals')).items[0]!;
-    const forbidden = await mo.post(`/approvals/${item.approvalId}/decision`, { decision: 'APPROVED' }).expect(403);
+    const forbidden = await mo
+      .post(`/approvals/${item.approvalId}/decision`, { decision: 'APPROVED' })
+      .expect(403);
     expect(forbidden.body.error.code).toBe('approval.not_approver');
 
-    const res = await fawad.post(`/approvals/${item.approvalId}/decision`, { decision: 'APPROVED', note: 'Ship it' }).expect(200);
-    expect(res.body).toMatchObject({ status: 'APPROVED', progressLabel: '2 of 2 approvals', canDecide: false, myDecision: 'APPROVED' });
+    const res = await fawad
+      .post(`/approvals/${item.approvalId}/decision`, { decision: 'APPROVED', note: 'Ship it' })
+      .expect(200);
+    expect(res.body).toMatchObject({
+      status: 'APPROVED',
+      progressLabel: '2 of 2 approvals',
+      canDecide: false,
+      myDecision: 'APPROVED',
+    });
 
-    const notice = await eventually(async () => (await inbox(jia)).items.find((i: InboxItemDto) => i.title === 'Fawad Iqbal approved your request'));
+    const notice = await eventually(async () =>
+      (await inbox(jia)).items.find((i: InboxItemDto) => i.title === 'Fawad Iqbal approved your request'),
+    );
     expect(notice).toMatchObject({ approvalId: item.approvalId, unread: true });
     await fawad.post(`/approvals/${item.approvalId}/decision`, { decision: 'CHANGES_REQUESTED' }).expect(422);
   });
@@ -143,11 +186,20 @@ describe('Inbox & approvals (e2e)', () => {
         title: 'Final plan names',
         summary: 'Starter, Team, Business.',
         approverIds: [saraId],
-        attachments: [{ name: 'names.pdf', kind: 'file', url: 'https://files.acme.com/names.pdf', sizeBytes: 2048 }],
+        attachments: [
+          { name: 'names.pdf', kind: 'file', url: 'https://files.acme.com/names.pdf', sizeBytes: 2048 },
+        ],
       })
       .expect(201);
-    expect(res.body).toMatchObject({ title: 'Final plan names', progressLabel: '0 of 1 approval', askedLine: 'Jia Li asked Sara Ahmed to approve', canDecide: false });
-    const notice = await eventually(async () => (await inbox(sara, '?tab=approvals')).items.find((i) => i.approvalId === res.body.id));
+    expect(res.body).toMatchObject({
+      title: 'Final plan names',
+      progressLabel: '0 of 1 approval',
+      askedLine: 'Jia Li asked Sara Ahmed to approve',
+      canDecide: false,
+    });
+    const notice = await eventually(async () =>
+      (await inbox(sara, '?tab=approvals')).items.find((i) => i.approvalId === res.body.id),
+    );
     expect(notice.title).toBe('Jia Li requested your approval');
     await jia.post(`/tasks/${task.id}/approvals`, { title: 'x', approverIds: [] }).expect(400);
   });

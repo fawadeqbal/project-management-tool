@@ -111,7 +111,8 @@ export function useServerSearch(query: string, scope: PaletteScope = 'all'): Ser
     projects: data?.projects ?? [],
     people: data?.people ?? [],
     // "Searching" covers the debounce window too, so the palette can show it right away.
-    isFetching: !!searchScope && query.trim().length >= MIN_CHARS && (q !== query.trim() || result.isFetching),
+    isFetching:
+      !!searchScope && query.trim().length >= MIN_CHARS && (q !== query.trim() || result.isFetching),
     tookMs: data?.tookMs ?? null,
   };
 }

@@ -17,7 +17,10 @@ export class UsageReader {
       }),
       this.prisma.usageCounter.findMany({ where: { workspaceId, period } }),
       // Storage is cumulative, so the latest stored figure counts even from an earlier period.
-      this.prisma.usageCounter.findFirst({ where: { workspaceId, metric: 'storage_bytes' }, orderBy: { period: 'desc' } }),
+      this.prisma.usageCounter.findFirst({
+        where: { workspaceId, metric: 'storage_bytes' },
+        orderBy: { period: 'desc' },
+      }),
     ]);
     const counter = (metric: string) => Number(counters.find((c) => c.metric === metric)?.value ?? 0n);
     return {

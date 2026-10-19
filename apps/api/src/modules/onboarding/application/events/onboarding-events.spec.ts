@@ -30,7 +30,12 @@ describe('onboarding event subscribers', () => {
   it('ticks "create first task" once on task.created', async () => {
     const store = new InMemoryProgress();
     const handler = new FirstTaskCreatedHandler(store as unknown as OnboardingProgressStore, events, clock);
-    const e = createEvent('task.created', base, { key: 'HRT-1', title: 'Kickoff', projectId: null, assigneeId: null });
+    const e = createEvent('task.created', base, {
+      key: 'HRT-1',
+      title: 'Kickoff',
+      projectId: null,
+      assigneeId: null,
+    });
     await handler.handle(new DomainEventEnvelope(e));
     await handler.handle(new DomainEventEnvelope(e));
     expect([...store.done.get('fawad')!]).toEqual(['create-first-task']);
@@ -41,8 +46,17 @@ describe('onboarding event subscribers', () => {
     const store = new InMemoryProgress();
     let accepted = 1;
     const prisma = { invite: { count: async () => accepted } } as unknown as PrismaService;
-    const handler = new TeammatesJoinedHandler(prisma, store as unknown as OnboardingProgressStore, events, clock);
-    const joined = createEvent('member.joined', { ...base, actorId: 'lena' }, { userId: 'lena', role: 'MEMBER', invitedById: 'fawad', projectId: null });
+    const handler = new TeammatesJoinedHandler(
+      prisma,
+      store as unknown as OnboardingProgressStore,
+      events,
+      clock,
+    );
+    const joined = createEvent(
+      'member.joined',
+      { ...base, actorId: 'lena' },
+      { userId: 'lena', role: 'MEMBER', invitedById: 'fawad', projectId: null },
+    );
     await handler.handle(new DomainEventEnvelope(joined));
     expect(store.done.get('fawad')).toBeUndefined();
     accepted = 2;

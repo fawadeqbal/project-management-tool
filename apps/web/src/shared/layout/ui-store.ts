@@ -5,7 +5,20 @@ export type PaletteMode = 'search' | 'ai';
 export type PaletteScope = 'all' | 'tasks' | 'projects' | 'people' | 'commands';
 
 /** Defaults a caller can pre-fill when opening the create-task dialog (e.g. from a project). */
-export type CreateTaskDefaults = Partial<Pick<CreateTaskInput, 'projectId' | 'sectionId' | 'parentId' | 'sprintId' | 'assigneeId' | 'status' | 'priority' | 'dueDate' | 'title'>>;
+export type CreateTaskDefaults = Partial<
+  Pick<
+    CreateTaskInput,
+    | 'projectId'
+    | 'sectionId'
+    | 'parentId'
+    | 'sprintId'
+    | 'assigneeId'
+    | 'status'
+    | 'priority'
+    | 'dueDate'
+    | 'title'
+  >
+>;
 
 interface UiState {
   sidebarCollapsed: boolean;
@@ -60,7 +73,14 @@ export const useUiStore = create<UiState>((set) => ({
     }),
   setMobileNav: (open) => set({ mobileNavOpen: open }),
   openPalette: (opts = {}) =>
-    set({ palette: { open: true, mode: opts.mode ?? 'search', scope: opts.scope ?? 'all', initialQuery: opts.query ?? '' } }),
+    set({
+      palette: {
+        open: true,
+        mode: opts.mode ?? 'search',
+        scope: opts.scope ?? 'all',
+        initialQuery: opts.query ?? '',
+      },
+    }),
   closePalette: () => set((s) => ({ palette: { ...s.palette, open: false } })),
   openCreateTask: (defaults = {}) => set({ createTask: { open: true, defaults } }),
   closeCreateTask: () => set((s) => ({ createTask: { ...s.createTask, open: false } })),

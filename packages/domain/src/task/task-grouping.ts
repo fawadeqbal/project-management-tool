@@ -23,7 +23,10 @@ export interface TaskGroup<T extends FilterableTask = FilterableTask> {
 export interface TaskGroupingStrategy {
   readonly id: GroupingId;
   readonly label: string;
-  group<T extends FilterableTask>(tasks: readonly T[], ctx: { today: Date; projectNames?: Record<string, string>; userNames?: Record<string, string> }): TaskGroup<T>[];
+  group<T extends FilterableTask>(
+    tasks: readonly T[],
+    ctx: { today: Date; projectNames?: Record<string, string>; userNames?: Record<string, string> },
+  ): TaskGroup<T>[];
 }
 
 export type GroupingId = 'due' | 'status' | 'priority' | 'project' | 'assignee' | 'none';
@@ -36,7 +39,13 @@ export class DueDateGrouping implements TaskGroupingStrategy {
   readonly id = 'due' as const;
   readonly label = 'Due date';
   group<T extends FilterableTask>(tasks: readonly T[], { today }: { today: Date }): TaskGroup<T>[] {
-    const g = (id: string, label: string, icon: string, tone: GroupTone, collapsed = false): TaskGroup<T> => ({
+    const g = (
+      id: string,
+      label: string,
+      icon: string,
+      tone: GroupTone,
+      collapsed = false,
+    ): TaskGroup<T> => ({
       id,
       label,
       icon,
@@ -107,7 +116,10 @@ class KeyGrouping implements TaskGroupingStrategy {
     private readonly emptyLabel: string,
     private readonly icon: string,
   ) {}
-  group<T extends FilterableTask>(tasks: readonly T[], ctx: { projectNames?: Record<string, string>; userNames?: Record<string, string> }): TaskGroup<T>[] {
+  group<T extends FilterableTask>(
+    tasks: readonly T[],
+    ctx: { projectNames?: Record<string, string>; userNames?: Record<string, string> },
+  ): TaskGroup<T>[] {
     const map = new Map<string, T[]>();
     for (const t of tasks) {
       const k = this.keyOf(t) ?? '__none__';
@@ -131,7 +143,16 @@ export class NoGrouping implements TaskGroupingStrategy {
   readonly id = 'none' as const;
   readonly label = 'None';
   group<T extends FilterableTask>(tasks: readonly T[]): TaskGroup<T>[] {
-    return [{ id: 'all', label: 'All tasks', icon: 'list', tone: 'neutral', collapsedByDefault: false, items: [...tasks] }];
+    return [
+      {
+        id: 'all',
+        label: 'All tasks',
+        icon: 'list',
+        tone: 'neutral',
+        collapsedByDefault: false,
+        items: [...tasks],
+      },
+    ];
   }
 }
 
@@ -155,13 +176,19 @@ export interface TaskSortStrategy {
   compare(a: FilterableTask, b: FilterableTask): number;
 }
 
-const byDue = (a: FilterableTask, b: FilterableTask) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999');
-const byPriority = (a: FilterableTask, b: FilterableTask) => PRIORITY_META[a.priority].rank - PRIORITY_META[b.priority].rank;
+const byDue = (a: FilterableTask, b: FilterableTask) =>
+  (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999');
+const byPriority = (a: FilterableTask, b: FilterableTask) =>
+  PRIORITY_META[a.priority].rank - PRIORITY_META[b.priority].rank;
 
 export const TASK_SORTS: Record<SortId, TaskSortStrategy> = {
   priority: { id: 'priority', label: 'Priority', compare: (a, b) => byPriority(a, b) || byDue(a, b) },
   due: { id: 'due', label: 'Due date', compare: (a, b) => byDue(a, b) || byPriority(a, b) },
-  created: { id: 'created', label: 'Created', compare: (a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '') },
+  created: {
+    id: 'created',
+    label: 'Created',
+    compare: (a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''),
+  },
   manual: { id: 'manual', label: 'Manual', compare: (a, b) => (a.listPosition ?? 0) - (b.listPosition ?? 0) },
   title: { id: 'title', label: 'Title', compare: (a, b) => a.title.localeCompare(b.title) },
 };
@@ -173,4 +200,6 @@ export const groupAndSort = <T extends FilterableTask>(
   sort: SortId,
   ctx: { today: Date; projectNames?: Record<string, string>; userNames?: Record<string, string> },
 ): TaskGroup<T>[] =>
-  TASK_GROUPINGS[grouping].group(tasks, ctx).map((g) => ({ ...g, items: [...g.items].sort(TASK_SORTS[sort].compare) }));
+  TASK_GROUPINGS[grouping]
+    .group(tasks, ctx)
+    .map((g) => ({ ...g, items: [...g.items].sort(TASK_SORTS[sort].compare) }));

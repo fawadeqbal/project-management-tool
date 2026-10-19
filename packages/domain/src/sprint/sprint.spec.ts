@@ -7,7 +7,18 @@ const now = new Date('2026-10-19T09:00:00Z');
 
 describe('Sprint aggregate', () => {
   const plan = () =>
-    Sprint.plan({ id: 's24', projectId: 'p', workspaceId: 'w', number: 24, startDate: parseDateOnly('2026-10-13'), endDate: parseDateOnly('2026-10-26') }, 'u', now);
+    Sprint.plan(
+      {
+        id: 's24',
+        projectId: 'p',
+        workspaceId: 'w',
+        number: 24,
+        startDate: parseDateOnly('2026-10-13'),
+        endDate: parseDateOnly('2026-10-26'),
+      },
+      'u',
+      now,
+    );
 
   it('moves planned → active → completed', () => {
     const s = plan();
@@ -15,7 +26,11 @@ describe('Sprint aggregate', () => {
     expect(s.status).toBe('ACTIVE');
     s.complete({ completedPoints: 30, unfinishedTaskIds: ['t1'], moveTo: 'backlog' }, 'u', now);
     expect(s.status).toBe('COMPLETED');
-    expect(s.pullEvents().map((e) => e.type)).toEqual(['sprint.planned', 'sprint.started', 'sprint.completed']);
+    expect(s.pullEvents().map((e) => e.type)).toEqual([
+      'sprint.planned',
+      'sprint.started',
+      'sprint.completed',
+    ]);
   });
 
   it('refuses a second active sprint', () => {
@@ -24,7 +39,11 @@ describe('Sprint aggregate', () => {
 });
 
 describe('burndown', () => {
-  const sprint = { startDate: parseDateOnly('2026-10-13'), endDate: parseDateOnly('2026-10-26'), committedPoints: 38 };
+  const sprint = {
+    startDate: parseDateOnly('2026-10-13'),
+    endDate: parseDateOnly('2026-10-26'),
+    committedPoints: 38,
+  };
   const snaps = [
     ['2026-10-13', 38, 38],
     ['2026-10-14', 38, 38],
@@ -33,7 +52,11 @@ describe('burndown', () => {
     ['2026-10-19', 37, 42],
     ['2026-10-20', 29, 42],
     ['2026-10-21', 24, 42],
-  ].map(([d, r, s]) => ({ date: parseDateOnly(d as string), remainingPoints: r as number, scopePoints: s as number }));
+  ].map(([d, r, s]) => ({
+    date: parseDateOnly(d as string),
+    remainingPoints: r as number,
+    scopePoints: s as number,
+  }));
 
   it('builds ideal and actual lines over working days and flags scope changes', () => {
     const b = computeBurndown(sprint, snaps, parseDateOnly('2026-10-21'));

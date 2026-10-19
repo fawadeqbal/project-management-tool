@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { TaskDetailDto, UpdateTaskInput } from '@hearth/contracts';
-import { parseDateOnly, TASK_REPOSITORY, type Actor, type Clock, type DomainEvent, type TaskRepository } from '@hearth/domain';
+import {
+  parseDateOnly,
+  TASK_REPOSITORY,
+  type Actor,
+  type Clock,
+  type DomainEvent,
+  type TaskRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -35,7 +42,8 @@ export class UpdateTaskHandler implements ICommandHandler<UpdateTaskCommand, Tas
     const task = await loadTask(this.tasks, actor, taskId);
     const before = task.toSnapshot();
     this.access.assert(actor, 'tasks.edit', { projectId: before.projectId });
-    if (input.projectId !== undefined && input.projectId !== before.projectId) this.access.assert(actor, 'tasks.edit', { projectId: input.projectId });
+    if (input.projectId !== undefined && input.projectId !== before.projectId)
+      this.access.assert(actor, 'tasks.edit', { projectId: input.projectId });
     await assertReferencesExist(this.directory, actor, {
       projectId: input.projectId,
       sectionId: input.sectionId,
@@ -54,23 +62,37 @@ export class UpdateTaskHandler implements ICommandHandler<UpdateTaskCommand, Tas
 
     if (input.startDate !== undefined || input.dueDate !== undefined) {
       const current = task.toSnapshot();
-      const start = input.startDate !== undefined ? (input.startDate ? parseDateOnly(input.startDate) : null) : current.startDate;
-      const due = input.dueDate !== undefined ? (input.dueDate ? parseDateOnly(input.dueDate) : null) : current.dueDate;
+      const start =
+        input.startDate !== undefined
+          ? input.startDate
+            ? parseDateOnly(input.startDate)
+            : null
+          : current.startDate;
+      const due =
+        input.dueDate !== undefined ? (input.dueDate ? parseDateOnly(input.dueDate) : null) : current.dueDate;
       task.reschedule(start, due, by, now);
     }
 
     if (input.estimatePoints !== undefined || input.estimateHours !== undefined) {
       const points = input.estimatePoints !== undefined ? input.estimatePoints : before.estimatePoints;
       const hours = input.estimateHours !== undefined ? input.estimateHours : before.estimateHours;
-      if (points !== before.estimatePoints || hours !== before.estimateHours) task.estimate(points, hours, by, now);
+      if (points !== before.estimatePoints || hours !== before.estimateHours)
+        task.estimate(points, hours, by, now);
     }
 
-    if (input.progress !== undefined && input.progress !== task.toSnapshot().progress) task.setProgress(input.progress, by, now);
+    if (input.progress !== undefined && input.progress !== task.toSnapshot().progress)
+      task.setProgress(input.progress, by, now);
 
     const location = {
-      ...(input.projectId !== undefined && input.projectId !== before.projectId ? { projectId: input.projectId } : {}),
-      ...(input.sectionId !== undefined && input.sectionId !== before.sectionId ? { sectionId: input.sectionId } : {}),
-      ...(input.sprintId !== undefined && input.sprintId !== before.sprintId ? { sprintId: input.sprintId } : {}),
+      ...(input.projectId !== undefined && input.projectId !== before.projectId
+        ? { projectId: input.projectId }
+        : {}),
+      ...(input.sectionId !== undefined && input.sectionId !== before.sectionId
+        ? { sectionId: input.sectionId }
+        : {}),
+      ...(input.sprintId !== undefined && input.sprintId !== before.sprintId
+        ? { sprintId: input.sprintId }
+        : {}),
     };
     if (Object.keys(location).length) task.moveTo(location, by, now);
 
@@ -86,12 +108,20 @@ export class UpdateTaskHandler implements ICommandHandler<UpdateTaskCommand, Tas
       extraFields.push('epic');
     }
     const after = task.toSnapshot();
-    if (after.assigneeId && after.assigneeId !== before.assigneeId) await this.relations.follow(task.id, [after.assigneeId]);
+    if (after.assigneeId && after.assigneeId !== before.assigneeId)
+      await this.relations.follow(task.id, [after.assigneeId]);
 
     const events: DomainEvent[] = [];
     if (extraFields.length) events.push(taskUpdatedEvent(task, extraFields, by, now));
     const statusChanged = after.status !== before.status;
-    const parent = statusChanged ? await updateParentProgress({ tasks: this.tasks, relations: this.relations }, actor, after.parentId, now) : null;
+    const parent = statusChanged
+      ? await updateParentProgress(
+          { tasks: this.tasks, relations: this.relations },
+          actor,
+          after.parentId,
+          now,
+        )
+      : null;
 
     this.publisher.publishFrom(task);
     if (events.length) this.publisher.publish(...events);

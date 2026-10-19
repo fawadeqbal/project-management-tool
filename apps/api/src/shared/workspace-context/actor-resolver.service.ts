@@ -17,21 +17,29 @@ export class ActorResolver {
       where: { userId, ...(requestedWorkspaceId ? { workspaceId: requestedWorkspaceId } : {}) },
       orderBy: [{ status: 'asc' }, { joinedAt: 'asc' }],
     });
-    if (!membership) throw new ForbiddenException('You’re not a member of that workspace. Ask an admin for an invite.');
+    if (!membership)
+      throw new ForbiddenException('You’re not a member of that workspace. Ask an admin for an invite.');
     if (membership.status === 'DEACTIVATED')
-      throw new ForbiddenException('Your access to this workspace was turned off. Contact a workspace admin.');
+      throw new ForbiddenException(
+        'Your access to this workspace was turned off. Contact a workspace admin.',
+      );
 
     if (Date.now() - membership.lastActiveAt.getTime() > ACTIVITY_THROTTLE_MS) {
       // Fire-and-forget: "last active" is a hint, never worth failing a request over.
-      void this.prisma.membership.update({ where: { id: membership.id }, data: { lastActiveAt: new Date() } }).catch(() => undefined);
+      void this.prisma.membership
+        .update({ where: { id: membership.id }, data: { lastActiveAt: new Date() } })
+        .catch(() => undefined);
     }
 
     const role = membership.role as Role;
     const projectIds =
       role === 'GUEST'
-        ? (await this.prisma.projectMember.findMany({ where: { userId, project: { workspaceId: membership.workspaceId } }, select: { projectId: true } })).map(
-            (p) => p.projectId,
-          )
+        ? (
+            await this.prisma.projectMember.findMany({
+              where: { userId, project: { workspaceId: membership.workspaceId } },
+              select: { projectId: true },
+            })
+          ).map((p) => p.projectId)
         : undefined;
     return { userId, workspaceId: membership.workspaceId, role, projectIds };
   }

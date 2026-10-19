@@ -16,7 +16,11 @@ export function ImportExportPage() {
       await downloadExport();
       show({ message: 'Export downloaded — every project and task as JSON.' });
     } catch (e) {
-      show({ message: e instanceof Error ? e.message : 'The export didn’t finish. Try again.', tone: 'danger', icon: 'alert' });
+      show({
+        message: e instanceof Error ? e.message : 'The export didn’t finish. Try again.',
+        tone: 'danger',
+        icon: 'alert',
+      });
     } finally {
       setBusy(false);
     }
@@ -31,9 +35,17 @@ export function ImportExportPage() {
         <h2 id="export-heading" className={styles.cardTitle}>
           Export workspace
         </h2>
-        <p className={styles.muted}>Projects, sections and every task (status, dates, assignee, description) in one JSON file.</p>
+        <p className={styles.muted}>
+          Projects, sections and every task (status, dates, assignee, description) in one JSON file.
+        </p>
         <div>
-          <Button icon="archive" onClick={() => void run()} loading={busy} disabled={!canExport} title={canExport ? undefined : 'Only admins and owners can export'}>
+          <Button
+            icon="archive"
+            onClick={() => void run()}
+            loading={busy}
+            disabled={!canExport}
+            title={canExport ? undefined : 'Only admins and owners can export'}
+          >
             Download export
           </Button>
         </div>
@@ -43,7 +55,8 @@ export function ImportExportPage() {
           Import
         </h2>
         <p className={styles.muted}>
-          <Icon name="clock" size={12} /> Importing from Asana, Trello and CSV is coming soon. Meanwhile, a template gets you started in seconds.
+          <Icon name="clock" size={12} /> Importing from Asana, Trello and CSV is coming soon. Meanwhile, a
+          template gets you started in seconds.
         </p>
       </section>
     </div>

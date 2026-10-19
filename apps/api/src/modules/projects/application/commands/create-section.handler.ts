@@ -27,7 +27,13 @@ export class CreateSectionHandler implements ICommandHandler<CreateSectionComman
   async execute({ actor, projectId, input }: CreateSectionCommand): Promise<SectionDto> {
     const project = await loadProject(this.projects, actor, projectId);
     this.access.assert(actor, 'projects.manage', { projectId });
-    const section = project.addSection(this.projects.nextSectionId(), input.name, input.beforeId, actor.userId, this.clock.now());
+    const section = project.addSection(
+      this.projects.nextSectionId(),
+      input.name,
+      input.beforeId,
+      actor.userId,
+      this.clock.now(),
+    );
     await this.projects.save(project);
     this.events.publishFrom(project);
     return { ...section, taskCount: 0 };

@@ -38,7 +38,12 @@ export function visibleDays(cursor: string, range: CalendarRange): string[] {
 }
 
 /** Tasks bucketed by due date, in a stable order (open first, then by priority rank via number). */
-export function buildDays(tasks: readonly TaskDto[], cursor: string, range: CalendarRange, today: string): CalendarDay[] {
+export function buildDays(
+  tasks: readonly TaskDto[],
+  cursor: string,
+  range: CalendarRange,
+  today: string,
+): CalendarDay[] {
   const month = parseDateOnly(cursor).getUTCMonth();
   const byDate = new Map<string, TaskDto[]>();
   for (const t of tasks) {
@@ -47,7 +52,10 @@ export function buildDays(tasks: readonly TaskDto[], cursor: string, range: Cale
     list.push(t);
     byDate.set(t.dueDate, list);
   }
-  const order = (a: TaskDto, b: TaskDto) => Number(a.status === 'DONE') - Number(b.status === 'DONE') || a.listPosition - b.listPosition || a.number - b.number;
+  const order = (a: TaskDto, b: TaskDto) =>
+    Number(a.status === 'DONE') - Number(b.status === 'DONE') ||
+    a.listPosition - b.listPosition ||
+    a.number - b.number;
   return visibleDays(cursor, range).map((date) => {
     const d = parseDateOnly(date);
     return {
@@ -77,15 +85,24 @@ export function stepCursor(cursor: string, range: CalendarRange, dir: -1 | 1): s
 
 export function rangeTitle(cursor: string, range: CalendarRange): string {
   const c = parseDateOnly(cursor);
-  if (range === 'month') return c.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
-  if (range === 'day') return c.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  if (range === 'month')
+    return c.toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  if (range === 'day')
+    return c.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
   const days = visibleDays(cursor, 'week');
   const a = parseDateOnly(days[0]!);
   const b = parseDateOnly(days[6]!);
-  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) => d.toLocaleDateString('en-US', { ...opts, timeZone: 'UTC' });
+  const fmt = (d: Date, opts: Intl.DateTimeFormatOptions) =>
+    d.toLocaleDateString('en-US', { ...opts, timeZone: 'UTC' });
   return a.getUTCMonth() === b.getUTCMonth()
     ? `${fmt(a, { month: 'long' })} ${a.getUTCDate()}–${b.getUTCDate()}, ${b.getUTCFullYear()}`
     : `${fmt(a, { month: 'short', day: 'numeric' })} – ${fmt(b, { month: 'short', day: 'numeric' })}, ${b.getUTCFullYear()}`;
 }
 
-export const longDate = (date: string) => parseDateOnly(date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' });
+export const longDate = (date: string) =>
+  parseDateOnly(date).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });

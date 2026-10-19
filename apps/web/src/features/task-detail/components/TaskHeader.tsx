@@ -19,7 +19,18 @@ interface Props {
 }
 
 /** Key, autosave state, presence, open full page, copy link, more (follow, delete), close. */
-export function TaskHeader({ task, viewers, isFollowing, canDelete, mode, onOpenFullPage, onCopyLink, onToggleFollow, onDelete, onClose }: Props) {
+export function TaskHeader({
+  task,
+  viewers,
+  isFollowing,
+  canDelete,
+  mode,
+  onOpenFullPage,
+  onCopyLink,
+  onToggleFollow,
+  onDelete,
+  onClose,
+}: Props) {
   const [confirming, setConfirming] = useState(false);
   return (
     <div className={styles.header}>
@@ -27,18 +38,49 @@ export function TaskHeader({ task, viewers, isFollowing, canDelete, mode, onOpen
       <SaveIndicator />
       <span className={styles.grow} />
       {viewers.length ? (
-        <span className={styles.presence} aria-label={`Also viewing: ${viewers.map((v) => v.name).join(', ')}`}>
-          <AvatarGroup people={viewers.map((v) => ({ initials: v.initials, name: v.name, color: v.avatarColor }))} max={3} size={24} />
+        <span
+          className={styles.presence}
+          aria-label={`Also viewing: ${viewers.map((v) => v.name).join(', ')}`}
+        >
+          <AvatarGroup
+            people={viewers.map((v) => ({ initials: v.initials, name: v.name, color: v.avatarColor }))}
+            max={3}
+            size={24}
+          />
         </span>
       ) : null}
-      {mode === 'panel' && onOpenFullPage ? <Button variant="ghost" size="sm" icon="arrow-up-right" aria-label="Open full page" onClick={onOpenFullPage} /> : null}
+      {mode === 'panel' && onOpenFullPage ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="arrow-up-right"
+          aria-label="Open full page"
+          onClick={onOpenFullPage}
+        />
+      ) : null}
       <Button variant="ghost" size="sm" icon="link" aria-label="Copy link" onClick={onCopyLink} />
       <DropdownMenu
         label="More actions"
         align="end"
         items={[
-          { id: 'follow', label: isFollowing ? 'Unfollow' : 'Follow', icon: isFollowing ? 'eye' : 'bell', hint: isFollowing ? 'Stop notifications' : 'Get notified of changes', onSelect: onToggleFollow },
-          ...(canDelete ? [{ id: 'delete', label: 'Delete task…', icon: 'trash' as const, danger: true, onSelect: () => setConfirming(true) }] : []),
+          {
+            id: 'follow',
+            label: isFollowing ? 'Unfollow' : 'Follow',
+            icon: isFollowing ? 'eye' : 'bell',
+            hint: isFollowing ? 'Stop notifications' : 'Get notified of changes',
+            onSelect: onToggleFollow,
+          },
+          ...(canDelete
+            ? [
+                {
+                  id: 'delete',
+                  label: 'Delete task…',
+                  icon: 'trash' as const,
+                  danger: true,
+                  onSelect: () => setConfirming(true),
+                },
+              ]
+            : []),
         ]}
         trigger={<Button variant="ghost" size="sm" icon="more" aria-label="More actions" />}
       />

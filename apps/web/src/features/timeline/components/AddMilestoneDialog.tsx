@@ -8,7 +8,15 @@ import { todayIso } from '@/shared/tasks/dates';
 import { timelineKeys } from '../api';
 
 /** "Add milestone": name + date. The diamond appears on the timeline right away. */
-export function AddMilestoneDialog({ projectId, open, onClose }: { projectId: string; open: boolean; onClose: () => void }) {
+export function AddMilestoneDialog({
+  projectId,
+  open,
+  onClose,
+}: {
+  projectId: string;
+  open: boolean;
+  onClose: () => void;
+}) {
   const client = useQueryClient();
   const { show } = useToast();
   const ref = useRef<HTMLInputElement>(null);
@@ -53,9 +61,26 @@ export function AddMilestoneDialog({ projectId, open, onClose }: { projectId: st
         </>
       }
     >
-      <form id="add-milestone" onSubmit={(e) => void submit(e)} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-        <Input ref={ref} label="Name" placeholder="e.g. Beta launch" value={name} onChange={(e) => setName(e.target.value)} error={error?.field('name') ?? (error && !error.field('date') ? error.message : undefined)} />
-        <Input label="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} error={error?.field('date')} />
+      <form
+        id="add-milestone"
+        onSubmit={(e) => void submit(e)}
+        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}
+      >
+        <Input
+          ref={ref}
+          label="Name"
+          placeholder="e.g. Beta launch"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={error?.field('name') ?? (error && !error.field('date') ? error.message : undefined)}
+        />
+        <Input
+          label="Date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          error={error?.field('date')}
+        />
       </form>
     </Dialog>
   );

@@ -14,19 +14,32 @@ export interface ProjectHeaderProps {
 }
 
 const slipDetail = (p: ProjectDetailDto) =>
-  p.health.health !== 'ON_TRACK' && p.slip ? `${p.slip.key} slipped ${p.slip.days} ${p.slip.days === 1 ? 'day' : 'days'}` : null;
+  p.health.health !== 'ON_TRACK' && p.slip
+    ? `${p.slip.key} slipped ${p.slip.days} ${p.slip.days === 1 ? 'day' : 'days'}`
+    : null;
 
 /** Icon, name, health, "Due Nov 14 · 62% complete", people (max 4 then +N), Share, and the view tabs. */
 export function ProjectHeader({ project, view, onViewChange }: ProjectHeaderProps) {
   const { show } = useToast();
-  const people = useMemo(() => (project?.members ?? []).map((m) => ({ initials: m.initials, name: m.name, color: m.avatarColor })), [project]);
+  const people = useMemo(
+    () => (project?.members ?? []).map((m) => ({ initials: m.initials, name: m.name, color: m.avatarColor })),
+    [project],
+  );
 
   const share = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href.split('?')[0]!);
-      show({ message: 'Link copied — anyone with access to this project can open it', icon: 'link', tone: 'info' });
+      show({
+        message: 'Link copied — anyone with access to this project can open it',
+        icon: 'link',
+        tone: 'info',
+      });
     } catch {
-      show({ message: 'We couldn’t copy the link. Copy it from the address bar instead.', tone: 'danger', icon: 'alert' });
+      show({
+        message: 'We couldn’t copy the link. Copy it from the address bar instead.',
+        tone: 'danger',
+        icon: 'alert',
+      });
     }
   };
 
@@ -35,7 +48,13 @@ export function ProjectHeader({ project, view, onViewChange }: ProjectHeaderProp
       <div className={styles.titleRow}>
         {project ? (
           <>
-            <span className={styles.projectIcon} style={{ background: `var(--accent-${project.color}-avatar)`, color: `var(--accent-${project.color}-fg)` }}>
+            <span
+              className={styles.projectIcon}
+              style={{
+                background: `var(--accent-${project.color}-avatar)`,
+                color: `var(--accent-${project.color}-fg)`,
+              }}
+            >
               <Icon name={asIcon(project.icon, 'folder')} />
             </span>
             <h1 className={styles.title}>{project.name}</h1>
@@ -48,7 +67,11 @@ export function ProjectHeader({ project, view, onViewChange }: ProjectHeaderProp
         <span className={styles.grow} />
         {people.length ? (
           <Tooltip content={people.map((p) => p.name).join(', ')}>
-            <span tabIndex={0} className={styles.people} aria-label={`People: ${people.map((p) => p.name).join(', ')}`}>
+            <span
+              tabIndex={0}
+              className={styles.people}
+              aria-label={`People: ${people.map((p) => p.name).join(', ')}`}
+            >
               <AvatarGroup people={people} max={4} size={28} />
             </span>
           </Tooltip>

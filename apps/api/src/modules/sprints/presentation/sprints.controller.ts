@@ -69,14 +69,22 @@ export class SprintsController {
   @Post('projects/:projectId/backlog/rank')
   @RequirePermission('sprints.manage')
   @RequireFeature('sprints')
-  rank(@CurrentActor() actor: Actor, @Param('projectId') projectId: string, @Body(new ZodValidationPipe(RankBacklogSchema)) input: RankBacklogInput) {
+  rank(
+    @CurrentActor() actor: Actor,
+    @Param('projectId') projectId: string,
+    @Body(new ZodValidationPipe(RankBacklogSchema)) input: RankBacklogInput,
+  ) {
     return this.commands.execute(new RankBacklogCommand(actor, projectId, input));
   }
 
   @Patch('sprints/:id')
   @RequirePermission('sprints.manage')
   @RequireFeature('sprints')
-  update(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(UpdateSprintSchema)) input: UpdateSprintInput): Promise<SprintSummaryDto> {
+  update(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateSprintSchema)) input: UpdateSprintInput,
+  ): Promise<SprintSummaryDto> {
     return this.commands.execute(new UpdateSprintCommand(actor, id, input));
   }
 
@@ -90,21 +98,33 @@ export class SprintsController {
   @Post('sprints/:id/complete')
   @RequirePermission('sprints.manage')
   @RequireFeature('sprints')
-  complete(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(CompleteSprintSchema)) input: CompleteSprintInput): Promise<RetrospectiveDto> {
+  complete(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(CompleteSprintSchema)) input: CompleteSprintInput,
+  ): Promise<RetrospectiveDto> {
     return this.commands.execute(new CompleteSprintCommand(actor, id, input.moveUnfinishedTo));
   }
 
   @Post('sprints/:id/tasks')
   @RequirePermission('sprints.manage')
   @RequireFeature('sprints')
-  addTask(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(AddSprintTaskSchema)) input: AddSprintTaskInput): Promise<SprintSummaryDto> {
+  addTask(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(AddSprintTaskSchema)) input: AddSprintTaskInput,
+  ): Promise<SprintSummaryDto> {
     return this.commands.execute(new AddSprintTaskCommand(actor, id, input.taskId));
   }
 
   @Delete('sprints/:id/tasks/:taskId')
   @RequirePermission('sprints.manage')
   @RequireFeature('sprints')
-  removeTask(@CurrentActor() actor: Actor, @Param('id') id: string, @Param('taskId') taskId: string): Promise<SprintSummaryDto> {
+  removeTask(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Param('taskId') taskId: string,
+  ): Promise<SprintSummaryDto> {
     return this.commands.execute(new RemoveSprintTaskCommand(actor, id, taskId));
   }
 }

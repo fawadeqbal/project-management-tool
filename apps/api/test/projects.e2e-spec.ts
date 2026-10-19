@@ -24,7 +24,9 @@ describe('Projects (e2e)', () => {
 
   it('lists projects with owner, team, health meta, progress, counts and favorites', async () => {
     const list = (await fawad.get('/projects').expect(200)).body as ProjectSummaryDto[];
-    expect(list.map((p) => p.name)).toEqual(expect.arrayContaining(['Website relaunch', 'Q4 brand campaign', 'Mobile app v2']));
+    expect(list.map((p) => p.name)).toEqual(
+      expect.arrayContaining(['Website relaunch', 'Q4 brand campaign', 'Mobile app v2']),
+    );
     expect(web).toMatchObject({
       owner: { name: 'Fawad Iqbal', initials: 'FI' },
       team: { name: 'Design' },
@@ -50,7 +52,13 @@ describe('Projects (e2e)', () => {
 
   it('builds board columns ordered by boardPosition with the WIP level', async () => {
     const board = (await fawad.get(`/projects/${web.id}/board`).expect(200)).body as BoardDto;
-    expect(board.columns.map((c) => c.label)).toEqual(['To do', 'In progress', 'In review', 'Blocked', 'Done']);
+    expect(board.columns.map((c) => c.label)).toEqual([
+      'To do',
+      'In progress',
+      'In review',
+      'Blocked',
+      'Done',
+    ]);
     const progress = board.columns.find((c) => c.status === 'IN_PROGRESS')!;
     expect(progress.wipLimit).toBe(4);
     expect(progress.count).toBe(progress.tasks.length);
@@ -62,7 +70,9 @@ describe('Projects (e2e)', () => {
   });
 
   it('favorites and unfavorites a project', async () => {
-    const brand = ((await fawad.get('/projects').expect(200)).body as ProjectSummaryDto[]).find((p) => p.name === 'Q4 brand campaign')!;
+    const brand = ((await fawad.get('/projects').expect(200)).body as ProjectSummaryDto[]).find(
+      (p) => p.name === 'Q4 brand campaign',
+    )!;
     await fawad.delete(`/projects/${brand.id}/favorite`).expect(200, { isFavorite: false });
     let after = ((await fawad.get('/projects')).body as ProjectSummaryDto[]).find((p) => p.id === brand.id)!;
     expect(after.isFavorite).toBe(false);
@@ -73,25 +83,44 @@ describe('Projects (e2e)', () => {
 
   it('creates a project, edits it, and manages sections and milestones', async () => {
     const sara = await asUser(app, 'sara@acme.com');
-    const created = await sara.post('/projects', { name: 'Help center', color: 'green', dueDate: '2026-12-15' }).expect(201);
+    const created = await sara
+      .post('/projects', { name: 'Help center', color: 'green', dueDate: '2026-12-15' })
+      .expect(201);
     const p = created.body as ProjectDetailDto;
-    expect(p).toMatchObject({ name: 'Help center', owner: { name: 'Sara Ahmed' }, isFavorite: true, health: { label: 'On track' } });
+    expect(p).toMatchObject({
+      name: 'Help center',
+      owner: { name: 'Sara Ahmed' },
+      isFavorite: true,
+      health: { label: 'On track' },
+    });
 
     const bad = await sara.post('/projects', { name: '' }).expect(400);
     expect(bad.body.error.fieldErrors.name).toBeDefined();
 
-    const edited = (await sara.patch(`/projects/${p.id}`, { name: 'Help centre', health: 'AT_RISK', wipLimits: { IN_REVIEW: 2 } }).expect(200)).body as ProjectDetailDto;
-    expect(edited).toMatchObject({ name: 'Help centre', health: { health: 'AT_RISK' }, wipLimits: { IN_REVIEW: 2 } });
+    const edited = (
+      await sara
+        .patch(`/projects/${p.id}`, { name: 'Help centre', health: 'AT_RISK', wipLimits: { IN_REVIEW: 2 } })
+        .expect(200)
+    ).body as ProjectDetailDto;
+    expect(edited).toMatchObject({
+      name: 'Help centre',
+      health: { health: 'AT_RISK' },
+      wipLimits: { IN_REVIEW: 2 },
+    });
     await sara.patch(`/projects/${p.id}`, { wipLimits: { DONE: 2 } }).expect(400);
 
     const s1 = (await sara.post(`/projects/${p.id}/sections`, { name: 'Articles' }).expect(201)).body;
-    const s2 = (await sara.post(`/projects/${p.id}/sections`, { name: 'Search', beforeId: s1.id }).expect(201)).body;
+    const s2 = (
+      await sara.post(`/projects/${p.id}/sections`, { name: 'Search', beforeId: s1.id }).expect(201)
+    ).body;
     await sara.patch(`/sections/${s2.id}`, { position: 1 }).expect(200);
     let detail = (await sara.get(`/projects/${p.id}`)).body as ProjectDetailDto;
     expect(detail.sections.map((s) => s.name)).toEqual(['Articles', 'Search']);
     await sara.delete(`/sections/${s1.id}`).expect(204);
 
-    const m = (await sara.post(`/projects/${p.id}/milestones`, { name: 'Beta', date: '2026-11-30' }).expect(201)).body;
+    const m = (
+      await sara.post(`/projects/${p.id}/milestones`, { name: 'Beta', date: '2026-11-30' }).expect(201)
+    ).body;
     await sara.patch(`/milestones/${m.id}`, { done: true }).expect(200);
     detail = (await sara.get(`/projects/${p.id}`)).body as ProjectDetailDto;
     expect(detail.sections.map((s) => s.name)).toEqual(['Search']);
@@ -112,7 +141,9 @@ describe('Projects (e2e)', () => {
     const tom = await asUser(app, 'tom@northwind.co');
     const list = (await tom.get('/projects').expect(200)).body as ProjectSummaryDto[];
     expect(list.map((p) => p.name)).toEqual(['Website relaunch']);
-    const brand = ((await fawad.get('/projects')).body as ProjectSummaryDto[]).find((p) => p.name === 'Q4 brand campaign')!;
+    const brand = ((await fawad.get('/projects')).body as ProjectSummaryDto[]).find(
+      (p) => p.name === 'Q4 brand campaign',
+    )!;
     await tom.get(`/projects/${brand.id}`).expect(404);
     await tom.get(`/projects/${brand.id}/board`).expect(404);
     await tom.get(`/projects/${web.id}/board`).expect(200);

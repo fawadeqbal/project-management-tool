@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ONBOARDING_ROUTES, type ApplyTemplateResultDto, type OnboardingDto, type OnboardingStepIdDto, type ProjectTemplateDto } from '@hearth/contracts';
+import {
+  ONBOARDING_ROUTES,
+  type ApplyTemplateResultDto,
+  type OnboardingDto,
+  type OnboardingStepIdDto,
+  type ProjectTemplateDto,
+} from '@hearth/contracts';
 import { ApiError, http } from '@/shared/api/http';
 import { queryKeys } from '@/shared/api/query-keys';
 import { useAuthStore } from '@/shared/auth/auth-store';
@@ -15,7 +21,8 @@ export const onboardingApi = {
   complete: (id: OnboardingStepIdDto) => http.post<OnboardingDto>(ONBOARDING_ROUTES.completeStep(id)),
   dismiss: () => http.post<OnboardingDto>(ONBOARDING_ROUTES.dismiss),
   templates: () => http.get<ProjectTemplateDto[]>(ONBOARDING_ROUTES.templates),
-  apply: (id: string, name?: string) => http.post<ApplyTemplateResultDto>(ONBOARDING_ROUTES.applyTemplate(id), name ? { name } : {}),
+  apply: (id: string, name?: string) =>
+    http.post<ApplyTemplateResultDto>(ONBOARDING_ROUTES.applyTemplate(id), name ? { name } : {}),
 };
 
 const useSignedIn = () => !!useAuthStore((s) => s.token);
@@ -25,7 +32,12 @@ export function useOnboarding() {
 }
 
 export function useTemplates() {
-  return useQuery({ queryKey: onboardingKeys.templates, queryFn: onboardingApi.templates, enabled: useSignedIn(), staleTime: Infinity });
+  return useQuery({
+    queryKey: onboardingKeys.templates,
+    queryFn: onboardingApi.templates,
+    enabled: useSignedIn(),
+    staleTime: Infinity,
+  });
 }
 
 export function useApplyTemplate() {

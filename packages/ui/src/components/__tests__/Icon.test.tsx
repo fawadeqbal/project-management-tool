@@ -7,7 +7,15 @@ afterEach(() => vi.restoreAllMocks());
 describe('Icon', () => {
   it('ships all 61 icons, including status glyphs', () => {
     expect(ICON_NAMES).toHaveLength(61);
-    expect(ICON_NAMES).toEqual(expect.arrayContaining(['status-todo', 'status-progress', 'status-review', 'status-blocked', 'status-done']));
+    expect(ICON_NAMES).toEqual(
+      expect.arrayContaining([
+        'status-todo',
+        'status-progress',
+        'status-review',
+        'status-blocked',
+        'status-done',
+      ]),
+    );
   });
 
   it('renders every icon as an SVG with child shapes', () => {

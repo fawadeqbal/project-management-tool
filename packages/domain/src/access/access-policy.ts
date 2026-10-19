@@ -16,7 +16,11 @@ export interface Actor {
 export type AccessDecision = 'allow' | 'deny' | 'pass';
 
 export interface AccessRule {
-  evaluate(actor: Actor, permission: Permission, resource?: { projectId?: string | null; ownerId?: string }): AccessDecision;
+  evaluate(
+    actor: Actor,
+    permission: Permission,
+    resource?: { projectId?: string | null; ownerId?: string },
+  ): AccessDecision;
 }
 
 /** Guests are confined to the projects they were invited to. */
@@ -36,9 +40,15 @@ export class RoleMatrixRule implements AccessRule {
 }
 
 export class AccessPolicy {
-  constructor(private readonly rules: readonly AccessRule[] = [new GuestProjectScopeRule(), new RoleMatrixRule()]) {}
+  constructor(
+    private readonly rules: readonly AccessRule[] = [new GuestProjectScopeRule(), new RoleMatrixRule()],
+  ) {}
 
-  allows(actor: Actor, permission: Permission, resource?: { projectId?: string | null; ownerId?: string }): boolean {
+  allows(
+    actor: Actor,
+    permission: Permission,
+    resource?: { projectId?: string | null; ownerId?: string },
+  ): boolean {
     for (const rule of this.rules) {
       const decision = rule.evaluate(actor, permission, resource);
       if (decision !== 'pass') return decision === 'allow';
@@ -46,7 +56,11 @@ export class AccessPolicy {
     return false;
   }
 
-  assert(actor: Actor, permission: Permission, resource?: { projectId?: string | null; ownerId?: string }): void {
+  assert(
+    actor: Actor,
+    permission: Permission,
+    resource?: { projectId?: string | null; ownerId?: string },
+  ): void {
     if (!this.allows(actor, permission, resource))
       throw new ForbiddenError(
         `forbidden.${permission}`,
@@ -58,5 +72,8 @@ export class AccessPolicy {
 /** Members can't hand out a role above their own; only owners create owners. */
 export const assertCanAssignRole = (actorRole: Role, targetRole: Role): void => {
   if (ROLE_META[targetRole].rank < ROLE_META[actorRole].rank)
-    throw new ForbiddenError('roles.escalation', `Only an ${ROLE_META[targetRole].label.toLowerCase()} or higher can give someone that role.`);
+    throw new ForbiddenError(
+      'roles.escalation',
+      `Only an ${ROLE_META[targetRole].label.toLowerCase()} or higher can give someone that role.`,
+    );
 };

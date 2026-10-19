@@ -37,20 +37,37 @@ export function CompleteSprintDialog({ open, detail, nextSprintName, busy, onClo
       {unfinished.length ? (
         <fieldset className={styles.fieldset}>
           <legend className={styles.legendTitle}>
-            Move {unfinished.length} unfinished {unfinished.length === 1 ? 'task' : 'tasks'} ({unfinishedPoints} pts) to…
+            Move {unfinished.length} unfinished {unfinished.length === 1 ? 'task' : 'tasks'} (
+            {unfinishedPoints} pts) to…
           </legend>
           <label className={styles.choice}>
-            <input type="radio" name="move-to" value="backlog" checked={moveTo === 'backlog'} onChange={() => setMoveTo('backlog')} />
+            <input
+              type="radio"
+              name="move-to"
+              value="backlog"
+              checked={moveTo === 'backlog'}
+              onChange={() => setMoveTo('backlog')}
+            />
             <span>
               <strong>Top of the backlog</strong>
               <span className={styles.choiceHint}>Re-plan them next time, in the order they were in.</span>
             </span>
           </label>
           <label className={styles.choice}>
-            <input type="radio" name="move-to" value="next" checked={moveTo === 'next'} onChange={() => setMoveTo('next')} />
+            <input
+              type="radio"
+              name="move-to"
+              value="next"
+              checked={moveTo === 'next'}
+              onChange={() => setMoveTo('next')}
+            />
             <span>
               <strong>{nextSprintName ?? 'A new next sprint'}</strong>
-              <span className={styles.choiceHint}>{nextSprintName ? 'Carry them straight over.' : 'We’ll plan the next sprint for you and carry them over.'}</span>
+              <span className={styles.choiceHint}>
+                {nextSprintName
+                  ? 'Carry them straight over.'
+                  : 'We’ll plan the next sprint for you and carry them over.'}
+              </span>
             </span>
           </label>
         </fieldset>

@@ -31,7 +31,14 @@ export function usePaletteData(query: string, scope: PaletteScope, open: boolean
     const projects = new Map((shell?.favorites ?? []).map((p) => [p.id, p]));
     for (const t of byId.values()) if (t.project) projects.set(t.project.id, t.project);
     const ai = interpretQuery(query, { tags, teams, members, projects: [...projects.values()] });
-    const groups = buildPaletteGroups({ query, scope, tasks: [...byId.values()], commands: available, members: members.filter((m) => m.status === 'ACTIVE'), ai });
+    const groups = buildPaletteGroups({
+      query,
+      scope,
+      tasks: [...byId.values()],
+      commands: available,
+      members: members.filter((m) => m.status === 'ACTIVE'),
+      ai,
+    });
     return { groups, ms: Math.max(1, Math.round(performance.now() - started)) };
     // `commands` re-runs ranking when the registry changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps

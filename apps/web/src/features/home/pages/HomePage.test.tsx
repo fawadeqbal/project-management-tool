@@ -30,11 +30,41 @@ const client = vi.mocked(api, true);
 
 const onboarding: OnboardingDto = {
   steps: [
-    { id: 'create-workspace', title: 'Create your workspace', hint: 'Done in 20 seconds', done: true, isNext: false },
-    { id: 'start-from-template', title: 'Start from a template', hint: 'Templates beat the blank page', done: true, isNext: false },
-    { id: 'create-first-task', title: 'Create your first task', hint: 'HRT-1 · Kickoff meeting', done: true, isNext: false },
-    { id: 'invite-teammates', title: 'Invite 2 teammates', hint: 'Projects with 3+ people are far more likely to ship on time', done: false, isNext: true },
-    { id: 'connect-slack', title: 'Connect Slack', hint: 'Get updates where your team already talks', done: false, isNext: false },
+    {
+      id: 'create-workspace',
+      title: 'Create your workspace',
+      hint: 'Done in 20 seconds',
+      done: true,
+      isNext: false,
+    },
+    {
+      id: 'start-from-template',
+      title: 'Start from a template',
+      hint: 'Templates beat the blank page',
+      done: true,
+      isNext: false,
+    },
+    {
+      id: 'create-first-task',
+      title: 'Create your first task',
+      hint: 'HRT-1 · Kickoff meeting',
+      done: true,
+      isNext: false,
+    },
+    {
+      id: 'invite-teammates',
+      title: 'Invite 2 teammates',
+      hint: 'Projects with 3+ people are far more likely to ship on time',
+      done: false,
+      isNext: true,
+    },
+    {
+      id: 'connect-slack',
+      title: 'Connect Slack',
+      hint: 'Get updates where your team already talks',
+      done: false,
+      isNext: false,
+    },
   ],
   completed: 3,
   total: 5,
@@ -43,18 +73,66 @@ const onboarding: OnboardingDto = {
   dismissed: false,
 };
 const templates: ProjectTemplateDto[] = [
-  { id: 'product-sprint', name: 'Product sprint', description: 'Backlog, 2-week sprints, burndown', icon: 'board', color: 'sky', sections: ['Backlog'], taskCount: 7, featured: true },
-  { id: 'marketing-campaign', name: 'Marketing campaign', description: 'Brief → content calendar → launch', icon: 'calendar-view', color: 'violet', sections: ['Brief'], taskCount: 8, featured: true },
-  { id: 'client-project', name: 'Client project', description: 'Milestones, approvals, guest portal', icon: 'users', color: 'green', sections: ['Kickoff'], taskCount: 6, featured: true },
-  { id: 'website-launch', name: 'Website launch', description: 'Sitemap, design, build, QA, go live', icon: 'globe', color: 'blue', sections: ['Discovery'], taskCount: 10, featured: false },
+  {
+    id: 'product-sprint',
+    name: 'Product sprint',
+    description: 'Backlog, 2-week sprints, burndown',
+    icon: 'board',
+    color: 'sky',
+    sections: ['Backlog'],
+    taskCount: 7,
+    featured: true,
+  },
+  {
+    id: 'marketing-campaign',
+    name: 'Marketing campaign',
+    description: 'Brief → content calendar → launch',
+    icon: 'calendar-view',
+    color: 'violet',
+    sections: ['Brief'],
+    taskCount: 8,
+    featured: true,
+  },
+  {
+    id: 'client-project',
+    name: 'Client project',
+    description: 'Milestones, approvals, guest portal',
+    icon: 'users',
+    color: 'green',
+    sections: ['Kickoff'],
+    taskCount: 6,
+    featured: true,
+  },
+  {
+    id: 'website-launch',
+    name: 'Website launch',
+    description: 'Sitemap, design, build, QA, go live',
+    icon: 'globe',
+    color: 'blue',
+    sections: ['Discovery'],
+    taskCount: 10,
+    featured: false,
+  },
 ];
 
 describe('HomePage', () => {
   beforeEach(() => {
-    signIn({ ...testMe, workspace: { ...testMe.workspace, role: 'OWNER' }, permissions: [...ROLE_PERMISSIONS.OWNER] });
-    mocked.get.mockImplementation(async (path: string) => (path === '/onboarding' ? onboarding : path === '/templates' ? templates : []) as never);
+    signIn({
+      ...testMe,
+      workspace: { ...testMe.workspace, role: 'OWNER' },
+      permissions: [...ROLE_PERMISSIONS.OWNER],
+    });
+    mocked.get.mockImplementation(
+      async (path: string) =>
+        (path === '/onboarding' ? onboarding : path === '/templates' ? templates : []) as never,
+    );
     client.tasks.list.mockResolvedValue([]);
-    client.workspace.shell.mockResolvedValue({ favorites: [], teams: [], counts: { myTasks: 0, inbox: 0 }, onboarding: { completed: 3, total: 5, nextStep: 'Invite 2 teammates' } });
+    client.workspace.shell.mockResolvedValue({
+      favorites: [],
+      teams: [],
+      counts: { myTasks: 0, inbox: 0 },
+      onboarding: { completed: 3, total: 5, nextStep: 'Invite 2 teammates' },
+    });
     client.workspace.teams.mockResolvedValue([]);
     useInviteDialogStore.setState({ open: false });
   });
@@ -87,7 +165,11 @@ describe('HomePage', () => {
   });
 
   it('applies a template and navigates to the new project board', async () => {
-    mocked.post.mockResolvedValue({ project: { id: 'p9', name: 'Product sprint', color: 'sky' }, taskCount: 7, firstTaskKey: 'HRT-200' } as never);
+    mocked.post.mockResolvedValue({
+      project: { id: 'p9', name: 'Product sprint', color: 'sky' },
+      taskCount: 7,
+      firstTaskKey: 'HRT-200',
+    } as never);
     const { unmount, router } = renderApp(<HomePage />, { route: '/home' });
     fireEvent.click(await screen.findByRole('button', { name: /Start from Product sprint/ }));
     expect(await screen.findByText('“Product sprint” created with 7 tasks')).toBeInTheDocument();

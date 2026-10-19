@@ -52,7 +52,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       const { sub } = await this.tokens.verify(auth.token);
       const actor = await this.actors.resolve(sub, auth.workspaceId ?? query.workspaceId ?? null);
       const user = await this.prisma.user.findUniqueOrThrow({ where: { id: sub } });
-      this.sockets.set(socket.id, { userId: sub, workspaceId: actor.workspaceId, user: toUserRef(user), viewingTaskId: null });
+      this.sockets.set(socket.id, {
+        userId: sub,
+        workspaceId: actor.workspaceId,
+        user: toUserRef(user),
+        viewingTaskId: null,
+      });
       await socket.join(room(actor.workspaceId));
     } catch (e) {
       this.logger.debug(`Rejected socket: ${e instanceof Error ? e.message : String(e)}`);
@@ -91,7 +96,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   private emitPresence(workspaceId: string, taskId: string): void {
     const viewers = new Map<string, UserRefDto>();
-    for (const s of this.sockets.values()) if (s.workspaceId === workspaceId && s.viewingTaskId === taskId) viewers.set(s.userId, s.user);
+    for (const s of this.sockets.values())
+      if (s.workspaceId === workspaceId && s.viewingTaskId === taskId) viewers.set(s.userId, s.user);
     this.server?.to(room(workspaceId)).emit(WS_PRESENCE, { taskId, viewers: [...viewers.values()] });
   }
 }

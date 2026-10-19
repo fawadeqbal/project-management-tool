@@ -1,13 +1,21 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundError, WORKSPACE_MEMBER_REPOSITORY, type Clock, type WorkspaceMemberRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  WORKSPACE_MEMBER_REPOSITORY,
+  type Clock,
+  type WorkspaceMemberRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import { DeactivateMemberCommand } from './deactivate-member.command';
 
 /** Reversible: the person loses access but keeps every task, comment and assignment. */
 @CommandHandler(DeactivateMemberCommand)
-export class DeactivateMemberHandler implements ICommandHandler<DeactivateMemberCommand, { userId: string; status: 'DEACTIVATED' | 'ACTIVE' }> {
+export class DeactivateMemberHandler implements ICommandHandler<
+  DeactivateMemberCommand,
+  { userId: string; status: 'DEACTIVATED' | 'ACTIVE' }
+> {
   constructor(
     @Inject(WORKSPACE_MEMBER_REPOSITORY) private readonly members: WorkspaceMemberRepository,
     private readonly events: DomainEventPublisher,

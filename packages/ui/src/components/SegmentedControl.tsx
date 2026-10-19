@@ -19,9 +19,20 @@ export interface SegmentedControlProps extends Omit<HTMLAttributes<HTMLDivElemen
 }
 
 /** Single choice between a few options (radiogroup). Arrow keys move and select. */
-export function SegmentedControl({ options, value, onChange, label, className, onKeyDown, ...rest }: SegmentedControlProps) {
+export function SegmentedControl({
+  options,
+  value,
+  onChange,
+  label,
+  className,
+  onKeyDown,
+  ...rest
+}: SegmentedControlProps) {
   const enabled = options.filter((o) => !o.disabled);
-  const selectedIndex = Math.max(0, enabled.findIndex((o) => o.id === value));
+  const selectedIndex = Math.max(
+    0,
+    enabled.findIndex((o) => o.id === value),
+  );
   return (
     <div
       {...rest}

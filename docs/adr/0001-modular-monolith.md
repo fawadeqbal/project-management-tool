@@ -16,9 +16,9 @@ into another context's repositories. The domain model lives in a framework-free 
 
 ## Consequences
 
-* One database, transactions where needed, simple local development and deployment.
-* Boundaries are explicit (module per context, events between them), so a context can be
+- One database, transactions where needed, simple local development and deployment.
+- Boundaries are explicit (module per context, events between them), so a context can be
   extracted into a service later by replacing the in-process bus with a broker — handlers and
   the domain stay unchanged.
-* Discipline is required: reviews check that a context only imports `@hearth/domain`,
+- Discipline is required: reviews check that a context only imports `@hearth/domain`,
   `@hearth/contracts` and `src/shared`.

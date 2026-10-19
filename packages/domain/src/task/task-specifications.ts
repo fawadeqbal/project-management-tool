@@ -46,7 +46,9 @@ export class AssignedTo extends Specification<FilterableTask> {
     return this.userIds.includes(t.assigneeId);
   }
   describe() {
-    return this.userIds.includes(null) && this.userIds.length === 1 ? 'unassigned' : 'assigned to selected people';
+    return this.userIds.includes(null) && this.userIds.length === 1
+      ? 'unassigned'
+      : 'assigned to selected people';
   }
 }
 
@@ -136,7 +138,8 @@ export interface TaskFilter {
 
 /** Builder: turns a plain filter object into a composed Specification. */
 export const buildTaskSpecification = (filter: TaskFilter, today: Date): Specification<FilterableTask> => {
-  let spec: Specification<FilterableTask> = filter.includeDone || filter.statuses?.includes('DONE') ? new MatchesText('') : new IsOpen();
+  let spec: Specification<FilterableTask> =
+    filter.includeDone || filter.statuses?.includes('DONE') ? new MatchesText('') : new IsOpen();
   if (filter.statuses?.length) spec = spec.and(new HasStatus(filter.statuses));
   if (filter.priorities?.length) spec = spec.and(new HasPriority(filter.priorities));
   if (filter.assigneeIds?.length) spec = spec.and(new AssignedTo(filter.assigneeIds));

@@ -29,5 +29,7 @@ if (!window.matchMedia) {
     }) as MediaQueryList;
 }
 if (!('CSS' in window) || !CSS.escape) {
-  (window as unknown as { CSS: { escape: (s: string) => string } }).CSS = { escape: (s: string) => s.replace(/["\\]/g, '\\$&') };
+  (window as unknown as { CSS: { escape: (s: string) => string } }).CSS = {
+    escape: (s: string) => s.replace(/["\\]/g, '\\$&'),
+  };
 }

@@ -12,7 +12,11 @@ export class GetFeatureLimitHandler implements IQueryHandler<GetFeatureLimitQuer
   constructor(private readonly plans: PlanService) {}
 
   async execute({ actor, feature }: GetFeatureLimitQuery): Promise<FeatureLimitDto> {
-    if (!isFeature(feature)) throw new ValidationError('billing.unknown_feature', `“${feature}” isn’t a Hearth feature. Check the link and try again.`);
+    if (!isFeature(feature))
+      throw new ValidationError(
+        'billing.unknown_feature',
+        `“${feature}” isn’t a Hearth feature. Check the link and try again.`,
+      );
     const currentPlan = await this.plans.planOf(actor.workspaceId);
     const policy = await this.plans.policyFor(actor.workspaceId);
     const target = cheapestPlanWith(feature);

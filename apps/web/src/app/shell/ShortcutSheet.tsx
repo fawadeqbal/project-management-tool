@@ -57,7 +57,13 @@ export function ShortcutSheet() {
   const open = useUiStore((s) => s.shortcutsOpen);
   const setOpen = useUiStore((s) => s.setShortcutsOpen);
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} title="Keyboard shortcuts" description="Hearth is built to be driven from the keyboard." size="lg">
+    <Dialog
+      open={open}
+      onClose={() => setOpen(false)}
+      title="Keyboard shortcuts"
+      description="Hearth is built to be driven from the keyboard."
+      size="lg"
+    >
       <div className={styles.sheet}>
         {sections().map((section) => (
           <section key={section.title} aria-labelledby={`keys-${section.title}`}>

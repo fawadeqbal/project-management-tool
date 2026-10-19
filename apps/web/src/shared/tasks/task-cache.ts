@@ -1,23 +1,42 @@
 import type { QueryClient } from '@tanstack/react-query';
-import type { MemberDto, TagDto, TaskDetailDto, TaskDto, UpdateTaskInput, UserRefDto } from '@hearth/contracts';
+import type {
+  MemberDto,
+  TagDto,
+  TaskDetailDto,
+  TaskDto,
+  UpdateTaskInput,
+  UserRefDto,
+} from '@hearth/contracts';
 import { queryKeys } from '@/shared/api/query-keys';
 
 /** Anything in the ['task', …] detail caches. */
 type DetailLike = TaskDetailDto | undefined;
 
-const toUserRef = (m: MemberDto): UserRefDto => ({ id: m.id, name: m.name, initials: m.initials, avatarColor: m.avatarColor });
+const toUserRef = (m: MemberDto): UserRefDto => ({
+  id: m.id,
+  name: m.name,
+  initials: m.initials,
+  avatarColor: m.avatarColor,
+});
 
 /**
  * Applies an UpdateTaskInput to a TaskDto the way the server would, resolving references
  * (assignee, tags) from what's already cached so the optimistic row looks final.
  */
-export const applyTaskPatch = <T extends TaskDto>(task: T, patch: UpdateTaskInput, client: QueryClient, now = new Date()): T => {
+export const applyTaskPatch = <T extends TaskDto>(
+  task: T,
+  patch: UpdateTaskInput,
+  client: QueryClient,
+  now = new Date(),
+): T => {
   const next: T = { ...task };
   const { tagIds, assigneeId, ...rest } = patch;
   Object.assign(next, Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)));
   if (assigneeId !== undefined) {
     next.assigneeId = assigneeId;
-    const member = assigneeId ? client.getQueryData<MemberDto[]>(queryKeys.members)?.find((m) => m.id === assigneeId) : undefined;
+    const member = assigneeId
+      ? client.getQueryData<MemberDto[]>(queryKeys.members)?.find((m) => m.id === assigneeId)
+      : undefined;
     next.assignee = assigneeId ? (member ? toUserRef(member) : task.assignee) : null;
   }
   if (tagIds) {
@@ -33,7 +52,11 @@ export const applyTaskPatch = <T extends TaskDto>(task: T, patch: UpdateTaskInpu
 };
 
 /** Patch one task in every list and detail cache (including as a subtask of its parent). */
-export const patchTaskInCaches = (client: QueryClient, id: string, update: <T extends TaskDto>(t: T) => T): void => {
+export const patchTaskInCaches = (
+  client: QueryClient,
+  id: string,
+  update: <T extends TaskDto>(t: T) => T,
+): void => {
   client.setQueriesData<TaskDto[]>({ queryKey: queryKeys.tasks.all }, (list) =>
     Array.isArray(list) ? list.map((t) => (t.id === id ? update(t) : t)) : list,
   );
@@ -43,19 +66,30 @@ export const patchTaskInCaches = (client: QueryClient, id: string, update: <T ex
     if (detail.id === id) changed = update(detail);
     if (Array.isArray(detail.subtasks) && detail.subtasks.some((s) => s.id === id)) {
       const subtasks = detail.subtasks.map((s) => (s.id === id ? update(s) : s));
-      changed = { ...changed, subtasks, subtaskDoneCount: subtasks.filter((s) => s.status === 'DONE').length };
+      changed = {
+        ...changed,
+        subtasks,
+        subtaskDoneCount: subtasks.filter((s) => s.status === 'DONE').length,
+      };
     }
     return changed;
   });
 };
 
 export const removeTaskFromCaches = (client: QueryClient, id: string): void => {
-  client.setQueriesData<TaskDto[]>({ queryKey: queryKeys.tasks.all }, (list) => (Array.isArray(list) ? list.filter((t) => t.id !== id) : list));
+  client.setQueriesData<TaskDto[]>({ queryKey: queryKeys.tasks.all }, (list) =>
+    Array.isArray(list) ? list.filter((t) => t.id !== id) : list,
+  );
   client.setQueriesData<DetailLike>({ queryKey: queryKeys.taskRoot }, (detail) => {
     if (!detail || typeof detail !== 'object' || !Array.isArray(detail.subtasks)) return detail;
     if (!detail.subtasks.some((s) => s.id === id)) return detail;
     const subtasks = detail.subtasks.filter((s) => s.id !== id);
-    return { ...detail, subtasks, subtaskCount: subtasks.length, subtaskDoneCount: subtasks.filter((s) => s.status === 'DONE').length };
+    return {
+      ...detail,
+      subtasks,
+      subtaskCount: subtasks.length,
+      subtaskDoneCount: subtasks.filter((s) => s.status === 'DONE').length,
+    };
   });
 };
 
@@ -80,8 +114,13 @@ export const replaceTaskInLists = (client: QueryClient, tempId: string, task: Ta
 };
 
 /** Best-effort lookup of a task already in some cache (palette, commands, panels). */
-export const findCachedTask = (client: QueryClient, predicate: (t: TaskDto) => boolean): TaskDto | undefined => {
-  for (const [, data] of client.getQueriesData<TaskDto[] | TaskDetailDto>({ queryKey: queryKeys.tasks.all })) {
+export const findCachedTask = (
+  client: QueryClient,
+  predicate: (t: TaskDto) => boolean,
+): TaskDto | undefined => {
+  for (const [, data] of client.getQueriesData<TaskDto[] | TaskDetailDto>({
+    queryKey: queryKeys.tasks.all,
+  })) {
     if (Array.isArray(data)) {
       const hit = data.find(predicate);
       if (hit) return hit;
@@ -113,8 +152,18 @@ export const allCachedTasks = (client: QueryClient): TaskDto[] => {
 };
 
 /** Update every cached detail payload for a task (by-id and by-key entries). */
-export const patchTaskDetail = (client: QueryClient, id: string, update: (d: TaskDetailDto) => TaskDetailDto): void => {
+export const patchTaskDetail = (
+  client: QueryClient,
+  id: string,
+  update: (d: TaskDetailDto) => TaskDetailDto,
+): void => {
   client.setQueriesData<DetailLike>({ queryKey: queryKeys.taskRoot }, (detail) =>
-    detail && typeof detail === 'object' && 'id' in detail && detail.id === id && Array.isArray(detail.comments) ? update(detail) : detail,
+    detail &&
+    typeof detail === 'object' &&
+    'id' in detail &&
+    detail.id === id &&
+    Array.isArray(detail.comments)
+      ? update(detail)
+      : detail,
   );
 };

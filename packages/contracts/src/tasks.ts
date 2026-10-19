@@ -143,7 +143,10 @@ const csv = <T extends z.ZodTypeAny>(item: T) =>
   z.preprocess((v) => (typeof v === 'string' ? v.split(',').filter(Boolean) : v), z.array(item));
 
 /** Query-string boolean: "true"/"1" → true, "false"/"0"/"" → false (z.coerce.boolean treats "false" as true). */
-export const QueryBoolean = z.preprocess((v) => (typeof v === 'string' ? ['true', '1', 'yes'].includes(v.toLowerCase()) : v), z.boolean());
+export const QueryBoolean = z.preprocess(
+  (v) => (typeof v === 'string' ? ['true', '1', 'yes'].includes(v.toLowerCase()) : v),
+  z.boolean(),
+);
 
 export const ListTasksQuerySchema = z.object({
   scope: z.enum(['mine', 'project', 'workspace']).default('mine'),

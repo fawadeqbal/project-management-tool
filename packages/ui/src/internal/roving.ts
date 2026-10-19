@@ -8,7 +8,10 @@ const PREV = new Set(['ArrowLeft', 'ArrowUp']);
  * `data-roving-item` attribute. Arrow keys wrap, Home/End jump; the newly focused item is
  * activated through `onMove(index)`.
  */
-export function handleRovingKeyDown(event: KeyboardEvent<HTMLElement>, onMove: (index: number) => void): void {
+export function handleRovingKeyDown(
+  event: KeyboardEvent<HTMLElement>,
+  onMove: (index: number) => void,
+): void {
   const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[data-roving-item]'));
   if (items.length === 0) return;
   const current = items.findIndex((el) => el === document.activeElement);

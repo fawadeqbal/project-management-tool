@@ -14,12 +14,23 @@ export class WorkspaceExportReadModel {
   ) {}
 
   async export(actor: Actor): Promise<WorkspaceExportDto> {
-    const workspace = await this.prisma.workspace.findUniqueOrThrow({ where: { id: actor.workspaceId }, select: { id: true, name: true, keyPrefix: true } });
+    const workspace = await this.prisma.workspace.findUniqueOrThrow({
+      where: { id: actor.workspaceId },
+      select: { id: true, name: true, keyPrefix: true },
+    });
     const [projects, tasks] = await Promise.all([
-      this.prisma.project.findMany({ where: { workspaceId: actor.workspaceId }, include: { sections: { orderBy: { position: 'asc' } } }, orderBy: { createdAt: 'asc' } }),
+      this.prisma.project.findMany({
+        where: { workspaceId: actor.workspaceId },
+        include: { sections: { orderBy: { position: 'asc' } } },
+        orderBy: { createdAt: 'asc' },
+      }),
       this.prisma.task.findMany({
         where: { workspaceId: actor.workspaceId },
-        include: { project: { select: { name: true } }, section: { select: { name: true } }, assignee: { select: { email: true } } },
+        include: {
+          project: { select: { name: true } },
+          section: { select: { name: true } },
+          assignee: { select: { email: true } },
+        },
         orderBy: { number: 'asc' },
       }),
     ]);

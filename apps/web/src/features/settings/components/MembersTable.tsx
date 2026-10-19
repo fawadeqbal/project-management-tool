@@ -7,7 +7,10 @@ import styles from '../settings.module.css';
 type Handlers = Omit<MemberRowProps, 'member'>;
 
 /** Members table; guests and deactivated people are visually separated into their own groups. */
-export function MembersTable({ members, ...handlers }: { members: AdminMemberDto[] } & Handlers & { assignable: readonly Role[] }) {
+export function MembersTable({
+  members,
+  ...handlers
+}: { members: AdminMemberDto[] } & Handlers & { assignable: readonly Role[] }) {
   const active = members.filter((m) => m.status === 'ACTIVE' && !m.isGuest);
   const guests = members.filter((m) => m.status === 'ACTIVE' && m.isGuest);
   const deactivated = members.filter((m) => m.status === 'DEACTIVATED');

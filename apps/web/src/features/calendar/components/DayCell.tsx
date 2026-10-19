@@ -19,7 +19,16 @@ export interface DayCellProps {
 }
 
 /** One day: number (today is the only filled marker), up to 3 chips, then "+N more" → popover. */
-export function DayCell({ day, expanded = false, focused, popoverOpen, onPopoverChange, onFocusDay, onKeyDown, onOpenTask }: DayCellProps) {
+export function DayCell({
+  day,
+  expanded = false,
+  focused,
+  popoverOpen,
+  onPopoverChange,
+  onFocusDay,
+  onKeyDown,
+  onOpenTask,
+}: DayCellProps) {
   const { setNodeRef, isOver } = useDroppable({ id: `day:${day.date}`, data: { date: day.date } });
   const moreRef = useRef<HTMLButtonElement>(null);
   const cellRef = useRef<HTMLDivElement | null>(null);
@@ -51,12 +60,24 @@ export function DayCell({ day, expanded = false, focused, popoverOpen, onPopover
         <TaskChip key={t.id} task={t} onOpen={onOpenTask} />
       ))}
       {hidden > 0 ? (
-        <button ref={moreRef} type="button" className={styles.more} aria-haspopup="dialog" aria-expanded={popoverOpen} onClick={() => onPopoverChange(!popoverOpen)}>
+        <button
+          ref={moreRef}
+          type="button"
+          className={styles.more}
+          aria-haspopup="dialog"
+          aria-expanded={popoverOpen}
+          onClick={() => onPopoverChange(!popoverOpen)}
+        >
           +{hidden} more
         </button>
       ) : null}
       {popoverOpen ? (
-        <Popover open onOpenChange={onPopoverChange} anchorRef={hidden > 0 ? moreRef : cellRef} aria-label={`Tasks due ${longDate(day.date)}`}>
+        <Popover
+          open
+          onOpenChange={onPopoverChange}
+          anchorRef={hidden > 0 ? moreRef : cellRef}
+          aria-label={`Tasks due ${longDate(day.date)}`}
+        >
           <div className={styles.dayPopover}>
             <div className={styles.popoverTitle}>{longDate(day.date)}</div>
             {day.tasks.length ? (

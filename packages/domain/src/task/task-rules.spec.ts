@@ -21,7 +21,11 @@ const t = (over: Partial<FilterableTask>): FilterableTask => ({
 
 describe('specifications', () => {
   it('compose with and/not', () => {
-    const tasks = [t({ key: 'A', dueDate: '2026-10-17' }), t({ key: 'B', dueDate: '2026-10-17', assigneeId: 'sara' }), t({ key: 'C', dueDate: '2026-10-25' })];
+    const tasks = [
+      t({ key: 'A', dueDate: '2026-10-17' }),
+      t({ key: 'B', dueDate: '2026-10-17', assigneeId: 'sara' }),
+      t({ key: 'C', dueDate: '2026-10-25' }),
+    ];
     const spec = new IsOverdue(today).and(new AssignedTo(['sara']).not());
     expect(spec.filter(tasks).map((x) => x.key)).toEqual(['A']);
     expect(spec.describe()).toBe('overdue and not assigned to selected people');
@@ -37,7 +41,11 @@ describe('specifications', () => {
 describe('grouping strategies', () => {
   it('groups by due date with Overdue first and Today always present', () => {
     const groups = groupAndSort(
-      [t({ key: 'A', dueDate: '2026-10-17', priority: 'URGENT' }), t({ key: 'B', dueDate: '2026-10-20' }), t({ key: 'C', dueDate: '2026-11-30' })],
+      [
+        t({ key: 'A', dueDate: '2026-10-17', priority: 'URGENT' }),
+        t({ key: 'B', dueDate: '2026-10-20' }),
+        t({ key: 'C', dueDate: '2026-11-30' }),
+      ],
       'due',
       'priority',
       { today },
@@ -47,7 +55,12 @@ describe('grouping strategies', () => {
   });
 
   it('sorts by priority inside groups', () => {
-    const [g] = groupAndSort([t({ key: 'L', priority: 'LOW' }), t({ key: 'U', priority: 'URGENT' })], 'none', 'priority', { today });
+    const [g] = groupAndSort(
+      [t({ key: 'L', priority: 'LOW' }), t({ key: 'U', priority: 'URGENT' })],
+      'none',
+      'priority',
+      { today },
+    );
     expect(g!.items.map((x) => x.key)).toEqual(['U', 'L']);
   });
 });
@@ -55,12 +68,19 @@ describe('grouping strategies', () => {
 describe('quick add', () => {
   it('extracts assignee, project, priority and a trailing date', () => {
     const p = parseQuickAdd('Draft sprint 24 retro agenda @sara #website !high tomorrow', today);
-    expect(p).toMatchObject({ title: 'Draft sprint 24 retro agenda', assigneeHandle: 'sara', projectHandle: 'website', priority: 'HIGH' });
+    expect(p).toMatchObject({
+      title: 'Draft sprint 24 retro agenda',
+      assigneeHandle: 'sara',
+      projectHandle: 'website',
+      priority: 'HIGH',
+    });
     expect(p.dueDate?.toISOString().slice(0, 10)).toBe('2026-10-20');
   });
 
   it('understands weekdays and explicit dates', () => {
-    expect(parseQuickAdd('Prep walkthrough thu', today).dueDate?.toISOString().slice(0, 10)).toBe('2026-10-22');
+    expect(parseQuickAdd('Prep walkthrough thu', today).dueDate?.toISOString().slice(0, 10)).toBe(
+      '2026-10-22',
+    );
     expect(parseQuickAdd('QA swipe ^oct 26', today).dueDate?.toISOString().slice(0, 10)).toBe('2026-10-26');
   });
 

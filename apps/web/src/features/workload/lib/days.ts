@@ -14,7 +14,8 @@ export const rangeFor = (today: Date, weekOffset: number): { from: string; to: s
   return { from: toDateOnly(monday), to: toDateOnly(addDays(monday, 11)) };
 };
 
-export const dayLabelOf = (w: WorkloadDto, date: string): string => w.days.find((d) => d.date === date)?.label ?? date;
+export const dayLabelOf = (w: WorkloadDto, date: string): string =>
+  w.days.find((d) => d.date === date)?.label ?? date;
 
 export const isoToday = (now = new Date()) => toDateOnly(now);
 export const parse = parseDateOnly;

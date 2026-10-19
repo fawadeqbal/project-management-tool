@@ -6,7 +6,12 @@ import { isAccentColor, toDateOnly, type AccentColor } from '@hearth/domain';
 export const accent = (value: string | null | undefined, fallback: AccentColor = 'slate'): AccentColor =>
   isAccentColor(value) ? value : fallback;
 
-export const toUserRef = (u: { id: string; name: string; initials: string; avatarColor: string }): UserRefDto => ({
+export const toUserRef = (u: {
+  id: string;
+  name: string;
+  initials: string;
+  avatarColor: string;
+}): UserRefDto => ({
   id: u.id,
   name: u.name,
   initials: u.initials,
@@ -19,7 +24,10 @@ export const toProjectRef = (p: { id: string; name: string; color: string }): Pr
   color: accent(p.color, 'blue'),
 });
 
-export const toTaskRef = (t: { id: string; number: number; title: string; status: TaskRefDto['status'] }, keyPrefix: string): TaskRefDto => ({
+export const toTaskRef = (
+  t: { id: string; number: number; title: string; status: TaskRefDto['status'] },
+  keyPrefix: string,
+): TaskRefDto => ({
   id: t.id,
   key: `${keyPrefix}-${t.number}`,
   title: t.title,

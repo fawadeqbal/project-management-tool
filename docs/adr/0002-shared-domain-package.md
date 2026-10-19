@@ -18,6 +18,6 @@ web uses its pure rules for instant, optimistic UI.
 
 ## Consequences
 
-* A rule changes in one place and both apps pick it up at build time.
-* The package must stay pure (no I/O, injected `Clock`), which also makes it trivially testable.
-* The web bundle includes some server-only code (aggregates); it is small and tree-shakeable.
+- A rule changes in one place and both apps pick it up at build time.
+- The package must stay pure (no I/O, injected `Clock`), which also makes it trivially testable.
+- The web bundle includes some server-only code (aggregates); it is small and tree-shakeable.

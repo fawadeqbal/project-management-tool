@@ -4,7 +4,8 @@ import { diffInDays, humanizeDate, humanizeTimeAgo, parseDateOnly, toDateOnly } 
  * "Today" as the domain understands it: the viewer's local calendar day, as midnight UTC.
  * (The domain compares calendar days in UTC; using local Y/M/D keeps "Today" honest at 11pm.)
  */
-export const today = (now: Date = new Date()): Date => new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+export const today = (now: Date = new Date()): Date =>
+  new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 
 export const todayIso = (now?: Date): string => toDateOnly(today(now));
 
@@ -20,13 +21,22 @@ export interface DueInfo {
 }
 
 /** Human due date + tone: overdue is the only red; done tasks are never overdue. */
-export const dueInfo = (dueDate: string | null, opts: { done?: boolean; now?: Date } = {}): DueInfo | null => {
+export const dueInfo = (
+  dueDate: string | null,
+  opts: { done?: boolean; now?: Date } = {},
+): DueInfo | null => {
   if (!dueDate) return null;
   const t = today(opts.now);
   const d = parseDateOnly(dueDate);
   const delta = diffInDays(t, d);
   const overdue = !opts.done && delta < 0;
-  return { label: humanizeDate(d, t), tone: overdue ? 'danger' : 'default', overdue, dueToday: delta === 0, delta };
+  return {
+    label: humanizeDate(d, t),
+    tone: overdue ? 'danger' : 'default',
+    overdue,
+    dueToday: delta === 0,
+    delta,
+  };
 };
 
 /** "overdue 2 days" / "due today" / "due Thu" — palette hints. */

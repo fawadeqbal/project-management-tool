@@ -32,7 +32,12 @@ export function TimeOffDialog({ onClose, defaultDate }: { onClose: () => void; d
   const save = async () => {
     setError(null);
     try {
-      await mutations.add({ userId: canManage ? userId : undefined, startDate, endDate, reason: reason.trim() || null });
+      await mutations.add({
+        userId: canManage ? userId : undefined,
+        startDate,
+        endDate,
+        reason: reason.trim() || null,
+      });
       setReason('');
     } catch (e) {
       const err = ApiError.from(e);
@@ -63,14 +68,27 @@ export function TimeOffDialog({ onClose, defaultDate }: { onClose: () => void; d
             label="Who"
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
-            options={members.filter((m) => m.status === 'ACTIVE' && m.role !== 'GUEST').map((m) => ({ value: m.id, label: m.id === me?.user.id ? `${m.name} (you)` : m.name }))}
+            options={members
+              .filter((m) => m.status === 'ACTIVE' && m.role !== 'GUEST')
+              .map((m) => ({ value: m.id, label: m.id === me?.user.id ? `${m.name} (you)` : m.name }))}
           />
         ) : null}
         <div className={styles.formRow}>
           <Input label="From" type="date" value={startDate} onChange={(e) => setStart(e.target.value)} />
-          <Input label="To" type="date" value={endDate} onChange={(e) => setEnd(e.target.value)} error={invalid ? 'Pick an end date on or after the start.' : undefined} />
+          <Input
+            label="To"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEnd(e.target.value)}
+            error={invalid ? 'Pick an end date on or after the start.' : undefined}
+          />
         </div>
-        <Input label="Reason (optional)" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Vacation, conference…" />
+        <Input
+          label="Reason (optional)"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Vacation, conference…"
+        />
         {error ? (
           <p className={styles.formError} role="alert">
             {error}
@@ -87,7 +105,13 @@ export function TimeOffDialog({ onClose, defaultDate }: { onClose: () => void; d
                   {t.reason ? ` · ${t.reason}` : ''}
                 </span>
                 {mine(t) || canManage ? (
-                  <Button size="sm" variant="ghost" icon="trash" aria-label={`Remove ${t.user.name}’s time off ${span(t)}`} onClick={() => void mutations.remove(t)} />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    icon="trash"
+                    aria-label={`Remove ${t.user.name}’s time off ${span(t)}`}
+                    onClick={() => void mutations.remove(t)}
+                  />
                 ) : null}
               </li>
             ))}

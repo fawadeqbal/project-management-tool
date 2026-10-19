@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
 import { Button, SegmentedControl } from '@hearth/ui';
 import type { ProjectRefDto, TaskDto } from '@hearth/contracts';
 import { addDays, formatShortDate, parseDateOnly, toDateOnly } from '@hearth/domain';
@@ -35,7 +43,16 @@ const KEY_DELTA: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowU
  * unscheduled tray, drag to (re)schedule with Undo, and Day/Week views with the same chips.
  * Keyboard: arrows move day focus, Enter opens the day's popover, S on a tray item then Enter on a day schedules it.
  */
-export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorChange, onRangeChange, tabs, label }: TaskCalendarProps) {
+export function TaskCalendar({
+  scheduled,
+  unscheduled,
+  cursor,
+  range,
+  onCursorChange,
+  onRangeChange,
+  tabs,
+  label,
+}: TaskCalendarProps) {
   const today = todayIso();
   const { update } = useTaskMutations();
   const panel = useTaskPanel();
@@ -54,20 +71,26 @@ export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorCh
   }, [scheduled, unscheduled]);
 
   useEffect(() => {
-    if (!days.some((d) => d.date === focusDate)) setFocusDate(days.find((d) => d.date === cursor)?.date ?? days[0]!.date);
+    if (!days.some((d) => d.date === focusDate))
+      setFocusDate(days.find((d) => d.date === cursor)?.date ?? days[0]!.date);
   }, [days, focusDate, cursor]);
 
   const schedule = (task: TaskDto, dueDate: string | null) => {
     if (task.dueDate === dueDate) return;
     // Keep the start on or before the new due date.
-    const patch = dueDate && task.startDate && task.startDate > dueDate ? { dueDate, startDate: dueDate } : { dueDate };
-    const message = dueDate ? `${task.key} scheduled for ${formatShortDate(parseDateOnly(dueDate))}` : `${task.key} moved to Unscheduled`;
+    const patch =
+      dueDate && task.startDate && task.startDate > dueDate ? { dueDate, startDate: dueDate } : { dueDate };
+    const message = dueDate
+      ? `${task.key} scheduled for ${formatShortDate(parseDateOnly(dueDate))}`
+      : `${task.key} moved to Unscheduled`;
     void update(task, patch, { undoMessage: message });
   };
 
   const focusDay = (date: string) => {
     setFocusDate(date);
-    requestAnimationFrame(() => gridRef.current?.querySelector<HTMLElement>(`[data-date="${date}"]`)?.focus());
+    requestAnimationFrame(() =>
+      gridRef.current?.querySelector<HTMLElement>(`[data-date="${date}"]`)?.focus(),
+    );
   };
 
   const onDayKey = (date: string) => (e: KeyboardEvent<HTMLDivElement>) => {
@@ -88,7 +111,8 @@ export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorCh
     }
   };
 
-  const onDragStart = (e: DragStartEvent) => setDragging((e.active.data.current?.task as TaskDto | undefined) ?? null);
+  const onDragStart = (e: DragStartEvent) =>
+    setDragging((e.active.data.current?.task as TaskDto | undefined) ?? null);
   const onDragEnd = (e: DragEndEvent) => {
     setDragging(null);
     const task = e.active.data.current?.task as TaskDto | undefined;
@@ -104,8 +128,21 @@ export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorCh
         <h2 className={styles.title} aria-live="polite">
           {rangeTitle(cursor, range)}
         </h2>
-        <Button variant="ghost" size="sm" icon="chevron-right" aria-label={`Previous ${range}`} className={styles.flip} onClick={() => onCursorChange(stepCursor(cursor, range, -1))} />
-        <Button variant="ghost" size="sm" icon="chevron-right" aria-label={`Next ${range}`} onClick={() => onCursorChange(stepCursor(cursor, range, 1))} />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="chevron-right"
+          aria-label={`Previous ${range}`}
+          className={styles.flip}
+          onClick={() => onCursorChange(stepCursor(cursor, range, -1))}
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="chevron-right"
+          aria-label={`Next ${range}`}
+          onClick={() => onCursorChange(stepCursor(cursor, range, 1))}
+        />
         <Button
           variant="secondary"
           size="sm"
@@ -122,12 +159,28 @@ export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorCh
           </span>
         ) : null}
         <span className={styles.grow} />
-        <SegmentedControl options={RANGE_OPTIONS} value={range} onChange={(r) => onRangeChange(r as CalendarRange)} label="Range" />
+        <SegmentedControl
+          options={RANGE_OPTIONS}
+          value={range}
+          onChange={(r) => onRangeChange(r as CalendarRange)}
+          label="Range"
+        />
         {tabs}
       </div>
-      <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragCancel={() => setDragging(null)}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onDragCancel={() => setDragging(null)}
+      >
         <div className={styles.layout}>
-          <div ref={gridRef} role="grid" aria-label={`${label}, ${rangeTitle(cursor, range)}`} className={styles.grid} data-range={range}>
+          <div
+            ref={gridRef}
+            role="grid"
+            aria-label={`${label}, ${rangeTitle(cursor, range)}`}
+            className={styles.grid}
+            data-range={range}
+          >
             {range !== 'day' ? (
               <div role="row" className={styles.dow}>
                 {DOW.map((d) => (
@@ -168,10 +221,13 @@ export function TaskCalendar({ scheduled, unscheduled, cursor, range, onCursorCh
             }}
           />
         </div>
-        <DragOverlay dropAnimation={null}>{dragging ? <TaskChip task={dragging} overlay /> : null}</DragOverlay>
+        <DragOverlay dropAnimation={null}>
+          {dragging ? <TaskChip task={dragging} overlay /> : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
 }
 
-const chunk = <T,>(list: T[], size: number): T[][] => Array.from({ length: Math.ceil(list.length / size) }, (_, i) => list.slice(i * size, i * size + size));
+const chunk = <T,>(list: T[], size: number): T[][] =>
+  Array.from({ length: Math.ceil(list.length / size) }, (_, i) => list.slice(i * size, i * size + size));

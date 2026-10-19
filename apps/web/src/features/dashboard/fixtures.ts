@@ -1,6 +1,8 @@
 import type { DashboardDto, ProjectHealthRowDto } from '@hearth/contracts';
 
-const row = (over: Partial<ProjectHealthRowDto> & Pick<ProjectHealthRowDto, 'project'>): ProjectHealthRowDto => ({
+const row = (
+  over: Partial<ProjectHealthRowDto> & Pick<ProjectHealthRowDto, 'project'>,
+): ProjectHealthRowDto => ({
   health: 'ON_TRACK',
   healthMeta: { label: 'On track', icon: 'status-done', tone: 'success' },
   suggestedHealth: 'ON_TRACK',
@@ -47,7 +49,13 @@ export const dashboardFixture: DashboardDto = {
       due: '2026-11-14',
       budgetUsedPct: 71,
     }),
-    row({ project: { id: 'p2', name: 'Q4 brand campaign', color: 'violet' }, owner: { id: 'u4', name: 'Jia Li', initials: 'JL', avatarColor: 'violet' }, progress: 48, due: '2026-12-05', budgetUsedPct: 44 }),
+    row({
+      project: { id: 'p2', name: 'Q4 brand campaign', color: 'violet' },
+      owner: { id: 'u4', name: 'Jia Li', initials: 'JL', avatarColor: 'violet' },
+      progress: 48,
+      due: '2026-12-05',
+      budgetUsedPct: 44,
+    }),
     row({
       project: { id: 'p3', name: 'Mobile app v2', color: 'sky' },
       health: 'OFF_TRACK',

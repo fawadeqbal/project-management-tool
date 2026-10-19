@@ -41,8 +41,9 @@ export function BillingPage() {
   const [downgrade, setDowngrade] = useState<PlanCardDto | null>(null);
   const { show } = useToast();
   const upgradePrompt = useUpgradePrompt();
-  const change = useBillingMutation((vars: { plan: PlanCardDto; interval: BillingIntervalDto; confirm?: boolean }) =>
-    billingApi.changePlan({ plan: vars.plan.id, interval: vars.interval, confirm: vars.confirm }),
+  const change = useBillingMutation(
+    (vars: { plan: PlanCardDto; interval: BillingIntervalDto; confirm?: boolean }) =>
+      billingApi.changePlan({ plan: vars.plan.id, interval: vars.interval, confirm: vars.confirm }),
   );
 
   // Start the toggle on the plan's own interval so "Current plan" is accurate.
@@ -55,7 +56,12 @@ export function BillingPage() {
   if (error || !data)
     return (
       <div className={styles.page}>
-        <EmptyState icon="alert" title="Billing didn’t load" description={error?.message ?? 'Try again in a moment.'} primaryAction={<Button onClick={() => void refetch()}>Try again</Button>} />
+        <EmptyState
+          icon="alert"
+          title="Billing didn’t load"
+          description={error?.message ?? 'Try again in a moment.'}
+          primaryAction={<Button onClick={() => void refetch()}>Try again</Button>}
+        />
       </div>
     );
 
@@ -69,7 +75,10 @@ export function BillingPage() {
       {
         onSuccess: () => {
           setDowngrade(null);
-          show({ message: `You’re on ${plan.name}, billed ${interval === 'ANNUAL' ? 'annually' : 'monthly'}.`, icon: 'check' });
+          show({
+            message: `You’re on ${plan.name}, billed ${interval === 'ANNUAL' ? 'annually' : 'monthly'}.`,
+            icon: 'check',
+          });
         },
         onError: (e) => {
           if (!upgradePrompt.handleError(e)) show({ message: e.message, tone: 'danger', icon: 'alert' });
@@ -87,13 +96,28 @@ export function BillingPage() {
             <strong>
               {current.planName}, billed {current.interval === 'ANNUAL' ? 'annually' : 'monthly'}
             </strong>{' '}
-            · {current.status === 'CANCELED' ? `ends ${current.renewsLabel}` : `next invoice ${current.renewsLabel}`} · {current.seats} seats
+            ·{' '}
+            {current.status === 'CANCELED'
+              ? `ends ${current.renewsLabel}`
+              : `next invoice ${current.renewsLabel}`}{' '}
+            · {current.seats} seats
           </p>
         </div>
-        <Button variant="secondary" icon="doc" onClick={() => show({ message: 'Invoices arrive once a payment provider is connected.', tone: 'info' })}>
+        <Button
+          variant="secondary"
+          icon="doc"
+          onClick={() =>
+            show({ message: 'Invoices arrive once a payment provider is connected.', tone: 'info' })
+          }
+        >
           Invoices
         </Button>
-        <Button variant="secondary" onClick={() => show({ message: 'Payment methods arrive once a payment provider is connected.', tone: 'info' })}>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            show({ message: 'Payment methods arrive once a payment provider is connected.', tone: 'info' })
+          }
+        >
           Payment method
         </Button>
       </div>
@@ -118,10 +142,19 @@ export function BillingPage() {
           </div>
           {recommended ? (
             <>
-              <Button variant="secondary" size="sm" icon="arrow-up-right" onClick={() => upgradePrompt.open('dashboards')}>
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="arrow-up-right"
+                onClick={() => upgradePrompt.open('dashboards')}
+              >
                 Preview {recommended.name}
               </Button>
-              <Button size="sm" onClick={() => runChange(recommended)} disabled={!canManage || change.isPending}>
+              <Button
+                size="sm"
+                onClick={() => runChange(recommended)}
+                disabled={!canManage || change.isPending}
+              >
                 Upgrade to {recommended.name}
               </Button>
             </>
@@ -133,7 +166,12 @@ export function BillingPage() {
 
       <div className={styles.compareRow}>
         <h2 className={styles.h2}>Compare plans</h2>
-        <SegmentedControl label="Billing period" options={INTERVAL_OPTIONS} value={interval} onChange={(v) => setInterval(v as BillingIntervalDto)} />
+        <SegmentedControl
+          label="Billing period"
+          options={INTERVAL_OPTIONS}
+          value={interval}
+          onChange={(v) => setInterval(v as BillingIntervalDto)}
+        />
         {savingPlan?.annualSavings ? (
           <span className={styles.saving} aria-live="polite">
             {interval === 'ANNUAL'
@@ -161,7 +199,13 @@ export function BillingPage() {
 
       <PauseCancel billing={data} />
 
-      <DowngradeDialog plan={downgrade} currentPlanName={currentPlan?.name ?? current.planName} busy={change.isPending} onClose={() => setDowngrade(null)} onConfirm={() => downgrade && runChange(downgrade, true)} />
+      <DowngradeDialog
+        plan={downgrade}
+        currentPlanName={currentPlan?.name ?? current.planName}
+        busy={change.isPending}
+        onClose={() => setDowngrade(null)}
+        onConfirm={() => downgrade && runChange(downgrade, true)}
+      />
       {upgradePrompt.element}
     </div>
   );

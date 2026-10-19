@@ -19,7 +19,10 @@ interface Props {
  * One person-day: the number is always shown, the lightness scale reinforces it, over capacity
  * adds a warning icon and time off is hatched with "Off" — never color alone.
  */
-export const WorkloadCell = forwardRef<HTMLButtonElement, Props>(function WorkloadCell({ cell, unit, dayLabel, focused, weekStart, onOpen, onKeyDown, onFocus }, ref) {
+export const WorkloadCell = forwardRef<HTMLButtonElement, Props>(function WorkloadCell(
+  { cell, unit, dayLabel, focused, weekStart, onOpen, onKeyDown, onFocus },
+  ref,
+) {
   const off = cell.state === 'off';
   const label = cellTitle(cell, unit, dayLabel);
   return (
@@ -37,7 +40,9 @@ export const WorkloadCell = forwardRef<HTMLButtonElement, Props>(function Worklo
         onKeyDown={onKeyDown}
         onFocus={onFocus}
       >
-        {cell.state === 'over' ? <Icon name="alert" size={12} aria-hidden="true" data-testid="over-icon" /> : null}
+        {cell.state === 'over' ? (
+          <Icon name="alert" size={12} aria-hidden="true" data-testid="over-icon" />
+        ) : null}
         {off ? 'Off' : formatAmount(cell.planned, unit)}
       </button>
     </div>

@@ -12,6 +12,12 @@ import { ReportingController } from './presentation/reporting.controller';
  */
 @Module({
   controllers: [ReportingController],
-  providers: [DashboardPreferencesStore, DashboardReadModel, GetDashboardHandler, SaveDashboardLayoutHandler, ScheduleDashboardHandler],
+  providers: [
+    DashboardPreferencesStore,
+    DashboardReadModel,
+    GetDashboardHandler,
+    SaveDashboardLayoutHandler,
+    ScheduleDashboardHandler,
+  ],
 })
 export class ReportingModule {}

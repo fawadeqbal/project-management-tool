@@ -18,7 +18,11 @@ export class InMemoryProjectRepository implements ProjectRepository {
     return p && p.workspaceId === workspaceId ? p : null;
   }
   async findBySectionId(workspaceId: string, sectionId: string) {
-    return [...this.saved.values()].find((p) => p.workspaceId === workspaceId && p.sections.some((s) => s.id === sectionId)) ?? null;
+    return (
+      [...this.saved.values()].find(
+        (p) => p.workspaceId === workspaceId && p.sections.some((s) => s.id === sectionId),
+      ) ?? null
+    );
   }
   async save(project: Project) {
     this.saved.set(project.id, project);
@@ -47,7 +51,9 @@ export class InMemoryMilestones implements MilestoneStore {
   }
   async findById(_ws: string, id: string) {
     const m = this.rows.get(id);
-    return m && (this.projectOf(m.projectId) ?? true) ? { ...m, dependsOnTaskIds: [...m.dependsOnTaskIds] } : null;
+    return m && (this.projectOf(m.projectId) ?? true)
+      ? { ...m, dependsOnTaskIds: [...m.dependsOnTaskIds] }
+      : null;
   }
   async save(m: MilestoneRecord) {
     this.rows.set(m.id, { ...m });
@@ -60,11 +66,16 @@ export class InMemoryMilestones implements MilestoneStore {
   }
 }
 
-export const teams = (ids: string[] = ['t1']): TeamDirectory => ({ exists: async (_w, id) => ids.includes(id) });
+export const teams = (ids: string[] = ['t1']): TeamDirectory => ({
+  exists: async (_w, id) => ids.includes(id),
+});
 
 export const realAccess = (): AccessService => {
   const policy = new AccessPolicy();
-  return { allows: policy.allows.bind(policy), assert: policy.assert.bind(policy) } as unknown as AccessService;
+  return {
+    allows: policy.allows.bind(policy),
+    assert: policy.assert.bind(policy),
+  } as unknown as AccessService;
 };
 
 export class CapturingPublisher {

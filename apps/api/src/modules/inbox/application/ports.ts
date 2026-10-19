@@ -1,4 +1,10 @@
-import type { Approval, ApprovalRepository, DomainEvent, NotificationDraft, PolicyContext } from '@hearth/domain';
+import type {
+  Approval,
+  ApprovalRepository,
+  DomainEvent,
+  NotificationDraft,
+  PolicyContext,
+} from '@hearth/domain';
 
 /** Everything the notification policy needs to know about an event, loaded by an adapter. */
 export interface NotificationContext extends PolicyContext {
@@ -16,7 +22,9 @@ export interface NewNotification extends NotificationDraft {
 /** Port for the notification write side (Prisma adapter in infrastructure, fakes in tests). */
 export interface NotificationGateway {
   contextFor(event: DomainEvent): Promise<NotificationContext>;
-  createMany(notifications: NewNotification[]): Promise<{ id: string; recipientId: string; type: string; taskId: string | null }[]>;
+  createMany(
+    notifications: NewNotification[],
+  ): Promise<{ id: string; recipientId: string; type: string; taskId: string | null }[]>;
 }
 export const NOTIFICATION_GATEWAY = Symbol('NotificationGateway');
 

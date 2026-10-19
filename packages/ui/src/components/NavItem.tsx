@@ -35,7 +35,11 @@ export function NavItem<C extends ElementType = 'a'>({
 }: NavItemProps<C>) {
   const Component: ElementType = linkComponent ?? 'a';
   return (
-    <Component {...rest} className={cx('ht-nav', className as string | undefined)} aria-current={active ? 'page' : undefined}>
+    <Component
+      {...rest}
+      className={cx('ht-nav', className as string | undefined)}
+      aria-current={active ? 'page' : undefined}
+    >
       {dot ? (
         <span className="ht-nav-dot" aria-hidden="true" style={{ background: accentVar(dot, 'dot') }} />
       ) : (

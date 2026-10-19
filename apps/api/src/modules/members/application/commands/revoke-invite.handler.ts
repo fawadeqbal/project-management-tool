@@ -15,11 +15,22 @@ export class RevokeInviteHandler implements ICommandHandler<RevokeInviteCommand,
   ) {}
 
   async execute({ actor, inviteId }: RevokeInviteCommand): Promise<void> {
-    const invite = await this.prisma.invite.findFirst({ where: { id: inviteId, workspaceId: actor.workspaceId, status: 'PENDING' } });
+    const invite = await this.prisma.invite.findFirst({
+      where: { id: inviteId, workspaceId: actor.workspaceId, status: 'PENDING' },
+    });
     if (!invite) throw new NotFoundError('Invite', inviteId);
     await this.prisma.invite.update({ where: { id: invite.id }, data: { status: 'REVOKED' } });
     this.events.publish(
-      createEvent('member.invite_revoked', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: invite.id, occurredAt: this.clock.now() }, { email: invite.email }),
+      createEvent(
+        'member.invite_revoked',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: invite.id,
+          occurredAt: this.clock.now(),
+        },
+        { email: invite.email },
+      ),
     );
   }
 }

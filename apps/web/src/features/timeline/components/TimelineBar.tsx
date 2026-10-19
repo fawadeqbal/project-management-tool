@@ -24,14 +24,25 @@ const human = (d: string) => formatShortDate(parseDateOnly(d));
  * One Gantt bar: drag the body to move, either edge to resize (pointer), or focus it and use
  * ←/→ to move a day and Shift+←/→ to change the end date. Enter opens the task.
  */
-export function TimelineBar({ row, draft, scale, conflict, canEdit, onDraft, onCommit, onNudge, onOpen }: TimelineBarProps) {
+export function TimelineBar({
+  row,
+  draft,
+  scale,
+  conflict,
+  canEdit,
+  onDraft,
+  onCommit,
+  onNudge,
+  onOpen,
+}: TimelineBarProps) {
   const drag = useRef<{ mode: DragMode; x: number; moved: boolean } | null>(null);
   const dates = draft ?? row;
   const geo = barGeometry(scale, dates.startDate, dates.dueDate);
   const done = row.status === 'DONE';
   const tone = row.critical && !done ? 'critical' : done ? 'done' : 'normal';
   const showLabel = geo.width >= 90;
-  const baseline = row.baselineStart && row.baselineDue ? barGeometry(scale, row.baselineStart, row.baselineDue) : null;
+  const baseline =
+    row.baselineStart && row.baselineDue ? barGeometry(scale, row.baselineStart, row.baselineDue) : null;
 
   const begin = (mode: DragMode) => (e: PointerEvent<HTMLElement>) => {
     if (!canEdit || e.button !== 0) return;
@@ -67,7 +78,13 @@ export function TimelineBar({ row, draft, scale, conflict, canEdit, onDraft, onC
 
   return (
     <>
-      {baseline ? <div className={styles.baseline} style={{ left: baseline.left - 1, width: baseline.width + 2 }} aria-hidden="true" /> : null}
+      {baseline ? (
+        <div
+          className={styles.baseline}
+          style={{ left: baseline.left - 1, width: baseline.width + 2 }}
+          aria-hidden="true"
+        />
+      ) : null}
       <div
         role="button"
         tabIndex={0}
@@ -81,20 +98,38 @@ export function TimelineBar({ row, draft, scale, conflict, canEdit, onDraft, onC
         onPointerDown={begin('move')}
         onPointerMove={move}
         onPointerUp={end}
-        onPointerCancel={() => (drag.current = null, onDraft(null))}
+        onPointerCancel={() => ((drag.current = null), onDraft(null))}
         onKeyDown={onKeyDown}
       >
-        {tone === 'critical' ? <span className={styles.progress} style={{ width: `${row.progress}%` }} /> : null}
+        {tone === 'critical' ? (
+          <span className={styles.progress} style={{ width: `${row.progress}%` }} />
+        ) : null}
         {showLabel ? <span className={styles.barLabel}>{row.title}</span> : null}
         {canEdit ? (
           <>
-            <span className={styles.handle} data-edge="start" onPointerDown={begin('start')} onPointerMove={move} onPointerUp={end} aria-hidden="true" />
-            <span className={styles.handle} data-edge="end" onPointerDown={begin('end')} onPointerMove={move} onPointerUp={end} aria-hidden="true" />
+            <span
+              className={styles.handle}
+              data-edge="start"
+              onPointerDown={begin('start')}
+              onPointerMove={move}
+              onPointerUp={end}
+              aria-hidden="true"
+            />
+            <span
+              className={styles.handle}
+              data-edge="end"
+              onPointerDown={begin('end')}
+              onPointerMove={move}
+              onPointerUp={end}
+              aria-hidden="true"
+            />
           </>
         ) : null}
       </div>
       {conflict ? (
-        <Tooltip content={`Starts ${conflict.overlapDays} ${conflict.overlapDays === 1 ? 'day' : 'days'} before ${conflict.blockerKey ?? 'its blocker'} finishes`}>
+        <Tooltip
+          content={`Starts ${conflict.overlapDays} ${conflict.overlapDays === 1 ? 'day' : 'days'} before ${conflict.blockerKey ?? 'its blocker'} finishes`}
+        >
           <span
             tabIndex={0}
             role="img"

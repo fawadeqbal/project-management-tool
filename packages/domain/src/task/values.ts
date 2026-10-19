@@ -27,9 +27,11 @@ export const PRIORITY_META: Record<Priority, { label: string; rank: number }> = 
   NONE: { label: 'No priority', rank: 4 },
 };
 
-export const isTaskStatus = (v: unknown): v is TaskStatus => (TASK_STATUSES as readonly unknown[]).includes(v);
+export const isTaskStatus = (v: unknown): v is TaskStatus =>
+  (TASK_STATUSES as readonly unknown[]).includes(v);
 export const isPriority = (v: unknown): v is Priority => (PRIORITIES as readonly unknown[]).includes(v);
-export const isAccentColor = (v: unknown): v is AccentColor => (ACCENT_COLORS as readonly unknown[]).includes(v);
+export const isAccentColor = (v: unknown): v is AccentColor =>
+  (ACCENT_COLORS as readonly unknown[]).includes(v);
 
 /**
  * TaskKey value object: "HRT-142". Immutable, validated, compared by value.
@@ -42,7 +44,10 @@ export class TaskKey {
 
   static of(prefix: string, number: number): TaskKey {
     if (!/^[A-Z][A-Z0-9]{1,5}$/.test(prefix))
-      throw new ValidationError('task_key.prefix', 'Use 2–6 capital letters or digits for the key prefix, like HRT.');
+      throw new ValidationError(
+        'task_key.prefix',
+        'Use 2–6 capital letters or digits for the key prefix, like HRT.',
+      );
     if (!Number.isInteger(number) || number < 1)
       throw new ValidationError('task_key.number', 'Task numbers start at 1.');
     return new TaskKey(prefix, number);
@@ -50,7 +55,11 @@ export class TaskKey {
 
   static parse(value: string): TaskKey {
     const m = /^([A-Z][A-Z0-9]{1,5})-(\d+)$/.exec(value.trim().toUpperCase());
-    if (!m) throw new ValidationError('task_key.format', `“${value}” isn’t a task key — try something like HRT-142.`);
+    if (!m)
+      throw new ValidationError(
+        'task_key.format',
+        `“${value}” isn’t a task key — try something like HRT-142.`,
+      );
     return TaskKey.of(m[1]!, Number(m[2]));
   }
 

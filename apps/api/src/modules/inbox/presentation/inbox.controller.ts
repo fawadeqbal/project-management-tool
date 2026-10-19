@@ -21,7 +21,10 @@ import { ZodValidationPipe } from '../../../shared/http/zod-validation.pipe';
 import { RequirePermission } from '../../../shared/access/require-permission';
 import { GetInboxQuery } from '../application/queries/get-inbox.query';
 import { GetApprovalQuery } from '../application/queries/get-approval.query';
-import { TriageNotificationsCommand, type TriageAction } from '../application/commands/triage-notifications.command';
+import {
+  TriageNotificationsCommand,
+  type TriageAction,
+} from '../application/commands/triage-notifications.command';
 import { RequestApprovalCommand } from '../application/commands/request-approval.command';
 import { DecideApprovalCommand } from '../application/commands/decide-approval.command';
 
@@ -34,13 +37,19 @@ export class InboxController {
   ) {}
 
   @Get('inbox')
-  list(@CurrentActor() actor: Actor, @Query(new ZodValidationPipe(InboxQuerySchema)) query: InboxQuery): Promise<InboxDto> {
+  list(
+    @CurrentActor() actor: Actor,
+    @Query(new ZodValidationPipe(InboxQuerySchema)) query: InboxQuery,
+  ): Promise<InboxDto> {
     return this.queries.execute(new GetInboxQuery(actor, query));
   }
 
   @Post('inbox/bulk')
   @HttpCode(200)
-  bulk(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(InboxBulkSchema)) input: InboxBulkInput): Promise<InboxTriageResultDto> {
+  bulk(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(InboxBulkSchema)) input: InboxBulkInput,
+  ): Promise<InboxTriageResultDto> {
     return this.triage(actor, input.ids, { kind: input.action });
   }
 
@@ -76,7 +85,11 @@ export class InboxController {
 
   @Post('inbox/:id/snooze')
   @HttpCode(200)
-  snooze(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(SnoozeSchema)) input: SnoozeInput) {
+  snooze(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(SnoozeSchema)) input: SnoozeInput,
+  ) {
     return this.triage(actor, [id], { kind: 'snooze', preset: input.preset, until: input.until });
   }
 
@@ -87,7 +100,9 @@ export class InboxController {
     @Param('taskId') taskId: string,
     @Body(new ZodValidationPipe(CreateApprovalSchema)) input: CreateApprovalInput,
   ): Promise<ApprovalDetailDto> {
-    const { id } = await this.commands.execute<RequestApprovalCommand, { id: string }>(new RequestApprovalCommand(actor, taskId, input));
+    const { id } = await this.commands.execute<RequestApprovalCommand, { id: string }>(
+      new RequestApprovalCommand(actor, taskId, input),
+    );
     return this.queries.execute(new GetApprovalQuery(actor, id));
   }
 

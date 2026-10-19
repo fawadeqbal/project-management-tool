@@ -8,15 +8,38 @@ const base = { workspaceId: 'w', actorId: 'sara', aggregateId: 'task-188', occur
 
 describe('notification policy', () => {
   it('notifies mentioned people once and never the actor', () => {
-    const e = createEvent('comment.created', base, { taskId: 'task-188', excerpt: '@Fawad the toggle is 3.9:1', mentionedUserIds: ['fawad', 'sara'], parentAuthorId: 'fawad' });
+    const e = createEvent('comment.created', base, {
+      taskId: 'task-188',
+      excerpt: '@Fawad the toggle is 3.9:1',
+      mentionedUserIds: ['fawad', 'sara'],
+      parentAuthorId: 'fawad',
+    });
     const drafts = notificationsFor(e, { actorName: 'Sara Ahmed', followerIds: [], taskAssigneeId: 'fawad' });
-    expect(drafts).toEqual([{ recipientId: 'fawad', type: 'MENTION', title: 'Sara Ahmed mentioned you', excerpt: '@Fawad the toggle is 3.9:1', taskId: 'task-188' }]);
+    expect(drafts).toEqual([
+      {
+        recipientId: 'fawad',
+        type: 'MENTION',
+        title: 'Sara Ahmed mentioned you',
+        excerpt: '@Fawad the toggle is 3.9:1',
+        taskId: 'task-188',
+      },
+    ]);
   });
 
   it('tells followers when a task they follow is completed', () => {
-    const e = createEvent('task.status_changed', base, { title: 'Accessibility pass', from: 'IN_REVIEW', to: 'DONE' });
-    const drafts = notificationsFor(e, { actorName: 'Sara Ahmed', followerIds: ['fawad', 'sara'], taskAssigneeId: null });
-    expect(drafts.map((d) => [d.recipientId, d.type, d.title])).toEqual([['fawad', 'TASK_COMPLETED', 'Sara Ahmed completed a task you follow']]);
+    const e = createEvent('task.status_changed', base, {
+      title: 'Accessibility pass',
+      from: 'IN_REVIEW',
+      to: 'DONE',
+    });
+    const drafts = notificationsFor(e, {
+      actorName: 'Sara Ahmed',
+      followerIds: ['fawad', 'sara'],
+      taskAssigneeId: null,
+    });
+    expect(drafts.map((d) => [d.recipientId, d.type, d.title])).toEqual([
+      ['fawad', 'TASK_COMPLETED', 'Sara Ahmed completed a task you follow'],
+    ]);
   });
 
   it('snoozes until tomorrow morning', () => {
@@ -26,7 +49,17 @@ describe('notification policy', () => {
 
 describe('approval', () => {
   const request = () =>
-    Approval.request({ id: 'a1', workspaceId: 'w', taskId: 't', requesterId: 'jia', title: 'Homepage copy v3', approverIds: ['sara', 'fawad'] }, now);
+    Approval.request(
+      {
+        id: 'a1',
+        workspaceId: 'w',
+        taskId: 't',
+        requesterId: 'jia',
+        title: 'Homepage copy v3',
+        approverIds: ['sara', 'fawad'],
+      },
+      now,
+    );
 
   it('is approved once everyone approves', () => {
     const a = request();

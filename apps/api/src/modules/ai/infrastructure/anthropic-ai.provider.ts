@@ -1,4 +1,10 @@
-import { summarySource, type AiBreakdown, type AiProvider, type AiSummary, type AiTaskContext } from '@hearth/domain';
+import {
+  summarySource,
+  type AiBreakdown,
+  type AiProvider,
+  type AiSummary,
+  type AiTaskContext,
+} from '@hearth/domain';
 
 export interface AnthropicConfig {
   apiKey: string;
@@ -7,7 +13,10 @@ export interface AnthropicConfig {
   timeoutMs?: number;
 }
 
-type FetchLike = (input: string, init: { method: string; headers: Record<string, string>; body: string; signal: AbortSignal }) => Promise<{
+type FetchLike = (
+  input: string,
+  init: { method: string; headers: Record<string, string>; body: string; signal: AbortSignal },
+) => Promise<{
   ok: boolean;
   status: number;
   json(): Promise<unknown>;
@@ -34,7 +43,9 @@ export class AnthropicAiProvider implements AiProvider {
     );
     if (!out.summary?.trim()) throw new Error('Anthropic returned an empty summary');
     const next = out.nextStep?.trim() || null;
-    const text = next ? `${out.summary.trim()} Suggested next step: ${next.replace(/^[A-Z]/, (c) => c.toLowerCase()).replace(/\.?$/, '.')}` : out.summary.trim();
+    const text = next
+      ? `${out.summary.trim()} Suggested next step: ${next.replace(/^[A-Z]/, (c) => c.toLowerCase()).replace(/\.?$/, '.')}`
+      : out.summary.trim();
     return { text, source: summarySource(ctx), suggestedNextStep: next };
   }
 
@@ -43,7 +54,11 @@ export class AnthropicAiProvider implements AiProvider {
       `Break this task into 3 to 6 concrete subtasks, each starting with a verb, under 80 characters, ` +
         `not repeating existing subtasks. Return {"subtasks": string[]}.\n\nTask data:\n${JSON.stringify(ctx)}`,
     );
-    const subtasks = Array.isArray(out.subtasks) ? out.subtasks.filter((s): s is string => typeof s === 'string' && s.trim().length > 0).map((s) => s.trim()) : [];
+    const subtasks = Array.isArray(out.subtasks)
+      ? out.subtasks
+          .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+          .map((s) => s.trim())
+      : [];
     if (subtasks.length < 2) throw new Error('Anthropic returned too few subtasks');
     return { subtasks: subtasks.slice(0, 6), source: 'generated from the title and description' };
   }
@@ -54,13 +69,25 @@ export class AnthropicAiProvider implements AiProvider {
     try {
       const res = await this.fetchImpl(`${this.config.baseUrl ?? 'https://api.anthropic.com'}/v1/messages`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': this.config.apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: this.config.model, max_tokens: 600, system: SYSTEM, messages: [{ role: 'user', content: prompt }] }),
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': this.config.apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: this.config.model,
+          max_tokens: 600,
+          system: SYSTEM,
+          messages: [{ role: 'user', content: prompt }],
+        }),
         signal: controller.signal,
       });
       if (!res.ok) throw new Error(`Anthropic API responded ${res.status}`);
       const body = (await res.json()) as { content?: { type: string; text?: string }[] };
-      const text = (body.content ?? []).filter((c) => c.type === 'text').map((c) => c.text ?? '').join('');
+      const text = (body.content ?? [])
+        .filter((c) => c.type === 'text')
+        .map((c) => c.text ?? '')
+        .join('');
       const json = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
       return JSON.parse(json) as T;
     } finally {

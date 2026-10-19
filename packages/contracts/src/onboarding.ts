@@ -3,7 +3,13 @@ import type { AccentColorSchema, ProjectRefDto } from './common';
 
 // Contracts for the onboarding bounded context (first-run Home: checklist and templates).
 
-export const ONBOARDING_STEP_IDS = ['create-workspace', 'start-from-template', 'create-first-task', 'invite-teammates', 'connect-slack'] as const;
+export const ONBOARDING_STEP_IDS = [
+  'create-workspace',
+  'start-from-template',
+  'create-first-task',
+  'invite-teammates',
+  'connect-slack',
+] as const;
 export const OnboardingStepIdSchema = z.enum(ONBOARDING_STEP_IDS);
 export type OnboardingStepIdDto = z.infer<typeof OnboardingStepIdSchema>;
 

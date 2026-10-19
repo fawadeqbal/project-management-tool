@@ -18,7 +18,9 @@ export class WorkspaceReadModel {
       where: {
         workspaceId: actor.workspaceId,
         // Guests never see the member list — only people on their projects.
-        ...(actor.role === 'GUEST' ? { user: { projectAccess: { some: { projectId: { in: [...(actor.projectIds ?? [])] } } } } } : {}),
+        ...(actor.role === 'GUEST'
+          ? { user: { projectAccess: { some: { projectId: { in: [...(actor.projectIds ?? [])] } } } } }
+          : {}),
       },
       include: { user: { include: { teamMemberships: { include: { team: true } } } } },
       orderBy: [{ status: 'asc' }, { user: { name: 'asc' } }],
@@ -38,8 +40,17 @@ export class WorkspaceReadModel {
   }
 
   async teams(workspaceId: string): Promise<TeamDto[]> {
-    const teams = await this.prisma.team.findMany({ where: { workspaceId }, include: { members: true }, orderBy: { name: 'asc' } });
-    return teams.map((t) => ({ id: t.id, name: t.name, color: accent(t.color), memberIds: t.members.map((m) => m.userId) }));
+    const teams = await this.prisma.team.findMany({
+      where: { workspaceId },
+      include: { members: true },
+      orderBy: { name: 'asc' },
+    });
+    return teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      color: accent(t.color),
+      memberIds: t.members.map((m) => m.userId),
+    }));
   }
 
   async tags(workspaceId: string): Promise<TagDto[]> {
@@ -56,7 +67,14 @@ export class WorkspaceReadModel {
         orderBy: { position: 'asc' },
       }),
       this.teams(actor.workspaceId),
-      this.prisma.task.count({ where: { workspaceId: actor.workspaceId, assigneeId: actor.userId, status: { not: 'DONE' }, parentId: null } }),
+      this.prisma.task.count({
+        where: {
+          workspaceId: actor.workspaceId,
+          assigneeId: actor.userId,
+          status: { not: 'DONE' },
+          parentId: null,
+        },
+      }),
       this.prisma.notification.count({
         where: {
           workspaceId: actor.workspaceId,
@@ -66,7 +84,9 @@ export class WorkspaceReadModel {
           OR: [{ snoozedUntil: null }, { snoozedUntil: { lte: now } }],
         },
       }),
-      this.prisma.onboardingProgress.findUnique({ where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId: actor.userId } } }),
+      this.prisma.onboardingProgress.findUnique({
+        where: { workspaceId_userId: { workspaceId: actor.workspaceId, userId: actor.userId } },
+      }),
     ]);
     const progress = onboardingProgress(onboarding?.completedSteps ?? ['create-workspace']);
     return {

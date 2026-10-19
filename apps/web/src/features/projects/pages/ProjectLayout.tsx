@@ -59,7 +59,11 @@ export function ProjectLayout() {
         <EmptyState
           icon={notFound ? 'folder' : 'alert'}
           title={notFound ? 'We couldn’t find that project' : 'We couldn’t load this project'}
-          description={notFound ? 'It may have been archived, or you may not have access. Ask the project owner to invite you.' : 'Check your connection and try again.'}
+          description={
+            notFound
+              ? 'It may have been archived, or you may not have access. Ask the project owner to invite you.'
+              : 'Check your connection and try again.'
+          }
           primaryAction={
             notFound ? (
               <Button variant="secondary" onClick={() => void navigate('/projects')}>

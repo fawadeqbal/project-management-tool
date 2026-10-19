@@ -24,14 +24,24 @@ export class DeleteMilestoneHandler implements ICommandHandler<DeleteMilestoneCo
 
   async execute({ actor, milestoneId }: DeleteMilestoneCommand): Promise<void> {
     const m = await this.milestones.findById(actor.workspaceId, milestoneId);
-    if (!m || !this.access.allows(actor, 'tasks.view', { projectId: m.projectId })) throw new NotFoundError('Milestone', milestoneId);
+    if (!m || !this.access.allows(actor, 'tasks.view', { projectId: m.projectId }))
+      throw new NotFoundError('Milestone', milestoneId);
     this.access.assert(actor, 'projects.manage', { projectId: m.projectId });
     await this.milestones.delete(m.id);
     this.events.publish(
-      createEvent('milestone.deleted', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: m.id, occurredAt: this.clock.now() }, {
-        projectId: m.projectId,
-        name: m.name,
-      }),
+      createEvent(
+        'milestone.deleted',
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: m.id,
+          occurredAt: this.clock.now(),
+        },
+        {
+          projectId: m.projectId,
+          name: m.name,
+        },
+      ),
     );
   }
 }

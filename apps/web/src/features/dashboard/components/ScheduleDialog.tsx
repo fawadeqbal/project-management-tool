@@ -23,7 +23,14 @@ export function ScheduleDialog({ open, initial, busy, onClose, onSubmit }: Sched
   }, [open, initial]);
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const list = [...new Set(value.split(/[\s,;]+/).map((s) => s.trim().toLowerCase()).filter(Boolean))];
+    const list = [
+      ...new Set(
+        value
+          .split(/[\s,;]+/)
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    ];
     const bad = list.find((x) => !EMAIL.test(x));
     if (!list.length) return setError('Add at least one email, like sara@acme.com.');
     if (bad) return setError(`“${bad}” is missing something — try sara@acme.com.`);
@@ -47,7 +54,15 @@ export function ScheduleDialog({ open, initial, busy, onClose, onSubmit }: Sched
       }
     >
       <form id="schedule-form" onSubmit={submit} noValidate>
-        <Textarea label="Recipients" hint="Separate emails with commas." rows={3} value={value} onChange={(e) => setValue(e.target.value)} error={error} placeholder="sara@acme.com, mo@acme.com" />
+        <Textarea
+          label="Recipients"
+          hint="Separate emails with commas."
+          rows={3}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          error={error}
+          placeholder="sara@acme.com, mo@acme.com"
+        />
       </form>
     </Dialog>
   );

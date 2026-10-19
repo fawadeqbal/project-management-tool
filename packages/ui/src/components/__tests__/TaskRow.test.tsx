@@ -9,7 +9,14 @@ describe('TaskRow', () => {
     const onOpen = vi.fn();
     const onToggleDone = vi.fn();
     render(
-      <TaskRow id="HRT-142" title="Write onboarding copy" status="in-progress" priority="high" onOpen={onOpen} onToggleDone={onToggleDone} />,
+      <TaskRow
+        id="HRT-142"
+        title="Write onboarding copy"
+        status="in-progress"
+        priority="high"
+        onOpen={onOpen}
+        onToggleDone={onToggleDone}
+      />,
     );
     const row = screen.getByRole('row', { name: 'HRT-142 Write onboarding copy' });
     expect(row).toHaveAttribute('tabindex', '0');
@@ -47,7 +54,9 @@ describe('BoardCard', () => {
   it('forwards ref and extra props, and activates with Enter', () => {
     const ref = { current: null as HTMLDivElement | null };
     const onClick = vi.fn();
-    render(<BoardCard ref={ref} id="HRT-188" title="Pricing page" comments={2} data-dnd="x" onClick={onClick} />);
+    render(
+      <BoardCard ref={ref} id="HRT-188" title="Pricing page" comments={2} data-dnd="x" onClick={onClick} />,
+    );
     const card = screen.getByRole('button', { name: /HRT-188/ });
     expect(ref.current).toBe(card);
     expect(card).toHaveAttribute('data-dnd', 'x');

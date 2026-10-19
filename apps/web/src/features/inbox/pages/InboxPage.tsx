@@ -22,7 +22,11 @@ import styles from '../inbox.module.css';
 /** Selecting an item marks it read after this long (so a quick J/K pass doesn't clear everything). */
 export const MARK_READ_DELAY_MS = 1000;
 
-const SNOOZE_LABEL: Record<SnoozePresetDto, string> = { later_today: 'later today', tomorrow: 'tomorrow', next_week: 'next week' };
+const SNOOZE_LABEL: Record<SnoozePresetDto, string> = {
+  later_today: 'later today',
+  tomorrow: 'tomorrow',
+  next_week: 'next week',
+};
 
 /** Inbox per Inbox.dc.html: list on the left, the selected item on the right, keyboard triage. */
 export function InboxPage() {
@@ -44,7 +48,10 @@ export function InboxPage() {
   const lastIndex = useRef(0);
   const selectedIndex = items.findIndex((i) => i.id === selectedId);
   if (selectedIndex >= 0) lastIndex.current = selectedIndex;
-  const selected: InboxItemDto | null = selectedIndex >= 0 ? items[selectedIndex]! : (items[Math.min(lastIndex.current, items.length - 1)] ?? null);
+  const selected: InboxItemDto | null =
+    selectedIndex >= 0
+      ? items[selectedIndex]!
+      : (items[Math.min(lastIndex.current, items.length - 1)] ?? null);
   useEffect(() => {
     if (selected && selected.id !== selectedId) setSelectedId(selected.id);
   }, [selected, selectedId]);
@@ -95,7 +102,8 @@ export function InboxPage() {
     );
   };
 
-  const targets = (): InboxItemDto[] => (checked.size ? items.filter((i) => checked.has(i.id)) : selected ? [selected] : []);
+  const targets = (): InboxItemDto[] =>
+    checked.size ? items.filter((i) => checked.has(i.id)) : selected ? [selected] : [];
 
   const archive = (list = targets()) => {
     if (!list.length) return;
@@ -157,7 +165,8 @@ export function InboxPage() {
   useHotkey('K', () => move(-1));
   useHotkey('Enter', (e) => {
     // Buttons, links and tabs keep their own Enter.
-    if (e.target instanceof Element && e.target.closest('button, a, [role="tab"], textarea, input')) return false;
+    if (e.target instanceof Element && e.target.closest('button, a, [role="tab"], textarea, input'))
+      return false;
     if (!selected?.taskKey) return false;
     openTask();
   });
@@ -168,9 +177,32 @@ export function InboxPage() {
     () =>
       selected
         ? [
-            { id: 'inbox.archive', title: 'Archive', group: 'Actions', icon: 'archive', shortcut: ['E'], keywords: ['inbox', 'done', 'dismiss'], run: () => archive() },
-            { id: 'inbox.snooze', title: 'Snooze…', group: 'Actions', icon: 'clock', shortcut: ['H'], keywords: ['inbox', 'later', 'remind'], run: () => setSnoozeOpen(true) },
-            ...SNOOZE_OPTIONS.map<Command>((o) => ({ id: `inbox.snooze.${o.id}`, title: `Snooze until ${o.label.toLowerCase()}`, group: 'Actions', icon: 'clock', keywords: ['inbox'], run: () => snooze(o.id) })),
+            {
+              id: 'inbox.archive',
+              title: 'Archive',
+              group: 'Actions',
+              icon: 'archive',
+              shortcut: ['E'],
+              keywords: ['inbox', 'done', 'dismiss'],
+              run: () => archive(),
+            },
+            {
+              id: 'inbox.snooze',
+              title: 'Snooze…',
+              group: 'Actions',
+              icon: 'clock',
+              shortcut: ['H'],
+              keywords: ['inbox', 'later', 'remind'],
+              run: () => setSnoozeOpen(true),
+            },
+            ...SNOOZE_OPTIONS.map<Command>((o) => ({
+              id: `inbox.snooze.${o.id}`,
+              title: `Snooze until ${o.label.toLowerCase()}`,
+              group: 'Actions',
+              icon: 'clock',
+              keywords: ['inbox'],
+              run: () => snooze(o.id),
+            })),
             {
               id: 'inbox.toggle-unread',
               title: selected.unread ? 'Mark read' : 'Mark unread',
@@ -204,14 +236,27 @@ export function InboxPage() {
         <div className={styles.listHead}>
           <div className={styles.titleRow}>
             <h1 className={styles.title}>Inbox</h1>
-            <Button variant={unreadOnly ? 'secondary' : 'ghost'} size="sm" icon="filter" aria-pressed={unreadOnly} onClick={() => setUnreadOnly((u) => !u)}>
+            <Button
+              variant={unreadOnly ? 'secondary' : 'ghost'}
+              size="sm"
+              icon="filter"
+              aria-pressed={unreadOnly}
+              onClick={() => setUnreadOnly((u) => !u)}
+            >
               Unread
             </Button>
             <NotificationSettings />
           </div>
           <ViewTabs tabs={tabs} value={tab} onChange={setTab} label="Inbox filters" />
         </div>
-        {checked.size ? <BulkBar count={checked.size} onArchive={() => archive()} onMarkRead={markRead} onClear={() => setChecked(new Set())} /> : null}
+        {checked.size ? (
+          <BulkBar
+            count={checked.size}
+            onArchive={() => archive()}
+            onMarkRead={markRead}
+            onClear={() => setChecked(new Set())}
+          />
+        ) : null}
         <div
           id="inbox-list"
           role="listbox"
@@ -255,7 +300,10 @@ export function InboxPage() {
         </div>
         <InboxKeyHints />
       </section>
-      <section aria-label={selected && isApproval(selected) ? 'Approval request' : 'Selected item'} className={styles.detailPane}>
+      <section
+        aria-label={selected && isApproval(selected) ? 'Approval request' : 'Selected item'}
+        className={styles.detailPane}
+      >
         <InboxDetail item={selected} {...handlers} />
       </section>
     </div>

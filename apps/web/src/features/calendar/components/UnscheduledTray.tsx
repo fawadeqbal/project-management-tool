@@ -4,8 +4,21 @@ import { PriorityIcon, toUiPriority } from '@hearth/ui';
 import type { ProjectRefDto, TaskDto } from '@hearth/contracts';
 import styles from '../calendar.module.css';
 
-function TrayItem({ task, onOpen, onPick, picked }: { task: TaskDto; onOpen: (t: TaskDto) => void; onPick: (t: TaskDto) => void; picked: boolean }) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: `tray:${task.id}`, data: { task } });
+function TrayItem({
+  task,
+  onOpen,
+  onPick,
+  picked,
+}: {
+  task: TaskDto;
+  onOpen: (t: TaskDto) => void;
+  onPick: (t: TaskDto) => void;
+  picked: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `tray:${task.id}`,
+    data: { task },
+  });
   return (
     <li>
       <button
@@ -45,7 +58,12 @@ export interface UnscheduledTrayProps {
 export function UnscheduledTray({ tasks, legend, picked, onOpen, onPick }: UnscheduledTrayProps) {
   const { setNodeRef, isOver } = useDroppable({ id: 'tray', data: { date: null } });
   return (
-    <aside ref={setNodeRef} aria-label="Unscheduled tasks" className={styles.tray} data-over={isOver || undefined}>
+    <aside
+      ref={setNodeRef}
+      aria-label="Unscheduled tasks"
+      className={styles.tray}
+      data-over={isOver || undefined}
+    >
       <div className={styles.trayHead}>
         <strong>Unscheduled</strong>
         <span className={styles.muted}>{tasks.length}</span>
@@ -65,7 +83,11 @@ export function UnscheduledTray({ tasks, legend, picked, onOpen, onPick }: Unsch
           <strong className={styles.legendTitle}>Projects</strong>
           {legend.map((p) => (
             <span key={p.id} className={styles.legendItem}>
-              <span className={styles.dot} style={{ background: `var(--accent-${p.color}-dot)` }} aria-hidden="true" />
+              <span
+                className={styles.dot}
+                style={{ background: `var(--accent-${p.color}-dot)` }}
+                aria-hidden="true"
+              />
               {p.name}
             </span>
           ))}

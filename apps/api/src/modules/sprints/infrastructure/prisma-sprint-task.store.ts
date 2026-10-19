@@ -11,13 +11,33 @@ export class PrismaSprintTaskStore implements SprintTaskStore {
   async findTask(workspaceId: string, taskId: string): Promise<SprintTaskFacts | null> {
     const t = await this.prisma.task.findFirst({
       where: { id: taskId, workspaceId },
-      select: { id: true, projectId: true, sprintId: true, estimatePoints: true, status: true, backlogRank: true },
+      select: {
+        id: true,
+        projectId: true,
+        sprintId: true,
+        estimatePoints: true,
+        status: true,
+        backlogRank: true,
+      },
     });
-    return t ? { id: t.id, projectId: t.projectId, sprintId: t.sprintId, points: t.estimatePoints, status: t.status, backlogRank: t.backlogRank } : null;
+    return t
+      ? {
+          id: t.id,
+          projectId: t.projectId,
+          sprintId: t.sprintId,
+          points: t.estimatePoints,
+          status: t.status,
+          backlogRank: t.backlogRank,
+        }
+      : null;
   }
 
   async itemsInSprint(sprintId: string): Promise<SprintTaskDto[]> {
-    const rows = await this.prisma.task.findMany({ where: { sprintId }, select: SPRINT_TASK_SELECT, orderBy: { number: 'asc' } });
+    const rows = await this.prisma.task.findMany({
+      where: { sprintId },
+      select: SPRINT_TASK_SELECT,
+      orderBy: { number: 'asc' },
+    });
     return rows.map(toSprintTaskDto);
   }
 
@@ -26,11 +46,18 @@ export class PrismaSprintTaskStore implements SprintTaskStore {
   }
 
   async moveToBacklog(entries: readonly { taskId: string; rank: number }[]): Promise<void> {
-    await this.prisma.$transaction(entries.map((e) => this.prisma.task.update({ where: { id: e.taskId }, data: { sprintId: null, backlogRank: e.rank } })));
+    await this.prisma.$transaction(
+      entries.map((e) =>
+        this.prisma.task.update({ where: { id: e.taskId }, data: { sprintId: null, backlogRank: e.rank } }),
+      ),
+    );
   }
 
   async topBacklogRank(projectId: string): Promise<number | null> {
-    const r = await this.prisma.task.aggregate({ where: { projectId, sprintId: null, backlogRank: { not: null } }, _min: { backlogRank: true } });
+    const r = await this.prisma.task.aggregate({
+      where: { projectId, sprintId: null, backlogRank: { not: null } },
+      _min: { backlogRank: true },
+    });
     return r._min.backlogRank;
   }
 

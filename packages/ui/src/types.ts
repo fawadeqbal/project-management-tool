@@ -7,7 +7,15 @@ export type PriorityLevel = 'urgent' | 'high' | 'medium' | 'low' | 'none';
 /** The seven accent hues; each has -bg, -fg, -dot and -avatar tokens. */
 export type AccentColor = 'blue' | 'green' | 'sky' | 'violet' | 'amber' | 'rose' | 'slate';
 
-export const ACCENT_COLORS: readonly AccentColor[] = ['blue', 'violet', 'green', 'amber', 'sky', 'rose', 'slate'];
+export const ACCENT_COLORS: readonly AccentColor[] = [
+  'blue',
+  'violet',
+  'green',
+  'amber',
+  'sky',
+  'rose',
+  'slate',
+];
 
 /** Status values as the domain and API spell them. */
 export type DomainStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'BLOCKED' | 'DONE';
@@ -60,7 +68,9 @@ export function toDomainStatus(status: Status): DomainStatus {
 }
 
 export function toDomainPriority(priority: PriorityLevel): DomainPriority {
-  return (Object.keys(UI_PRIORITY) as DomainPriority[]).find((key) => UI_PRIORITY[key] === priority) ?? 'NONE';
+  return (
+    (Object.keys(UI_PRIORITY) as DomainPriority[]).find((key) => UI_PRIORITY[key] === priority) ?? 'NONE'
+  );
 }
 
 /** CSS custom property reference for an accent token, e.g. `accentVar('blue', 'dot')`. */

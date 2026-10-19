@@ -40,7 +40,11 @@ export class TimelineReadModel {
         // Guests only see projects they were invited to (AND keeps both id conditions).
         ...(actor.role === 'GUEST' ? { AND: [{ id: { in: [...(actor.projectIds ?? [])] } }] } : {}),
       },
-      select: { id: true, workspace: { select: { keyPrefix: true } }, sections: { orderBy: { position: 'asc' }, select: { id: true, name: true } } },
+      select: {
+        id: true,
+        workspace: { select: { keyPrefix: true } },
+        sections: { orderBy: { position: 'asc' }, select: { id: true, name: true } },
+      },
     });
     if (!project) throw new NotFoundError('Project', projectId);
     const prefix = project.workspace.keyPrefix;
@@ -65,7 +69,11 @@ export class TimelineReadModel {
         },
         orderBy: [{ startDate: 'asc' }, { listPosition: 'asc' }, { number: 'asc' }],
       }),
-      this.prisma.milestone.findMany({ where: { projectId }, orderBy: { date: 'asc' }, include: { dependsOn: { select: { taskId: true } } } }),
+      this.prisma.milestone.findMany({
+        where: { projectId },
+        orderBy: { date: 'asc' },
+        include: { dependsOn: { select: { taskId: true } } },
+      }),
     ]);
 
     const today = startOfDay(this.clock.now());
@@ -82,34 +90,40 @@ export class TimelineReadModel {
     const from = range.from ? parseDateOnly(range.from) : addDays(weekBefore, -weekBefore.getUTCDay());
     const minEnd = addDays(from, 41);
     const end = maxDate.getTime() > minEnd.getTime() ? maxDate : minEnd;
-    const to = range.to ? parseDateOnly(range.to) : addDays(end, 6 - end.getUTCDay() + (end === maxDate ? 7 : 0));
+    const to = range.to
+      ? parseDateOnly(range.to)
+      : addDays(end, 6 - end.getUTCDay() + (end === maxDate ? 7 : 0));
     const inWindow = (s: Date, e: Date) => e.getTime() >= from.getTime() && s.getTime() <= to.getTime();
 
     const taskRows = tasks
       .filter((t) => inWindow(t.startDate!, t.dueDate!))
-      .map(
-        (t): TimelineTaskRowDto => ({
-          kind: 'task',
-          id: t.id,
-          key: `${prefix}-${t.number}`,
-          title: t.title,
-          status: t.status,
-          sectionId: t.sectionId,
-          startDate: toDateOnly(t.startDate!),
-          dueDate: toDateOnly(t.dueDate!),
-          baselineStart: dateOnly(t.baselineStart),
-          baselineDue: dateOnly(t.baselineDue),
-          progress: t.status === 'DONE' ? 100 : t.progress,
-          assignee: t.assignee ? toUserRef(t.assignee) : null,
-          critical: critical.has(t.id),
-        }),
-      );
+      .map((t): TimelineTaskRowDto => ({
+        kind: 'task',
+        id: t.id,
+        key: `${prefix}-${t.number}`,
+        title: t.title,
+        status: t.status,
+        sectionId: t.sectionId,
+        startDate: toDateOnly(t.startDate!),
+        dueDate: toDateOnly(t.dueDate!),
+        baselineStart: dateOnly(t.baselineStart),
+        baselineDue: dateOnly(t.baselineDue),
+        progress: t.status === 'DONE' ? 100 : t.progress,
+        assignee: t.assignee ? toUserRef(t.assignee) : null,
+        critical: critical.has(t.id),
+      }));
 
     // A milestone sits after the last section holding one of the tasks it waits on.
     const sectionIds = [...project.sections.map((s) => s.id), NO_SECTION];
-    const sectionOfTask = new Map((await this.prisma.task.findMany({ where: { projectId }, select: { id: true, sectionId: true } })).map((t) => [t.id, t.sectionId ?? NO_SECTION]));
+    const sectionOfTask = new Map(
+      (await this.prisma.task.findMany({ where: { projectId }, select: { id: true, sectionId: true } })).map(
+        (t) => [t.id, t.sectionId ?? NO_SECTION],
+      ),
+    );
     const milestoneSection = (taskIds: string[]) => {
-      const idx = taskIds.map((id) => sectionIds.indexOf(sectionOfTask.get(id) ?? NO_SECTION)).filter((i) => i >= 0);
+      const idx = taskIds
+        .map((id) => sectionIds.indexOf(sectionOfTask.get(id) ?? NO_SECTION))
+        .filter((i) => i >= 0);
       return idx.length ? sectionIds[Math.max(...idx)]! : sectionIds[sectionIds.length - 1]!;
     };
 
@@ -117,11 +131,23 @@ export class TimelineReadModel {
     const sections = [...project.sections, { id: NO_SECTION, name: 'No section' }];
     for (const section of sections) {
       const own = taskRows.filter((t) => (t.sectionId ?? NO_SECTION) === section.id);
-      const gates = milestones.filter((m) => inWindow(m.date, m.date) && milestoneSection(m.dependsOn.map((d) => d.taskId)) === section.id);
+      const gates = milestones.filter(
+        (m) => inWindow(m.date, m.date) && milestoneSection(m.dependsOn.map((d) => d.taskId)) === section.id,
+      );
       if (!own.length && !gates.length) continue;
-      if (section.id !== NO_SECTION || rows.length) rows.push({ kind: 'section', id: section.id, name: section.name });
+      if (section.id !== NO_SECTION || rows.length)
+        rows.push({ kind: 'section', id: section.id, name: section.name });
       rows.push(...own);
-      rows.push(...gates.map((m) => ({ kind: 'milestone' as const, id: m.id, name: m.name, date: toDateOnly(m.date), done: !!m.doneAt, critical: critical.has(m.id) })));
+      rows.push(
+        ...gates.map((m) => ({
+          kind: 'milestone' as const,
+          id: m.id,
+          name: m.name,
+          date: toDateOnly(m.date),
+          done: !!m.doneAt,
+          critical: critical.has(m.id),
+        })),
+      );
     }
 
     const visible = new Set(rows.map((r) => r.id));
@@ -133,7 +159,11 @@ export class TimelineReadModel {
       rows,
       links: graph.edges
         .filter((e) => visible.has(e.blockerId) && visible.has(e.blockedId))
-        .map((e) => ({ fromId: e.blockerId, toId: e.blockedId, critical: critical.has(e.blockerId) && critical.has(e.blockedId) })),
+        .map((e) => ({
+          fromId: e.blockerId,
+          toId: e.blockedId,
+          critical: critical.has(e.blockerId) && critical.has(e.blockedId),
+        })),
       criticalIds: cpm.criticalIds,
       conflicts: conflicts.map((c) => ({ ...c, blockerKey: labelOf.get(c.blockerId) ?? null })),
     };

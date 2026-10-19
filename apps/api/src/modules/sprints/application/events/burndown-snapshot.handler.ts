@@ -4,7 +4,12 @@ import { sprintSnapshotOf, type Clock, type DomainEvent } from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventEnvelope } from '../../../../shared/events/domain-event.envelope';
 import { DomainEventSubscriber } from '../../../../shared/events/domain-event.subscriber';
-import { SPRINT_SNAPSHOT_STORE, SPRINT_TASK_STORE, type SprintSnapshotStore, type SprintTaskStore } from '../sprints.ports';
+import {
+  SPRINT_SNAPSHOT_STORE,
+  SPRINT_TASK_STORE,
+  type SprintSnapshotStore,
+  type SprintTaskStore,
+} from '../sprints.ports';
 
 /**
  * Keeps today's burndown snapshot current: whenever a task's status or estimate changes, or work
@@ -13,7 +18,14 @@ import { SPRINT_SNAPSHOT_STORE, SPRINT_TASK_STORE, type SprintSnapshotStore, typ
  */
 @EventsHandler(DomainEventEnvelope)
 export class BurndownSnapshotHandler extends DomainEventSubscriber {
-  protected readonly types = ['task.status_changed', 'task.updated', 'task.deleted', 'task.moved', 'sprint.task_added', 'sprint.task_removed'];
+  protected readonly types = [
+    'task.status_changed',
+    'task.updated',
+    'task.deleted',
+    'task.moved',
+    'sprint.task_added',
+    'sprint.task_removed',
+  ];
 
   constructor(
     @Inject(SPRINT_TASK_STORE) private readonly tasks: SprintTaskStore,
@@ -34,11 +46,18 @@ export class BurndownSnapshotHandler extends DomainEventSubscriber {
 
   private async affectedSprints(event: DomainEvent): Promise<string[]> {
     if (event.type.startsWith('sprint.')) return [event.aggregateId];
-    const payload = event.payload as { projectId?: string | null; fromProjectId?: string | null; toProjectId?: string | null };
-    const task = event.type === 'task.deleted' ? null : await this.tasks.findTask(event.workspaceId, event.aggregateId);
+    const payload = event.payload as {
+      projectId?: string | null;
+      fromProjectId?: string | null;
+      toProjectId?: string | null;
+    };
+    const task =
+      event.type === 'task.deleted' ? null : await this.tasks.findTask(event.workspaceId, event.aggregateId);
     if (task?.sprintId) return [task.sprintId];
     // The task left its sprint (or was deleted): refresh the project's active sprint(s).
-    const projects = [payload.projectId, payload.fromProjectId, payload.toProjectId].filter((p): p is string => !!p);
+    const projects = [payload.projectId, payload.fromProjectId, payload.toProjectId].filter(
+      (p): p is string => !!p,
+    );
     const ids = await Promise.all([...new Set(projects)].map((p) => this.snapshots.activeSprintIds(p)));
     return [...new Set(ids.flat())];
   }

@@ -14,7 +14,16 @@ export interface ToastProps extends Omit<HTMLAttributes<HTMLDivElement>, 'role'>
   politeness?: 'polite' | 'assertive';
 }
 
-export function Toast({ message, action = 'Undo', icon, onAction, onDismiss, politeness = 'polite', className, ...rest }: ToastProps) {
+export function Toast({
+  message,
+  action = 'Undo',
+  icon,
+  onAction,
+  onDismiss,
+  politeness = 'polite',
+  className,
+  ...rest
+}: ToastProps) {
   return (
     <div
       {...rest}

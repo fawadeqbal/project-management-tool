@@ -2,7 +2,11 @@ import type { RankBacklogInput, SprintTaskDto } from '@hearth/contracts';
 import { positionBetween } from '@hearth/domain';
 
 /** Neighbours for moving the item at `from` to index `to` (array semantics of arrayMove). */
-export const neighboursFor = <T extends { id: string }>(items: readonly T[], from: number, to: number): { beforeId: string | null; afterId: string | null } => {
+export const neighboursFor = <T extends { id: string }>(
+  items: readonly T[],
+  from: number,
+  to: number,
+): { beforeId: string | null; afterId: string | null } => {
   const rest = items.filter((_, i) => i !== from);
   return { beforeId: rest[to - 1]?.id ?? null, afterId: rest[to]?.id ?? null };
 };

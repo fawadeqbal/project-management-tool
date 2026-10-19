@@ -59,7 +59,11 @@ export function AppShell() {
   }, [collapsed]);
 
   return (
-    <div className={styles.shell} data-sidebar={collapsed ? 'collapsed' : 'expanded'} data-drawer={drawer.open ? 'open' : 'closed'}>
+    <div
+      className={styles.shell}
+      data-sidebar={collapsed ? 'collapsed' : 'expanded'}
+      data-drawer={drawer.open ? 'open' : 'closed'}
+    >
       <SkipLink targetId="main">Skip to content</SkipLink>
       <div id="app-sidebar" ref={drawer.drawerRef} className={styles.sidebarSlot}>
         <Sidebar onNavigate={drawer.open ? drawer.close : undefined} />

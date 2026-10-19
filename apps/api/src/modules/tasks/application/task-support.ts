@@ -1,4 +1,11 @@
-import { createEvent, NotFoundError, type Actor, type DomainEvent, type Task, type TaskRepository } from '@hearth/domain';
+import {
+  createEvent,
+  NotFoundError,
+  type Actor,
+  type DomainEvent,
+  type Task,
+  type TaskRepository,
+} from '@hearth/domain';
 import type { TaskDirectory, TaskReferences } from './ports';
 
 /** Loads a task of the actor's workspace or throws a 404 the person can understand. */
@@ -9,7 +16,11 @@ export async function loadTask(tasks: TaskRepository, actor: Actor, id: string):
 }
 
 /** Every id a write points at must exist in the actor's workspace. */
-export async function assertReferencesExist(directory: TaskDirectory, actor: Actor, refs: TaskReferences): Promise<void> {
+export async function assertReferencesExist(
+  directory: TaskDirectory,
+  actor: Actor,
+  refs: TaskReferences,
+): Promise<void> {
   const missing = await directory.findMissingReference(actor.workspaceId, refs);
   if (missing) throw new NotFoundError(missing.entity === 'Member' ? 'Person' : missing.entity, missing.id);
 }

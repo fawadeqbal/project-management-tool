@@ -51,19 +51,28 @@ export class TasksController {
 
   @Get()
   @RequirePermission('tasks.view')
-  list(@CurrentActor() actor: Actor, @Query(new QueryBooleansPipe(), new ZodValidationPipe(ListTasksQuerySchema)) query: ListTasksParams): Promise<TaskDto[]> {
+  list(
+    @CurrentActor() actor: Actor,
+    @Query(new QueryBooleansPipe(), new ZodValidationPipe(ListTasksQuerySchema)) query: ListTasksParams,
+  ): Promise<TaskDto[]> {
     return this.queries.execute(new ListTasksQuery(actor, query));
   }
 
   @Post()
   @RequirePermission('tasks.create')
-  create(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(CreateTaskSchema)) input: CreateTaskInput): Promise<TaskDetailDto> {
+  create(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(CreateTaskSchema)) input: CreateTaskInput,
+  ): Promise<TaskDetailDto> {
     return this.commands.execute(new CreateTaskCommand(actor, input));
   }
 
   @Post('quick-add')
   @RequirePermission('tasks.create')
-  quickAdd(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(QuickAddTaskSchema)) input: QuickAddTaskInput): Promise<TaskDto> {
+  quickAdd(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(QuickAddTaskSchema)) input: QuickAddTaskInput,
+  ): Promise<TaskDto> {
     return this.commands.execute(new QuickAddTaskCommand(actor, input));
   }
 
@@ -81,7 +90,11 @@ export class TasksController {
 
   @Patch(':id')
   @RequirePermission('tasks.edit')
-  update(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(UpdateTaskSchema)) input: UpdateTaskInput): Promise<TaskDetailDto> {
+  update(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateTaskSchema)) input: UpdateTaskInput,
+  ): Promise<TaskDetailDto> {
     return this.commands.execute(new UpdateTaskCommand(actor, id, input));
   }
 
@@ -95,13 +108,21 @@ export class TasksController {
   @Post(':id/move')
   @HttpCode(200)
   @RequirePermission('tasks.edit')
-  move(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(MoveTaskSchema)) input: MoveTaskInput): Promise<TaskDto> {
+  move(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(MoveTaskSchema)) input: MoveTaskInput,
+  ): Promise<TaskDto> {
     return this.commands.execute(new MoveTaskCommand(actor, id, input));
   }
 
   @Post(':id/comments')
   @RequirePermission('comments.create')
-  comment(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(CreateCommentSchema)) input: CreateCommentInput): Promise<CommentDto> {
+  comment(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(CreateCommentSchema)) input: CreateCommentInput,
+  ): Promise<CommentDto> {
     return this.commands.execute(new AddCommentCommand(actor, id, input));
   }
 
@@ -117,7 +138,11 @@ export class TasksController {
 
   @Delete(':id/dependencies/:blockerId')
   @RequirePermission('tasks.edit')
-  removeDependency(@CurrentActor() actor: Actor, @Param('id') id: string, @Param('blockerId') blockerId: string): Promise<TaskDetailDto> {
+  removeDependency(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Param('blockerId') blockerId: string,
+  ): Promise<TaskDetailDto> {
     return this.commands.execute(new RemoveDependencyCommand(actor, id, blockerId));
   }
 

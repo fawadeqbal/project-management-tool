@@ -31,7 +31,11 @@ export function ProfilePage() {
   const save = useMutation<MeDto, ApiError, void>({
     mutationFn: async () => {
       try {
-        return await api.me.update({ name: name.trim(), jobTitle: jobTitle.trim() || null, avatarColor: color });
+        return await api.me.update({
+          name: name.trim(),
+          jobTitle: jobTitle.trim() || null,
+          avatarColor: color,
+        });
       } catch (e) {
         throw ApiError.from(e);
       }
@@ -55,7 +59,16 @@ export function ProfilePage() {
     save.mutate();
   };
 
-  const initials = name.trim().split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase() || me?.user.initials || '?';
+  const initials =
+    name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() ||
+    me?.user.initials ||
+    '?';
   return (
     <div className={styles.page}>
       <div className={styles.heading}>
@@ -67,14 +80,39 @@ export function ProfilePage() {
           <Avatar initials={initials} name={name} size={40} color={color} />
           <span className={styles.muted}>{me?.user.email}</span>
         </div>
-        <Input label="Name" value={name} onChange={(e) => setName(e.target.value)} error={nameError} autoComplete="name" maxLength={80} />
-        <Input label="Job title" hint="Optional — shown on your profile card." value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} maxLength={80} placeholder="Product designer" />
+        <Input
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={nameError}
+          autoComplete="name"
+          maxLength={80}
+        />
+        <Input
+          label="Job title"
+          hint="Optional — shown on your profile card."
+          value={jobTitle}
+          onChange={(e) => setJobTitle(e.target.value)}
+          maxLength={80}
+          placeholder="Product designer"
+        />
         <fieldset className={styles.colorField}>
           <legend className={styles.legend}>Avatar color</legend>
           <div className={styles.swatches}>
             {ACCENT_COLORS.map((c) => (
-              <label key={c} className={`${styles.swatch} ${color === c ? styles.swatchOn : ''}`} style={{ background: `var(--accent-${c}-avatar)` }}>
-                <input type="radio" name="avatar-color" value={c} checked={color === c} onChange={() => setColor(c)} aria-label={c.charAt(0).toUpperCase() + c.slice(1)} />
+              <label
+                key={c}
+                className={`${styles.swatch} ${color === c ? styles.swatchOn : ''}`}
+                style={{ background: `var(--accent-${c}-avatar)` }}
+              >
+                <input
+                  type="radio"
+                  name="avatar-color"
+                  value={c}
+                  checked={color === c}
+                  onChange={() => setColor(c)}
+                  aria-label={c.charAt(0).toUpperCase() + c.slice(1)}
+                />
               </label>
             ))}
           </div>

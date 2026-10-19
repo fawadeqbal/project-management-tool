@@ -61,7 +61,12 @@ function TimedToast({ item }: { item: ToastItem }) {
 export function ToastRegion() {
   const toasts = useToastStore((s) => s.toasts);
   return (
-    <section className={styles.region} aria-label="Notifications" aria-live="polite" aria-relevant="additions text">
+    <section
+      className={styles.region}
+      aria-label="Notifications"
+      aria-live="polite"
+      aria-relevant="additions text"
+    >
       {toasts.map((t) => (
         <TimedToast key={t.id} item={t} />
       ))}

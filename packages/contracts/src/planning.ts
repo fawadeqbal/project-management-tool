@@ -119,7 +119,10 @@ export const CreateTimeOffSchema = z
     endDate: DateOnlySchema,
     reason: z.string().trim().max(200).nullish(),
   })
-  .refine((v) => v.endDate >= v.startDate, { message: 'Time off has to end on or after the day it starts.', path: ['endDate'] });
+  .refine((v) => v.endDate >= v.startDate, {
+    message: 'Time off has to end on or after the day it starts.',
+    path: ['endDate'],
+  });
 export type CreateTimeOffInput = z.infer<typeof CreateTimeOffSchema>;
 
 export const TimeOffQuerySchema = z.object({
@@ -130,7 +133,11 @@ export const TimeOffQuerySchema = z.object({
 export type TimeOffQuery = z.infer<typeof TimeOffQuerySchema>;
 
 export const UpdateCapacitySchema = z.object({
-  hoursPerDay: z.number().int('Use whole hours, like 6.').min(0).max(24, 'A day has 24 hours — pick 24 or fewer.'),
+  hoursPerDay: z
+    .number()
+    .int('Use whole hours, like 6.')
+    .min(0)
+    .max(24, 'A day has 24 hours — pick 24 or fewer.'),
 });
 export type UpdateCapacityInput = z.infer<typeof UpdateCapacitySchema>;
 

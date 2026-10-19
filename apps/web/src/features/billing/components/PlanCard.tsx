@@ -15,13 +15,28 @@ export interface PlanCardProps {
 }
 
 /** One plan in the comparison; the recommended one gets the brand border and badge (Von Restorff). */
-export function PlanCard({ plan, interval, canSwitchInterval, canManage, busy, onUpgrade, onDowngrade, onSwitchInterval }: PlanCardProps) {
+export function PlanCard({
+  plan,
+  interval,
+  canSwitchInterval,
+  canManage,
+  busy,
+  onUpgrade,
+  onDowngrade,
+  onSwitchInterval,
+}: PlanCardProps) {
   const headingId = `plan-${plan.id}`;
   const ownerHint = canManage ? undefined : 'Only workspace owners can change the plan';
   return (
-    <article aria-labelledby={headingId} className={`${styles.plan} ${plan.isRecommended ? styles.planRecommended : ''}`} data-recommended={plan.isRecommended || undefined}>
+    <article
+      aria-labelledby={headingId}
+      className={`${styles.plan} ${plan.isRecommended ? styles.planRecommended : ''}`}
+      data-recommended={plan.isRecommended || undefined}
+    >
       {plan.isRecommended ? <span className={styles.planBadge}>Recommended for you</span> : null}
-      {plan.isCurrent ? <span className={`${styles.planBadge} ${styles.planBadgeCurrent}`}>Your plan</span> : null}
+      {plan.isCurrent ? (
+        <span className={`${styles.planBadge} ${styles.planBadgeCurrent}`}>Your plan</span>
+      ) : null}
       <div className={styles.planHead}>
         <h3 id={headingId} className={styles.planName}>
           {plan.name}
@@ -31,7 +46,9 @@ export function PlanCard({ plan, interval, canSwitchInterval, canManage, busy, o
       <div className={styles.planPrice}>
         <strong>{plan.priceLabel[interval]}</strong>
         <span>{plan.priceNote}</span>
-        {interval === 'ANNUAL' && plan.annualSavings ? <span className={styles.saving}>{plan.annualSavings.label}</span> : null}
+        {interval === 'ANNUAL' && plan.annualSavings ? (
+          <span className={styles.saving}>{plan.annualSavings.label}</span>
+        ) : null}
       </div>
       <ul className={styles.features}>
         {plan.highlights.map((f) => (
@@ -43,7 +60,12 @@ export function PlanCard({ plan, interval, canSwitchInterval, canManage, busy, o
       </ul>
       {plan.action === 'current' ? (
         canSwitchInterval ? (
-          <Button variant="secondary" onClick={onSwitchInterval} disabled={!canManage || busy} title={ownerHint}>
+          <Button
+            variant="secondary"
+            onClick={onSwitchInterval}
+            disabled={!canManage || busy}
+            title={ownerHint}
+          >
             Switch to {interval === 'ANNUAL' ? 'annual' : 'monthly'} billing
           </Button>
         ) : (
@@ -53,7 +75,12 @@ export function PlanCard({ plan, interval, canSwitchInterval, canManage, busy, o
         )
       ) : null}
       {plan.action === 'upgrade' ? (
-        <Button variant={plan.isRecommended ? 'primary' : 'secondary'} onClick={() => onUpgrade(plan)} disabled={!canManage || busy} title={ownerHint}>
+        <Button
+          variant={plan.isRecommended ? 'primary' : 'secondary'}
+          onClick={() => onUpgrade(plan)}
+          disabled={!canManage || busy}
+          title={ownerHint}
+        >
           Upgrade to {plan.name}
         </Button>
       ) : null}
@@ -63,7 +90,12 @@ export function PlanCard({ plan, interval, canSwitchInterval, canManage, busy, o
         </a>
       ) : null}
       {plan.action === 'downgrade' ? (
-        <Button variant="ghost" onClick={() => onDowngrade(plan)} disabled={!canManage || busy} title={ownerHint}>
+        <Button
+          variant="ghost"
+          onClick={() => onDowngrade(plan)}
+          disabled={!canManage || busy}
+          title={ownerHint}
+        >
           Downgrade
         </Button>
       ) : null}

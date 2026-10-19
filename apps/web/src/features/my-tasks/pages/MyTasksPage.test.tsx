@@ -10,7 +10,14 @@ vi.mock('@/shared/api/client', () => ({
   api: {
     me: { get: vi.fn(), update: vi.fn() },
     workspace: { members: vi.fn(), teams: vi.fn(), tags: vi.fn(), shell: vi.fn(), createTag: vi.fn() },
-    tasks: { list: vi.fn(), update: vi.fn(), quickAdd: vi.fn(), create: vi.fn(), move: vi.fn(), remove: vi.fn() },
+    tasks: {
+      list: vi.fn(),
+      update: vi.fn(),
+      quickAdd: vi.fn(),
+      create: vi.fn(),
+      move: vi.fn(),
+      remove: vi.fn(),
+    },
   },
 }));
 
@@ -19,17 +26,48 @@ const t0 = today();
 const iso = (days: number) => toDateOnly(addDays(t0, days));
 
 const tasks = [
-  makeTask({ id: 'a', key: 'HRT-142', title: 'Write onboarding checklist copy', priority: 'HIGH', status: 'IN_PROGRESS', dueDate: iso(0) }),
-  makeTask({ id: 'b', key: 'HRT-118', title: 'Review Q3 analytics dashboard', priority: 'URGENT', status: 'IN_REVIEW', dueDate: iso(-2) }),
-  makeTask({ id: 'c', key: 'HRT-160', title: 'Draft sprint 24 retrospective agenda', priority: 'LOW', dueDate: iso(1) }),
-  makeTask({ id: 'd', key: 'HRT-300', title: 'Plan next quarter offsite', priority: 'LOW', dueDate: iso(30) }),
+  makeTask({
+    id: 'a',
+    key: 'HRT-142',
+    title: 'Write onboarding checklist copy',
+    priority: 'HIGH',
+    status: 'IN_PROGRESS',
+    dueDate: iso(0),
+  }),
+  makeTask({
+    id: 'b',
+    key: 'HRT-118',
+    title: 'Review Q3 analytics dashboard',
+    priority: 'URGENT',
+    status: 'IN_REVIEW',
+    dueDate: iso(-2),
+  }),
+  makeTask({
+    id: 'c',
+    key: 'HRT-160',
+    title: 'Draft sprint 24 retrospective agenda',
+    priority: 'LOW',
+    dueDate: iso(1),
+  }),
+  makeTask({
+    id: 'd',
+    key: 'HRT-300',
+    title: 'Plan next quarter offsite',
+    priority: 'LOW',
+    dueDate: iso(30),
+  }),
 ];
 
 describe('MyTasksPage', () => {
   beforeEach(() => {
     signIn();
     mocked.me.get.mockResolvedValue(undefined as never);
-    mocked.workspace.shell.mockResolvedValue({ favorites: [], teams: [], counts: { myTasks: 4, inbox: 0 }, onboarding: { completed: 5, total: 5, nextStep: null } });
+    mocked.workspace.shell.mockResolvedValue({
+      favorites: [],
+      teams: [],
+      counts: { myTasks: 4, inbox: 0 },
+      onboarding: { completed: 5, total: 5, nextStep: null },
+    });
     mocked.workspace.members.mockResolvedValue([]);
     mocked.workspace.teams.mockResolvedValue([]);
     mocked.workspace.tags.mockResolvedValue([]);
@@ -83,7 +121,12 @@ describe('MyTasksPage', () => {
     });
 
     // Optimistic: the row shows as done before the server answers.
-    await waitFor(() => expect(within(screen.getByRole('row', { name: /HRT-118/ })).getByRole('checkbox')).toHaveAttribute('aria-checked', 'true'));
+    await waitFor(() =>
+      expect(within(screen.getByRole('row', { name: /HRT-118/ })).getByRole('checkbox')).toHaveAttribute(
+        'aria-checked',
+        'true',
+      ),
+    );
     expect(mocked.tasks.update).toHaveBeenCalledWith('b', { status: 'DONE' });
     expect(screen.getByText('HRT-118 marked as done')).toBeInTheDocument();
 

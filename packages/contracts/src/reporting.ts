@@ -74,7 +74,10 @@ export interface DashboardDto {
 
 export const ScheduleDashboardSchema = z.object({
   cadence: z.literal('weekly').default('weekly'),
-  recipients: z.array(z.string().trim().toLowerCase().email('Use an email like sara@acme.com.')).min(1, 'Add at least one recipient.').max(20),
+  recipients: z
+    .array(z.string().trim().toLowerCase().email('Use an email like sara@acme.com.'))
+    .min(1, 'Add at least one recipient.')
+    .max(20),
 });
 export type ScheduleDashboardInput = z.infer<typeof ScheduleDashboardSchema>;
 

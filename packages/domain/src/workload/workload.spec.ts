@@ -13,9 +13,21 @@ describe('workload', () => {
   ];
   const tasks = [
     { id: 'nav', assigneeId: 'mo', startDate: d('2026-10-19'), dueDate: d('2026-10-23'), estimateHours: 40 },
-    { id: 'events', assigneeId: 'mo', startDate: d('2026-10-21'), dueDate: d('2026-10-22'), estimateHours: 6 },
+    {
+      id: 'events',
+      assigneeId: 'mo',
+      startDate: d('2026-10-21'),
+      dueDate: d('2026-10-22'),
+      estimateHours: 6,
+    },
     { id: 'api', assigneeId: 'ravi', startDate: d('2026-10-19'), dueDate: d('2026-10-20'), estimateHours: 4 },
-    { id: 'copy', assigneeId: 'jia', startDate: d('2026-10-19'), dueDate: d('2026-10-23'), estimateHours: 12 },
+    {
+      id: 'copy',
+      assigneeId: 'jia',
+      startDate: d('2026-10-19'),
+      dueDate: d('2026-10-23'),
+      estimateHours: 12,
+    },
   ];
   const timeOff = [{ userId: 'jia', startDate: d('2026-10-22'), endDate: d('2026-10-23') }];
 
@@ -52,7 +64,13 @@ describe('workload cell items and suggestion projections', () => {
   ];
   const tasks = [
     { id: 'nav', assigneeId: 'mo', startDate: d('2026-10-19'), dueDate: d('2026-10-23'), estimateHours: 40 },
-    { id: 'events', assigneeId: 'mo', startDate: d('2026-10-21'), dueDate: d('2026-10-22'), estimateHours: 6 },
+    {
+      id: 'events',
+      assigneeId: 'mo',
+      startDate: d('2026-10-21'),
+      dueDate: d('2026-10-22'),
+      estimateHours: 6,
+    },
   ];
   it('records each task share per cell', () => {
     const [mo] = computeWorkload(people, tasks, [], range);
@@ -64,7 +82,13 @@ describe('workload cell items and suggestion projections', () => {
   it('projects load before and after a suggested move', () => {
     const rows = computeWorkload(people, tasks, [], range);
     const [s] = suggestRebalance(rows, tasks);
-    expect(s).toMatchObject({ taskId: 'events', days: ['2026-10-21', '2026-10-22'], totalHours: 6, fromLoadPct: 115, toLoadPct: 0 });
+    expect(s).toMatchObject({
+      taskId: 'events',
+      days: ['2026-10-21', '2026-10-22'],
+      totalHours: 6,
+      fromLoadPct: 115,
+      toLoadPct: 0,
+    });
     expect(s!.fromLoadPctAfter).toBe(100);
     expect(s!.toLoadPctAfter).toBe(15);
   });

@@ -8,7 +8,10 @@ export class PrismaSprintSnapshotStore implements SprintSnapshotStore {
   constructor(private readonly prisma: PrismaService) {}
 
   async activeSprintIds(projectId: string): Promise<string[]> {
-    const rows = await this.prisma.sprint.findMany({ where: { projectId, status: 'ACTIVE' }, select: { id: true } });
+    const rows = await this.prisma.sprint.findMany({
+      where: { projectId, status: 'ACTIVE' },
+      select: { id: true },
+    });
     return rows.map((r) => r.id);
   }
 

@@ -2,7 +2,13 @@ import { type HTMLAttributes, type SVGProps } from 'react';
 import { cx } from '../internal/cx';
 import { PRIORITY_LABELS, type PriorityLevel } from '../types';
 
-const FILLED_BARS: Readonly<Record<PriorityLevel, number>> = { urgent: 3, high: 3, medium: 2, low: 1, none: 0 };
+const FILLED_BARS: Readonly<Record<PriorityLevel, number>> = {
+  urgent: 3,
+  high: 3,
+  medium: 2,
+  low: 1,
+  none: 0,
+};
 
 export interface PriorityIconProps extends Omit<SVGProps<SVGSVGElement>, 'ref'> {
   level?: PriorityLevel;

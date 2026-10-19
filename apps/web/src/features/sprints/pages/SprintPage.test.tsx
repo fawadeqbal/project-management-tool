@@ -11,7 +11,11 @@ import { applyRank, neighboursFor } from '../lib/backlog-order';
 import { SprintPage } from './SprintPage';
 
 vi.mock('@/shared/api/client', () => ({
-  api: { me: { get: vi.fn() }, workspace: { members: vi.fn(), teams: vi.fn(), tags: vi.fn(), shell: vi.fn() }, tasks: { update: vi.fn(), list: vi.fn() } },
+  api: {
+    me: { get: vi.fn() },
+    workspace: { members: vi.fn(), teams: vi.fn(), tags: vi.fn(), shell: vi.fn() },
+    tasks: { update: vi.fn(), list: vi.fn() },
+  },
 }));
 vi.mock('@/shared/api/http', async (importOriginal) => {
   const mod = await importOriginal<typeof HttpModule>();
@@ -30,7 +34,8 @@ const limit = () =>
     details: { feature: 'sprints', requiredPlan: 'BUSINESS' },
   });
 
-const render = () => renderApp(<SprintPage />, { route: '/projects/p1/sprints', path: '/projects/:projectId/sprints' });
+const render = () =>
+  renderApp(<SprintPage />, { route: '/projects/p1/sprints', path: '/projects/:projectId/sprints' });
 
 describe('SprintPage', () => {
   beforeEach(() => {
@@ -60,7 +65,11 @@ describe('SprintPage', () => {
   it('renders the burndown with ideal and actual paths, scope change and an accessible description', async () => {
     render();
     const chart = await screen.findByRole('img', { name: /Sprint burndown/ });
-    expect(chart).toHaveAccessibleName(expect.stringContaining('24 points remaining on day 6 of 9, ideal is 12.7; 4 points of scope added on day 4'));
+    expect(chart).toHaveAccessibleName(
+      expect.stringContaining(
+        '24 points remaining on day 6 of 9, ideal is 12.7; 4 points of scope added on day 4',
+      ),
+    );
     const ideal = within(chart as unknown as HTMLElement).getByTestId('burndown-ideal');
     const actual = within(chart as unknown as HTMLElement).getByTestId('burndown-actual');
     expect(ideal.getAttribute('points')!.split(' ')).toHaveLength(2);
@@ -88,9 +97,20 @@ describe('SprintPage', () => {
     const row = await screen.findByRole('listitem', { name: /Rank 1: HRT-320/ });
     act(() => row.focus());
     fireEvent.keyDown(row, { key: 'ArrowDown', altKey: true });
-    await waitFor(() => expect(mockedHttp.post).toHaveBeenCalledWith('/projects/p1/backlog/rank', { taskId: 't320', beforeId: 't322', afterId: 't324' }));
+    await waitFor(() =>
+      expect(mockedHttp.post).toHaveBeenCalledWith('/projects/p1/backlog/rank', {
+        taskId: 't320',
+        beforeId: 't322',
+        afterId: 't324',
+      }),
+    );
     const backlog = screen.getByRole('region', { name: 'Product backlog' });
-    await waitFor(() => expect(within(backlog).getAllByRole('listitem')[0]).toHaveAttribute('aria-label', expect.stringMatching(/^Rank 1: HRT-322/)));
+    await waitFor(() =>
+      expect(within(backlog).getAllByRole('listitem')[0]).toHaveAttribute(
+        'aria-label',
+        expect.stringMatching(/^Rank 1: HRT-322/),
+      ),
+    );
   });
 
   it('Shift+S adds the focused backlog row to the sprint', async () => {
@@ -99,7 +119,9 @@ describe('SprintPage', () => {
     const row = await screen.findByRole('listitem', { name: /Rank 2: HRT-322/ });
     act(() => row.focus());
     fireEvent.keyDown(row, { key: 'S', shiftKey: true });
-    await waitFor(() => expect(mockedHttp.post).toHaveBeenCalledWith('/sprints/s24/tasks', { taskId: 't322' }));
+    await waitFor(() =>
+      expect(mockedHttp.post).toHaveBeenCalledWith('/sprints/s24/tasks', { taskId: 't322' }),
+    );
     expect(await screen.findByText('HRT-322 added to Sprint 24')).toBeInTheDocument();
   });
 
@@ -111,11 +133,15 @@ describe('SprintPage', () => {
     fireEvent.click(within(confirm).getByRole('button', { name: 'Complete sprint' }));
 
     const upgrade = await screen.findByRole('dialog', { name: 'Upgrade to keep going' });
-    expect(upgrade).toHaveTextContent('Sprints is part of Business. Plan sprints, track burndown and keep velocity honest.');
+    expect(upgrade).toHaveTextContent(
+      'Sprints is part of Business. Plan sprints, track burndown and keep velocity honest.',
+    );
     expect(within(upgrade).getByRole('button', { name: 'See plans' })).toBeInTheDocument();
     fireEvent.click(within(upgrade).getByRole('button', { name: 'Not now' }));
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Upgrade to keep going' })).toBeNull());
-    expect(screen.getByText(/Sprint planning is part of Business/).closest('[role="status"]')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sprint planning is part of Business/).closest('[role="status"]'),
+    ).toBeInTheDocument();
 
     // See plans navigates to billing.
     act(() => usePlanGateStore.getState().open('Sprints is part of Business.', 'sprints'));

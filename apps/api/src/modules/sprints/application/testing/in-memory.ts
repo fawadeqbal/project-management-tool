@@ -18,12 +18,16 @@ export class InMemorySprintRepository implements SprintRepository {
   }
   async findNextPlanned(projectId: string, afterNumber: number) {
     return (
-      [...this.rows.values()].filter((s) => s.projectId === projectId && s.status === 'PLANNED' && s.number > afterNumber).sort((a, b) => a.number - b.number)[0] ??
-      null
+      [...this.rows.values()]
+        .filter((s) => s.projectId === projectId && s.status === 'PLANNED' && s.number > afterNumber)
+        .sort((a, b) => a.number - b.number)[0] ?? null
     );
   }
   async nextNumber(projectId: string) {
-    return Math.max(0, ...[...this.rows.values()].filter((s) => s.projectId === projectId).map((s) => s.number)) + 1;
+    return (
+      Math.max(0, ...[...this.rows.values()].filter((s) => s.projectId === projectId).map((s) => s.number)) +
+      1
+    );
   }
   async save(sprint: Sprint) {
     this.rows.set(sprint.id, sprint);
@@ -36,7 +40,16 @@ export class InMemorySprintTaskStore implements SprintTaskStore {
   constructor(readonly tasks: MemTask[]) {}
   async findTask(_w: string, taskId: string): Promise<SprintTaskFacts | null> {
     const t = this.tasks.find((x) => x.id === taskId);
-    return t ? { id: t.id, projectId: t.projectId, sprintId: t.sprintId, points: t.points, status: t.status, backlogRank: t.backlogRank } : null;
+    return t
+      ? {
+          id: t.id,
+          projectId: t.projectId,
+          sprintId: t.sprintId,
+          points: t.points,
+          status: t.status,
+          backlogRank: t.backlogRank,
+        }
+      : null;
   }
   async itemsInSprint(sprintId: string) {
     return this.tasks.filter((t) => t.sprintId === sprintId);
@@ -52,7 +65,9 @@ export class InMemorySprintTaskStore implements SprintTaskStore {
     }
   }
   async topBacklogRank(projectId: string) {
-    const ranks = this.tasks.filter((t) => t.projectId === projectId && !t.sprintId && t.backlogRank != null).map((t) => t.backlogRank!);
+    const ranks = this.tasks
+      .filter((t) => t.projectId === projectId && !t.sprintId && t.backlogRank != null)
+      .map((t) => t.backlogRank!);
     return ranks.length ? Math.min(...ranks) : null;
   }
   async setBacklogRank(taskId: string, rank: number) {
@@ -64,7 +79,9 @@ export class InMemorySnapshotStore implements SprintSnapshotStore {
   readonly rows = new Map<string, { remainingPoints: number; scopePoints: number }>();
   constructor(private readonly repo: InMemorySprintRepository) {}
   async activeSprintIds(projectId: string) {
-    return [...this.repo.rows.values()].filter((s) => s.projectId === projectId && s.status === 'ACTIVE').map((s) => s.id);
+    return [...this.repo.rows.values()]
+      .filter((s) => s.projectId === projectId && s.status === 'ACTIVE')
+      .map((s) => s.id);
   }
   async statusOf(sprintId: string) {
     return this.repo.rows.get(sprintId)?.status ?? null;

@@ -8,7 +8,13 @@ import { useAuthStore } from '@/shared/auth/auth-store';
 import { useOptimisticMutation } from '@/shared/hooks/useOptimisticMutation';
 import { toast } from '@/shared/toast/toast-store';
 import { today } from './dates';
-import { applyTaskPatch, insertTaskIntoLists, patchTaskInCaches, removeTaskFromCaches, replaceTaskInLists } from './task-cache';
+import {
+  applyTaskPatch,
+  insertTaskIntoLists,
+  patchTaskInCaches,
+  removeTaskFromCaches,
+  replaceTaskInLists,
+} from './task-cache';
 
 /** Every task write uses this key, so "Saving…/Saved" can watch them all. */
 export const TASK_SAVE_KEY = ['task-save'] as const;
@@ -133,11 +139,21 @@ export function useTaskMutations() {
     };
 
     const setStatus = (task: TaskDto, status: TaskStatusDto) =>
-      update(task, { status }, { undoMessage: status === 'DONE' ? `${task.key} marked as done` : `${task.key} moved to ${STATUS_META[status].label}` });
+      update(
+        task,
+        { status },
+        {
+          undoMessage:
+            status === 'DONE'
+              ? `${task.key} marked as done`
+              : `${task.key} moved to ${STATUS_META[status].label}`,
+        },
+      );
 
     /** Space / checkbox: done ↔ reopen (back to To do), with Undo restoring the exact previous status. */
     const toggleDone = (task: TaskDto) => {
-      if (task.status === 'DONE') return update(task, { status: 'TODO' }, { undoMessage: `${task.key} reopened` });
+      if (task.status === 'DONE')
+        return update(task, { status: 'TODO' }, { undoMessage: `${task.key} reopened` });
       return update(task, { status: 'DONE' }, { undoMessage: `${task.key} marked as done` });
     };
 
@@ -148,7 +164,10 @@ export function useTaskMutations() {
         toast.show({
           message: `${task.key} moved to ${STATUS_META[input.status].label}`,
           action: 'Undo',
-          onAction: () => void moveMutation.mutateAsync({ id: task.id, input: { status: previous, ordering: input.ordering } }).catch(() => undefined),
+          onAction: () =>
+            void moveMutation
+              .mutateAsync({ id: task.id, input: { status: previous, ordering: input.ordering } })
+              .catch(() => undefined),
         });
       }
       return promise;
@@ -172,7 +191,16 @@ export function useTaskMutations() {
       }
     };
 
-    return { update, setStatus, toggleDone, move, remove, create, quickAdd, isSaving: updateMutation.isPending };
+    return {
+      update,
+      setStatus,
+      toggleDone,
+      move,
+      remove,
+      create,
+      quickAdd,
+      isSaving: updateMutation.isPending,
+    };
   }, [client, updateMutation, moveMutation, removeMutation, createMutation, quickAddMutation]);
 }
 
@@ -181,7 +209,12 @@ const tempTaskId = () => `optimistic-${Date.now()}-${++tempSeq}`;
 export const isOptimisticId = (id: string) => id.startsWith('optimistic-');
 
 /** A placeholder row shown while the server creates the real task. */
-const draftTask = (id: string, input: Partial<CreateTaskInput> & { title: string }, assigneeId: string | null, prefix: string): TaskDto => {
+const draftTask = (
+  id: string,
+  input: Partial<CreateTaskInput> & { title: string },
+  assigneeId: string | null,
+  prefix: string,
+): TaskDto => {
   const now = new Date().toISOString();
   return {
     id,

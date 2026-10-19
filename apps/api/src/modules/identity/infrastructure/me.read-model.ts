@@ -12,7 +12,13 @@ export class MeReadModel {
   async get(userId: string, workspaceId: string): Promise<MeDto> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { memberships: { where: { status: 'ACTIVE' }, include: { workspace: true }, orderBy: { joinedAt: 'asc' } } },
+      include: {
+        memberships: {
+          where: { status: 'ACTIVE' },
+          include: { workspace: true },
+          orderBy: { joinedAt: 'asc' },
+        },
+      },
     });
     if (!user) throw new NotFoundError('User', userId);
     const workspaces: WorkspaceSummaryDto[] = user.memberships.map((m) => ({
@@ -32,7 +38,9 @@ export class MeReadModel {
         initials: user.initials,
         avatarColor: accent(user.avatarColor, 'blue'),
         jobTitle: user.jobTitle,
-        theme: (['light', 'dark', 'system'].includes(user.theme) ? user.theme : 'system') as MeDto['user']['theme'],
+        theme: (['light', 'dark', 'system'].includes(user.theme)
+          ? user.theme
+          : 'system') as MeDto['user']['theme'],
       },
       workspace: current,
       workspaces,

@@ -32,11 +32,21 @@ export function TemplatesDialog({ open, templates, busyId, onClose, onApply }: T
       }
     >
       <div className={styles.dialogBody}>
-        <Input label="Project name (optional)" placeholder="Uses the template name if empty" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
+        <Input
+          label="Project name (optional)"
+          placeholder="Uses the template name if empty"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={80}
+        />
         <div className={styles.templateGridDialog}>
           {templates.map((t) => (
             <div key={t.id} className={styles.templateWithMeta}>
-              <TemplateCard template={t} busy={busyId === t.id} onApply={(tt) => onApply(tt, name.trim() || undefined)} />
+              <TemplateCard
+                template={t}
+                busy={busyId === t.id}
+                onApply={(tt) => onApply(tt, name.trim() || undefined)}
+              />
               <span className={styles.templateMeta}>
                 {t.taskCount} tasks · {t.sections.join(' → ')}
               </span>

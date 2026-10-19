@@ -50,13 +50,17 @@ export interface AiProvider {
 export const AI_PROVIDER = Symbol('AiProvider');
 
 /** Interprets a short natural-language query into a filter, without any model (fast path for ⌘K). */
-export const interpretTaskQuery = (query: string, vocabulary: { tags: string[]; teamsOrProjects: string[]; people: string[] }): AiFilterQuery => {
+export const interpretTaskQuery = (
+  query: string,
+  vocabulary: { tags: string[]; teamsOrProjects: string[]; people: string[] },
+): AiFilterQuery => {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const result: AiFilterQuery = { explanation: '' };
   const adjectives: string[] = [];
   const qualifiers: string[] = [];
   const rest: string[] = [];
-  const match = (list: string[], w: string) => list.find((x) => x.toLowerCase() === w || x.toLowerCase().startsWith(w) && w.length >= 3);
+  const match = (list: string[], w: string) =>
+    list.find((x) => x.toLowerCase() === w || (x.toLowerCase().startsWith(w) && w.length >= 3));
   for (const w of words) {
     if (['overdue', 'late', 'behind'].includes(w)) {
       result.overdue = true;
@@ -71,7 +75,24 @@ export const interpretTaskQuery = (query: string, vocabulary: { tags: string[]; 
       const s = w === 'blocked' ? 'BLOCKED' : w === 'review' ? 'IN_REVIEW' : 'IN_PROGRESS';
       result.statuses = [...(result.statuses ?? []), s];
       adjectives.push(w === 'blocked' ? 'blocked' : w === 'review' ? 'in-review' : 'in-progress');
-    } else if (['show', 'me', 'my', 'tasks', 'task', 'for', 'the', 'team', 'all', 'in', 'of', 'with', 'are', 'that'].includes(w)) {
+    } else if (
+      [
+        'show',
+        'me',
+        'my',
+        'tasks',
+        'task',
+        'for',
+        'the',
+        'team',
+        'all',
+        'in',
+        'of',
+        'with',
+        'are',
+        'that',
+      ].includes(w)
+    ) {
       continue;
     } else {
       const team = match(vocabulary.teamsOrProjects, w);

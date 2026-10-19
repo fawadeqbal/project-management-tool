@@ -31,7 +31,13 @@ export const dayRangeLabel = (days: readonly string[], withDates = false): strin
   }
   const fmt = (iso: string) => (withDates ? dayLabel(iso) : weekdayName(parseDateOnly(iso)));
   return groups
-    .map((g) => (g.length === 1 ? fmt(g[0]!) : withDates ? `${fmt(g[0]!)} – ${fmt(g[g.length - 1]!)}` : `${fmt(g[0]!)}–${fmt(g[g.length - 1]!)}`))
+    .map((g) =>
+      g.length === 1
+        ? fmt(g[0]!)
+        : withDates
+          ? `${fmt(g[0]!)} – ${fmt(g[g.length - 1]!)}`
+          : `${fmt(g[0]!)}–${fmt(g[g.length - 1]!)}`,
+    )
     .join(', ');
 };
 

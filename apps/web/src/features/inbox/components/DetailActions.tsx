@@ -16,7 +16,15 @@ export interface DetailActionHandlers {
 }
 
 /** Top row of the detail pane: status badge on the left, Snooze / Archive / Open task on the right. */
-export function DetailActions({ badge, onSnooze, onArchive, onOpenTask, snoozeOpen, onSnoozeOpenChange, onBack }: DetailActionHandlers & { badge?: ReactNode }) {
+export function DetailActions({
+  badge,
+  onSnooze,
+  onArchive,
+  onOpenTask,
+  snoozeOpen,
+  onSnoozeOpenChange,
+  onBack,
+}: DetailActionHandlers & { badge?: ReactNode }) {
   return (
     <div className={styles.detailActions}>
       {onBack ? (
@@ -40,7 +48,13 @@ export function DetailActions({ badge, onSnooze, onArchive, onOpenTask, snoozeOp
         Archive
       </Button>
       {onOpenTask ? (
-        <Button variant="ghost" size="sm" icon="arrow-up-right" onClick={onOpenTask} aria-keyshortcuts="Enter">
+        <Button
+          variant="ghost"
+          size="sm"
+          icon="arrow-up-right"
+          onClick={onOpenTask}
+          aria-keyshortcuts="Enter"
+        >
           Open task
         </Button>
       ) : null}

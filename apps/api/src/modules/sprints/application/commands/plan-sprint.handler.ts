@@ -1,7 +1,14 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SprintSummaryDto } from '@hearth/contracts';
-import { NotFoundError, SPRINT_REPOSITORY, Sprint, parseDateOnly, type Clock, type SprintRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SPRINT_REPOSITORY,
+  Sprint,
+  parseDateOnly,
+  type Clock,
+  type SprintRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -23,7 +30,9 @@ export class PlanSprintHandler implements ICommandHandler<PlanSprintCommand, Spr
 
   async execute({ actor, projectId, input }: PlanSprintCommand): Promise<SprintSummaryDto> {
     this.access.assert(actor, 'sprints.manage', { projectId });
-    const project = await this.prisma.project.count({ where: { id: projectId, workspaceId: actor.workspaceId } });
+    const project = await this.prisma.project.count({
+      where: { id: projectId, workspaceId: actor.workspaceId },
+    });
     if (!project) throw new NotFoundError('Project', projectId);
     const now = this.clock.now();
     const number = await this.sprints.nextNumber(projectId);
@@ -49,7 +58,11 @@ export class PlanSprintHandler implements ICommandHandler<PlanSprintCommand, Spr
   }
 
   private async latest(workspaceId: string, projectId: string): Promise<Sprint | null> {
-    const row = await this.prisma.sprint.findFirst({ where: { projectId }, orderBy: { number: 'desc' }, select: { id: true } });
+    const row = await this.prisma.sprint.findFirst({
+      where: { projectId },
+      orderBy: { number: 'desc' },
+      select: { id: true },
+    });
     return row ? this.sprints.findById(workspaceId, row.id) : null;
   }
 }

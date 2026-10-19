@@ -1,7 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { ChangePlanResultDto } from '@hearth/contracts';
-import { NotFoundError, SUBSCRIPTION_REPOSITORY, type Clock, type SubscriptionRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SUBSCRIPTION_REPOSITORY,
+  type Clock,
+  type SubscriptionRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import { BillingReadModel } from '../../infrastructure/billing.read-model';
@@ -24,7 +29,11 @@ export class ChangePlanHandler implements ICommandHandler<ChangePlanCommand, Cha
     const sub = await this.subscriptions.findByWorkspace(actor.workspaceId);
     if (!sub) throw new NotFoundError('Subscription', actor.workspaceId);
     const { seats } = await this.usage.read(actor.workspaceId, now);
-    const { lostFeatures } = sub.changePlan({ plan: input.plan, interval: input.interval, confirm: input.confirm, activeSeats: seats }, actor.userId, now);
+    const { lostFeatures } = sub.changePlan(
+      { plan: input.plan, interval: input.interval, confirm: input.confirm, activeSeats: seats },
+      actor.userId,
+      now,
+    );
     await this.subscriptions.save(sub);
     this.events.publishFrom(sub);
     return { billing: await this.read.get(actor), lostFeatures };

@@ -17,9 +17,12 @@ import { addDays, parseDateOnly, toDateOnly } from '@hearth/domain';
 export type RescheduleRequest = Omit<RescheduleTaskInput, 'shiftDependents'> & { shiftDependents?: boolean };
 
 export const timelineApi = {
-  get: (projectId: string, range: { from?: string; to?: string } = {}) => http.get<TimelineDto>(TIMELINE_ROUTES.byProject(projectId), range),
-  reschedule: (taskId: string, input: RescheduleRequest) => http.post<RescheduleResultDto>(TIMELINE_ROUTES.reschedule(taskId), { shiftDependents: true, ...input }),
-  applySchedule: (items: ScheduleItemInput[]) => http.post<{ updated: ScheduleItemInput[] }>(TIMELINE_ROUTES.schedule, { items }),
+  get: (projectId: string, range: { from?: string; to?: string } = {}) =>
+    http.get<TimelineDto>(TIMELINE_ROUTES.byProject(projectId), range),
+  reschedule: (taskId: string, input: RescheduleRequest) =>
+    http.post<RescheduleResultDto>(TIMELINE_ROUTES.reschedule(taskId), { shiftDependents: true, ...input }),
+  applySchedule: (items: ScheduleItemInput[]) =>
+    http.post<{ updated: ScheduleItemInput[] }>(TIMELINE_ROUTES.schedule, { items }),
 };
 
 export const timelineKeys = {
@@ -31,9 +34,13 @@ export const timelineKeys = {
 export function useTimeline(projectId: string) {
   const client = useQueryClient();
   useRealtimeEvent('task.', (e) => {
-    if (e.payload.projectId === projectId || e.payload.projectId === undefined) void client.invalidateQueries({ queryKey: timelineKeys.project(projectId) });
+    if (e.payload.projectId === projectId || e.payload.projectId === undefined)
+      void client.invalidateQueries({ queryKey: timelineKeys.project(projectId) });
   });
-  useRealtimeEvent('milestone.', () => void client.invalidateQueries({ queryKey: timelineKeys.project(projectId) }));
+  useRealtimeEvent(
+    'milestone.',
+    () => void client.invalidateQueries({ queryKey: timelineKeys.project(projectId) }),
+  );
   return useQuery({
     queryKey: timelineKeys.project(projectId),
     queryFn: () => timelineApi.get(projectId),
@@ -44,7 +51,11 @@ export function useTimeline(projectId: string) {
 
 /** Shift a row's dates by whole days (pure, for the optimistic patch). */
 const shiftRow = (row: TimelineRowDto, start: string, end: string): TimelineRowDto =>
-  row.kind === 'task' ? { ...row, startDate: start, dueDate: end } : row.kind === 'milestone' ? { ...row, date: end } : row;
+  row.kind === 'task'
+    ? { ...row, startDate: start, dueDate: end }
+    : row.kind === 'milestone'
+      ? { ...row, date: end }
+      : row;
 
 export const shiftIso = (d: string, days: number) => toDateOnly(addDays(parseDateOnly(d), days));
 
@@ -60,7 +71,12 @@ export function useReschedule(projectId: string) {
     affects: () => [timelineKeys.project(projectId), queryKeys.tasks.all],
     apply: (client, { taskId, input }) =>
       client.setQueryData<TimelineDto>(timelineKeys.project(projectId), (t) =>
-        t ? { ...t, rows: t.rows.map((r) => (r.id === taskId ? shiftRow(r, input.startDate, input.dueDate) : r)) } : t,
+        t
+          ? {
+              ...t,
+              rows: t.rows.map((r) => (r.id === taskId ? shiftRow(r, input.startDate, input.dueDate) : r)),
+            }
+          : t,
       ),
   });
 }

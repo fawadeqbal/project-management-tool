@@ -17,7 +17,9 @@ export function AssigneePicker({ value, onChange, onOpenChange, ...popover }: As
   const { data: members = [], isLoading } = useMembers();
   const myId = useAuthStore((s) => s.me?.user.id);
   const active = members.filter((m) => m.status === 'ACTIVE');
-  const sorted = [...active].sort((a, b) => (a.id === myId ? -1 : b.id === myId ? 1 : a.name.localeCompare(b.name)));
+  const sorted = [...active].sort((a, b) =>
+    a.id === myId ? -1 : b.id === myId ? 1 : a.name.localeCompare(b.name),
+  );
   return (
     <PropertyPopover {...popover} onOpenChange={onOpenChange} label="Change assignee">
       <PickerList
@@ -39,7 +41,13 @@ export function AssigneePicker({ value, onChange, onOpenChange, ...popover }: As
             hint: m.jobTitle ?? undefined,
             selected: m.id === value,
           })),
-          { id: UNASSIGNED, text: 'Unassigned', label: 'Unassigned', icon: 'user-plus' as const, selected: value === null },
+          {
+            id: UNASSIGNED,
+            text: 'Unassigned',
+            label: 'Unassigned',
+            icon: 'user-plus' as const,
+            selected: value === null,
+          },
         ]}
         onSelect={(id) => {
           onOpenChange(false);

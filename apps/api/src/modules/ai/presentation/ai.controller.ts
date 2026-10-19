@@ -63,7 +63,10 @@ export class AiController {
   @Post('ai/interpret')
   @HttpCode(200)
   @RequirePermission('tasks.view')
-  interpret(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(InterpretQuerySchema)) input: InterpretQueryInput): Promise<InterpretResultDto> {
+  interpret(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(InterpretQuerySchema)) input: InterpretQueryInput,
+  ): Promise<InterpretResultDto> {
     return this.queries.execute(new InterpretQueryQuery(actor, input.query));
   }
 }

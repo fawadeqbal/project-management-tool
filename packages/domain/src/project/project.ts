@@ -39,7 +39,8 @@ export const parseWipLimits = (raw: unknown): WipLimits => {
   const out: WipLimits = {};
   for (const s of TASK_STATUSES) {
     const v = (raw as Record<string, unknown>)[s];
-    if (s !== 'DONE' && typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= WIP_LIMIT_MAX) out[s] = v;
+    if (s !== 'DONE' && typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= WIP_LIMIT_MAX)
+      out[s] = v;
   }
   return out;
 };
@@ -96,7 +97,9 @@ export class Project extends AggregateRoot<ProjectProps> {
   }
 
   static restore(id: string, props: ProjectProps): Project {
-    const sections = [...props.sections].sort((a, b) => a.position - b.position).map((s, position) => ({ ...s, position }));
+    const sections = [...props.sections]
+      .sort((a, b) => a.position - b.position)
+      .map((s, position) => ({ ...s, position }));
     return new Project(id, { ...props, wipLimits: { ...props.wipLimits }, sections });
   }
 
@@ -117,7 +120,12 @@ export class Project extends AggregateRoot<ProjectProps> {
   }
 
   toSnapshot(): Readonly<ProjectProps & { id: string }> {
-    return { ...this.props, sections: this.props.sections.map((s) => ({ ...s })), wipLimits: { ...this.props.wipLimits }, id: this.id };
+    return {
+      ...this.props,
+      sections: this.props.sections.map((s) => ({ ...s })),
+      wipLimits: { ...this.props.wipLimits },
+      id: this.id,
+    };
   }
 
   /** Applies a partial edit; records one `project.updated` with the changed field names. */
@@ -148,7 +156,8 @@ export class Project extends AggregateRoot<ProjectProps> {
       this.props.description = description;
     }
     if (patch.color !== undefined) {
-      if (!isAccentColor(patch.color)) throw new ValidationError('project.color', 'Pick one of the project colors.', { field: 'color' });
+      if (!isAccentColor(patch.color))
+        throw new ValidationError('project.color', 'Pick one of the project colors.', { field: 'color' });
       if (patch.color !== this.props.color) changed.push('color');
       this.props.color = patch.color;
     }
@@ -162,8 +171,14 @@ export class Project extends AggregateRoot<ProjectProps> {
       changed.push('team');
     }
     if (patch.startDate !== undefined || patch.dueDate !== undefined) {
-      const start = patch.startDate !== undefined ? (patch.startDate ? startOfDay(patch.startDate) : null) : this.props.startDate;
-      const due = patch.dueDate !== undefined ? (patch.dueDate ? startOfDay(patch.dueDate) : null) : this.props.dueDate;
+      const start =
+        patch.startDate !== undefined
+          ? patch.startDate
+            ? startOfDay(patch.startDate)
+            : null
+          : this.props.startDate;
+      const due =
+        patch.dueDate !== undefined ? (patch.dueDate ? startOfDay(patch.dueDate) : null) : this.props.dueDate;
       Project.assertDates(start, due);
       if (!sameDay(start, this.props.startDate)) changed.push('startDate');
       if (!sameDay(due, this.props.dueDate)) changed.push('dueDate');
@@ -172,13 +187,23 @@ export class Project extends AggregateRoot<ProjectProps> {
     }
     if (patch.wipLimits !== undefined && this.setWipLimits(patch.wipLimits)) changed.push('wipLimits');
     if (patch.health !== undefined && patch.health !== this.props.health) {
-      if (!PROJECT_HEALTH.includes(patch.health)) throw new ValidationError('project.health', 'Choose On track, At risk or Off track.');
+      if (!PROJECT_HEALTH.includes(patch.health))
+        throw new ValidationError('project.health', 'Choose On track, At risk or Off track.');
       const from = this.props.health;
       this.props.health = patch.health;
       changed.push('health');
-      this.record(createEvent('project.health_changed', this.base(actorId, now), { name: this.props.name, from, to: patch.health }));
+      this.record(
+        createEvent('project.health_changed', this.base(actorId, now), {
+          name: this.props.name,
+          from,
+          to: patch.health,
+        }),
+      );
     }
-    if (changed.length) this.record(createEvent('project.updated', this.base(actorId, now), { name: this.props.name, fields: changed }));
+    if (changed.length)
+      this.record(
+        createEvent('project.updated', this.base(actorId, now), { name: this.props.name, fields: changed }),
+      );
     return changed;
   }
 
@@ -191,9 +216,14 @@ export class Project extends AggregateRoot<ProjectProps> {
         delete next[status];
         continue;
       }
-      if (status === 'DONE') throw new ValidationError('project.wip_done', 'The Done column can’t have a WIP limit.', { field: 'wipLimits' });
+      if (status === 'DONE')
+        throw new ValidationError('project.wip_done', 'The Done column can’t have a WIP limit.', {
+          field: 'wipLimits',
+        });
       if (!Number.isInteger(value) || value < 1 || value > WIP_LIMIT_MAX)
-        throw new ValidationError('project.wip_range', `Use a WIP limit between 1 and ${WIP_LIMIT_MAX}.`, { field: 'wipLimits' });
+        throw new ValidationError('project.wip_range', `Use a WIP limit between 1 and ${WIP_LIMIT_MAX}.`, {
+          field: 'wipLimits',
+        });
       next[status] = value;
     }
     const before = JSON.stringify(sortKeys(this.props.wipLimits));
@@ -203,7 +233,13 @@ export class Project extends AggregateRoot<ProjectProps> {
 
   // ── Sections ───────────────────────────────────────────────
 
-  addSection(id: string, name: string, beforeId: string | null | undefined, actorId: string, now: Date): SectionProps {
+  addSection(
+    id: string,
+    name: string,
+    beforeId: string | null | undefined,
+    actorId: string,
+    now: Date,
+  ): SectionProps {
     const clean = Project.validSectionName(name);
     this.assertUniqueSection(clean);
     const list = [...this.props.sections];
@@ -212,7 +248,9 @@ export class Project extends AggregateRoot<ProjectProps> {
     if (index >= 0) list.splice(index, 0, section);
     else list.push(section);
     this.props.sections = renumber(list);
-    this.record(createEvent('project.section_added', this.base(actorId, now), { sectionId: id, name: clean }));
+    this.record(
+      createEvent('project.section_added', this.base(actorId, now), { sectionId: id, name: clean }),
+    );
     return this.props.sections.find((s) => s.id === id)!;
   }
 
@@ -242,7 +280,9 @@ export class Project extends AggregateRoot<ProjectProps> {
   removeSection(sectionId: string, actorId: string, now: Date): void {
     const section = this.section(sectionId);
     this.props.sections = renumber(this.props.sections.filter((s) => s.id !== sectionId));
-    this.record(createEvent('project.section_removed', this.base(actorId, now), { sectionId, name: section.name }));
+    this.record(
+      createEvent('project.section_removed', this.base(actorId, now), { sectionId, name: section.name }),
+    );
   }
 
   private section(id: string): SectionProps {
@@ -253,7 +293,11 @@ export class Project extends AggregateRoot<ProjectProps> {
 
   private assertUniqueSection(name: string, exceptId?: string): void {
     if (this.props.sections.some((s) => s.id !== exceptId && s.name.toLowerCase() === name.toLowerCase()))
-      throw new ValidationError('section.duplicate', `There’s already a “${name}” section in this project — pick another name.`, { field: 'name' });
+      throw new ValidationError(
+        'section.duplicate',
+        `There’s already a “${name}” section in this project — pick another name.`,
+        { field: 'name' },
+      );
   }
 
   private static validName(name: string): string {
@@ -266,7 +310,9 @@ export class Project extends AggregateRoot<ProjectProps> {
 
   private static assertDates(start: Date | null, due: Date | null): void {
     if (start && due && due.getTime() < start.getTime())
-      throw new ValidationError('project.dates', 'The due date has to be on or after the start date.', { field: 'dueDate' });
+      throw new ValidationError('project.dates', 'The due date has to be on or after the start date.', {
+        field: 'dueDate',
+      });
   }
 
   private base(actorId: string, now: Date) {

@@ -37,11 +37,21 @@ export class Approval extends AggregateRoot<ApprovalProps> {
   }
 
   static request(
-    input: { id: string; workspaceId: string; taskId: string; requesterId: string; title: string; summary?: string | null; dueDate?: Date | null; approverIds: string[] },
+    input: {
+      id: string;
+      workspaceId: string;
+      taskId: string;
+      requesterId: string;
+      title: string;
+      summary?: string | null;
+      dueDate?: Date | null;
+      approverIds: string[];
+    },
     now: Date,
   ): Approval {
     const approvers = [...new Set(input.approverIds)].filter((id) => id !== input.requesterId);
-    if (approvers.length === 0) throw new ValidationError('approval.approvers', 'Pick at least one approver other than yourself.');
+    if (approvers.length === 0)
+      throw new ValidationError('approval.approvers', 'Pick at least one approver other than yourself.');
     const a = new Approval(input.id, {
       workspaceId: input.workspaceId,
       taskId: input.taskId,
@@ -55,11 +65,20 @@ export class Approval extends AggregateRoot<ApprovalProps> {
       resolvedAt: null,
     });
     a.record(
-      createEvent('approval.requested', { workspaceId: input.workspaceId, actorId: input.requesterId, aggregateId: input.id, occurredAt: now }, {
-        taskId: input.taskId,
-        title: a.props.title,
-        approverIds: approvers,
-      }),
+      createEvent(
+        'approval.requested',
+        {
+          workspaceId: input.workspaceId,
+          actorId: input.requesterId,
+          aggregateId: input.id,
+          occurredAt: now,
+        },
+        {
+          taskId: input.taskId,
+          title: a.props.title,
+          approverIds: approvers,
+        },
+      ),
     );
     return a;
   }
@@ -79,7 +98,8 @@ export class Approval extends AggregateRoot<ApprovalProps> {
   }
 
   decide(userId: string, decision: Exclude<Decision, 'PENDING'>, note: string | null, now: Date): void {
-    if (this.props.status !== 'PENDING') throw new InvariantViolation('approval.closed', 'This approval is already resolved.');
+    if (this.props.status !== 'PENDING')
+      throw new InvariantViolation('approval.closed', 'This approval is already resolved.');
     const entry = this.props.decisions.find((d) => d.userId === userId);
     if (!entry) throw new ForbiddenError('approval.not_approver', 'You’re not an approver on this request.');
     entry.decision = decision;
@@ -93,13 +113,17 @@ export class Approval extends AggregateRoot<ApprovalProps> {
       this.props.resolvedAt = now;
     }
     this.record(
-      createEvent('approval.decided', { workspaceId: this.props.workspaceId, actorId: userId, aggregateId: this.id, occurredAt: now }, {
-        taskId: this.props.taskId,
-        decision,
-        status: this.props.status,
-        requesterId: this.props.requesterId,
-        title: this.props.title,
-      }),
+      createEvent(
+        'approval.decided',
+        { workspaceId: this.props.workspaceId, actorId: userId, aggregateId: this.id, occurredAt: now },
+        {
+          taskId: this.props.taskId,
+          decision,
+          status: this.props.status,
+          requesterId: this.props.requesterId,
+          title: this.props.title,
+        },
+      ),
     );
   }
 }

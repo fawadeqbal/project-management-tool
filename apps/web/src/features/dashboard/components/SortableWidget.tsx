@@ -5,8 +5,23 @@ import { Icon } from '@hearth/ui';
 import styles from '../dashboard.module.css';
 
 /** A dashboard widget; in edit mode it gets a drag handle (keyboard: Space to lift, arrows to move). */
-export function SortableWidget({ id, label, editing, wide, children }: { id: string; label: string; editing: boolean; wide: boolean; children: ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: !editing });
+export function SortableWidget({
+  id,
+  label,
+  editing,
+  wide,
+  children,
+}: {
+  id: string;
+  label: string;
+  editing: boolean;
+  wide: boolean;
+  children: ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: !editing,
+  });
   return (
     <div
       ref={setNodeRef}
@@ -15,7 +30,13 @@ export function SortableWidget({ id, label, editing, wide, children }: { id: str
       data-widget={id}
     >
       {editing ? (
-        <button type="button" className={styles.dragHandle} aria-label={`Move ${label}`} {...attributes} {...listeners}>
+        <button
+          type="button"
+          className={styles.dragHandle}
+          aria-label={`Move ${label}`}
+          {...attributes}
+          {...listeners}
+        >
           <Icon name="grip" />
           <span>{label}</span>
         </button>

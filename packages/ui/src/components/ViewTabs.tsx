@@ -23,8 +23,19 @@ export interface ViewTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onC
  * Segmented view switcher with tab semantics. Roving tabindex; arrow keys, Home and End move
  * focus and activate the tab (automatic activation).
  */
-export function ViewTabs({ tabs, value, onChange, label = 'Views', className, onKeyDown, ...rest }: ViewTabsProps) {
-  const selectedIndex = Math.max(0, tabs.findIndex((t) => t.id === value));
+export function ViewTabs({
+  tabs,
+  value,
+  onChange,
+  label = 'Views',
+  className,
+  onKeyDown,
+  ...rest
+}: ViewTabsProps) {
+  const selectedIndex = Math.max(
+    0,
+    tabs.findIndex((t) => t.id === value),
+  );
   return (
     <div
       {...rest}

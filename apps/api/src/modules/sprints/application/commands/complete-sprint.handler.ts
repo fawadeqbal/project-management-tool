@@ -1,11 +1,26 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { RetrospectiveDto, SprintSummaryDto } from '@hearth/contracts';
-import { NotFoundError, SPRINT_REPOSITORY, Sprint, buildRetrospective, ranksAtTop, sprintSnapshotOf, type Clock, type SprintRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SPRINT_REPOSITORY,
+  Sprint,
+  buildRetrospective,
+  ranksAtTop,
+  sprintSnapshotOf,
+  type Clock,
+  type SprintRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
-import { SPRINT_SNAPSHOT_STORE, SPRINT_TASK_STORE, toSprintSummary, type SprintSnapshotStore, type SprintTaskStore } from '../sprints.ports';
+import {
+  SPRINT_SNAPSHOT_STORE,
+  SPRINT_TASK_STORE,
+  toSprintSummary,
+  type SprintSnapshotStore,
+  type SprintTaskStore,
+} from '../sprints.ports';
 import { CompleteSprintCommand } from './complete-sprint.command';
 import { defaultSprintDates, newSprintId } from './sprint-ids';
 
@@ -33,7 +48,11 @@ export class CompleteSprintHandler implements ICommandHandler<CompleteSprintComm
     const retro = buildRetrospective(items);
     const unfinishedIds = retro.unfinished.map((t) => t.id);
 
-    sprint.complete({ completedPoints: retro.completedPoints, unfinishedTaskIds: unfinishedIds, moveTo: moveUnfinishedTo }, actor.userId, now);
+    sprint.complete(
+      { completedPoints: retro.completedPoints, unfinishedTaskIds: unfinishedIds, moveTo: moveUnfinishedTo },
+      actor.userId,
+      now,
+    );
     await this.sprints.save(sprint);
     // The final snapshot is the sprint's record once unfinished work moves on.
     const final = sprintSnapshotOf(items);
@@ -46,7 +65,13 @@ export class CompleteSprintHandler implements ICommandHandler<CompleteSprintComm
         if (!next) {
           const dates = defaultSprintDates(sprint, now);
           next = Sprint.plan(
-            { id: newSprintId(), projectId: sprint.projectId, workspaceId: actor.workspaceId, number: await this.sprints.nextNumber(sprint.projectId), ...dates },
+            {
+              id: newSprintId(),
+              projectId: sprint.projectId,
+              workspaceId: actor.workspaceId,
+              number: await this.sprints.nextNumber(sprint.projectId),
+              ...dates,
+            },
             actor.userId,
             now,
           );

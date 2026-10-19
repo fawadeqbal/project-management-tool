@@ -13,6 +13,13 @@ import { WorkloadController } from './presentation/workload.controller';
  */
 @Module({
   controllers: [WorkloadController],
-  providers: [WorkloadReadModel, GetWorkloadHandler, ListTimeOffHandler, CreateTimeOffHandler, DeleteTimeOffHandler, UpdateCapacityHandler],
+  providers: [
+    WorkloadReadModel,
+    GetWorkloadHandler,
+    ListTimeOffHandler,
+    CreateTimeOffHandler,
+    DeleteTimeOffHandler,
+    UpdateCapacityHandler,
+  ],
 })
 export class WorkloadModule {}

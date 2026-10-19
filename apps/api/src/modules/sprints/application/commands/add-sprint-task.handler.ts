@@ -1,7 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SprintSummaryDto } from '@hearth/contracts';
-import { NotFoundError, SPRINT_REPOSITORY, ValidationError, type Clock, type SprintRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SPRINT_REPOSITORY,
+  ValidationError,
+  type Clock,
+  type SprintRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -25,7 +31,11 @@ export class AddSprintTaskHandler implements ICommandHandler<AddSprintTaskComman
     this.access.assert(actor, 'sprints.manage', { projectId: sprint.projectId });
     const task = await this.tasks.findTask(actor.workspaceId, taskId);
     if (!task) throw new NotFoundError('Task', taskId);
-    if (task.projectId !== sprint.projectId) throw new ValidationError('sprint.task_project', 'That task belongs to another project. Move it to this project first.');
+    if (task.projectId !== sprint.projectId)
+      throw new ValidationError(
+        'sprint.task_project',
+        'That task belongs to another project. Move it to this project first.',
+      );
     if (task.sprintId !== sprint.id) {
       sprint.addTask({ id: task.id, points: task.points }, actor.userId, this.clock.now());
       await this.tasks.moveToSprint([task.id], sprint.id);

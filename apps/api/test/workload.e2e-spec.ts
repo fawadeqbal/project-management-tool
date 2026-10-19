@@ -29,11 +29,15 @@ describe('Workload (e2e)', () => {
     expect(w.days).toHaveLength(10);
     expect(w.days[0]!.isToday).toBe(true);
     expect(w.days[5]!.weekStart).toBe(true);
-    expect(w.people.map((p) => p.user.name)).toEqual(expect.arrayContaining(['Fawad Iqbal', 'Sara Ahmed', 'Mo Khan', 'Jia Li', 'Ravi Teja', 'Nadia Bashir']));
+    expect(w.people.map((p) => p.user.name)).toEqual(
+      expect.arrayContaining(['Fawad Iqbal', 'Sara Ahmed', 'Mo Khan', 'Jia Li', 'Ravi Teja', 'Nadia Bashir']),
+    );
     expect(w.people.find((p) => p.user.name === 'Tom Walsh')).toBeUndefined();
 
     const week = new Set(thisWeek(w));
-    const overThisWeek = w.summary.overCapacity.filter((o) => o.days.some((d) => week.has(d))).map((o) => o.user.name);
+    const overThisWeek = w.summary.overCapacity
+      .filter((o) => o.days.some((d) => week.has(d)))
+      .map((o) => o.user.name);
     expect(overThisWeek).toEqual(expect.arrayContaining(['Mo Khan', 'Sara Ahmed']));
 
     const mo = w.people.find((p) => p.user.name === 'Mo Khan')!;
@@ -42,10 +46,18 @@ describe('Workload (e2e)', () => {
 
     const jia = w.people.find((p) => p.user.name === 'Jia Li')!;
     expect(jia.cells.slice(3, 5).map((c) => c.state)).toEqual(['off', 'off']);
-    expect(w.summary.timeOff).toEqual([expect.objectContaining({ user: expect.objectContaining({ name: 'Jia Li' }), label: expect.stringMatching(/^Thu \d+ – Fri \d+$/) })]);
+    expect(w.summary.timeOff).toEqual([
+      expect.objectContaining({
+        user: expect.objectContaining({ name: 'Jia Li' }),
+        label: expect.stringMatching(/^Thu \d+ – Fri \d+$/),
+      }),
+    ]);
 
     expect(w.suggestions.length).toBeGreaterThan(0);
-    expect(w.suggestions[0]).toMatchObject({ source: 'based on this week’s estimates', task: { key: expect.stringMatching(/^HRT-\d+$/) } });
+    expect(w.suggestions[0]).toMatchObject({
+      source: 'based on this week’s estimates',
+      task: { key: expect.stringMatching(/^HRT-\d+$/) },
+    });
     for (const s of w.suggestions) expect(w.tasks[s.task.id]).toBeDefined();
   });
 
@@ -66,12 +78,16 @@ describe('Workload (e2e)', () => {
   });
 
   it('lets members add and remove their own time off, but not someone else’s', async () => {
-    const created = await mo.post('/time-off', { startDate: '2027-01-04', endDate: '2027-01-05', reason: 'Dentist' }).expect(201);
+    const created = await mo
+      .post('/time-off', { startDate: '2027-01-04', endDate: '2027-01-05', reason: 'Dentist' })
+      .expect(201);
     const dto = created.body as TimeOffDto;
     expect(dto).toMatchObject({ user: { name: 'Mo Khan' }, startDate: '2027-01-04', endDate: '2027-01-05' });
 
     const sara = await prisma.user.findUniqueOrThrow({ where: { email: 'sara@acme.com' } });
-    const denied = await mo.post('/time-off', { userId: sara.id, startDate: '2027-01-04', endDate: '2027-01-04' }).expect(403);
+    const denied = await mo
+      .post('/time-off', { userId: sara.id, startDate: '2027-01-04', endDate: '2027-01-04' })
+      .expect(403);
     expect(denied.body.error.kind).toBe('forbidden');
 
     await mo.post('/time-off', { startDate: '2027-01-05', endDate: '2027-01-06' }).expect(409);
@@ -85,12 +101,16 @@ describe('Workload (e2e)', () => {
 
   it('owners add time off for anyone; admins set capacity, members can’t', async () => {
     const nadia = await prisma.user.findUniqueOrThrow({ where: { email: 'nadia@acme.com' } });
-    const created = await fawad.post('/time-off', { userId: nadia.id, startDate: '2027-02-01', endDate: '2027-02-01' }).expect(201);
+    const created = await fawad
+      .post('/time-off', { userId: nadia.id, startDate: '2027-02-01', endDate: '2027-02-01' })
+      .expect(201);
     await fawad.delete(`/time-off/${created.body.id}`).expect(204);
 
     await mo.patch(`/members/${nadia.id}/capacity`, { hoursPerDay: 6 }).expect(403);
     const sara = await asUser(app, 'sara@acme.com');
-    await sara.patch(`/members/${nadia.id}/capacity`, { hoursPerDay: 6 }).expect(200, { userId: nadia.id, hoursPerDay: 6 });
+    await sara
+      .patch(`/members/${nadia.id}/capacity`, { hoursPerDay: 6 })
+      .expect(200, { userId: nadia.id, hoursPerDay: 6 });
     const w = (await fawad.get('/workload').expect(200)).body as WorkloadDto;
     expect(w.people.find((p) => p.user.id === nadia.id)!.cells[0]!.capacity).toBe(6);
     await sara.patch(`/members/${nadia.id}/capacity`, { hoursPerDay: 8 }).expect(200);

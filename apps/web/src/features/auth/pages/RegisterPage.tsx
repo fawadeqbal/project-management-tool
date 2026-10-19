@@ -14,18 +14,27 @@ export function RegisterPage() {
   const token = useAuthStore((s) => s.token);
   const navigate = useNavigate();
   const register = useRegister();
-  const [values, setValues] = useState<Record<Field, string>>({ name: '', email: '', password: '', workspaceName: '' });
+  const [values, setValues] = useState<Record<Field, string>>({
+    name: '',
+    email: '',
+    password: '',
+    workspaceName: '',
+  });
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [formError, setFormError] = useState<string | null>(null);
 
   if (token && !register.isPending) return <Navigate to="/home" replace />;
 
-  const set = (field: Field) => (e: { target: { value: string } }) => setValues((v) => ({ ...v, [field]: e.target.value }));
+  const set = (field: Field) => (e: { target: { value: string } }) =>
+    setValues((v) => ({ ...v, [field]: e.target.value }));
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    const parsed = RegisterSchema.safeParse({ ...values, workspaceName: values.workspaceName.trim() || undefined });
+    const parsed = RegisterSchema.safeParse({
+      ...values,
+      workspaceName: values.workspaceName.trim() || undefined,
+    });
     if (!parsed.success) {
       const fe = parsed.error.flatten().fieldErrors;
       setErrors(Object.fromEntries(FIELDS.map((f) => [f, fe[f]?.[0]])));
@@ -35,7 +44,9 @@ export function RegisterPage() {
     register.mutate(parsed.data, {
       onSuccess: () => void navigate('/home', { replace: true }),
       onError: (err) => {
-        const fields = Object.fromEntries(FIELDS.map((f) => [f, err.field(f)])) as Partial<Record<Field, string>>;
+        const fields = Object.fromEntries(FIELDS.map((f) => [f, err.field(f)])) as Partial<
+          Record<Field, string>
+        >;
         setErrors(fields);
         if (!Object.values(fields).some(Boolean)) setFormError(err.message);
       },
@@ -54,7 +65,14 @@ export function RegisterPage() {
     >
       <form className={styles.form} onSubmit={submit} noValidate>
         <FormError message={formError} />
-        <Input label="Your name" autoComplete="name" value={values.name} onChange={set('name')} error={errors.name} autoFocus />
+        <Input
+          label="Your name"
+          autoComplete="name"
+          value={values.name}
+          onChange={set('name')}
+          error={errors.name}
+          autoFocus
+        />
         <Input
           label="Work email"
           type="email"

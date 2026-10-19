@@ -17,7 +17,9 @@ export class ActivityRecorder extends DomainEventSubscriber {
   protected async on(event: DomainEvent): Promise<void> {
     if (event.type === 'task.deleted') return; // the row cascades away with the task
     const payload = event.payload as Record<string, unknown>;
-    const taskId = event.type.startsWith('task.') ? event.aggregateId : (payload['taskId'] as string | undefined);
+    const taskId = event.type.startsWith('task.')
+      ? event.aggregateId
+      : (payload['taskId'] as string | undefined);
     if (!taskId) return;
     const exists = await this.prisma.task.count({ where: { id: taskId } });
     if (!exists) return;

@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Avatar, Button, Dialog, Input, Kbd, Priority, Select, StatusPill, Textarea, toUiPriority, toUiStatus } from '@hearth/ui';
+import {
+  Avatar,
+  Button,
+  Dialog,
+  Input,
+  Kbd,
+  Priority,
+  Select,
+  StatusPill,
+  Textarea,
+  toUiPriority,
+  toUiStatus,
+} from '@hearth/ui';
 import type { PriorityDto, TaskStatusDto } from '@hearth/contracts';
 import { humanizeDate, parseDateOnly } from '@hearth/domain';
 import { useAuthStore } from '@/shared/auth/auth-store';
@@ -127,7 +139,13 @@ export function CreateTaskDialog() {
             if (error) setError(null);
           }}
         />
-        <Textarea label="Description" placeholder="Add details, links or acceptance criteria…" rows={3} value={draft.description} onChange={(e) => set('description', e.target.value)} />
+        <Textarea
+          label="Description"
+          placeholder="Add details, links or acceptance criteria…"
+          rows={3}
+          value={draft.description}
+          onChange={(e) => set('description', e.target.value)}
+        />
         <div className={styles.props}>
           <StatusPicker
             open={picker === 'status'}
@@ -147,7 +165,14 @@ export function CreateTaskDialog() {
             onChange={(id) => set('assigneeId', id)}
             renderTrigger={(p) => (
               <button type="button" {...p} className={styles.chip} aria-label="Assignee">
-                {assignee ? <Avatar initials={assignee.initials} color={assignee.avatarColor} size={20} name={assignee.name} /> : null}
+                {assignee ? (
+                  <Avatar
+                    initials={assignee.initials}
+                    color={assignee.avatarColor}
+                    size={20}
+                    name={assignee.name}
+                  />
+                ) : null}
                 {assignee ? assignee.name : 'Unassigned'}
               </button>
             )}
@@ -180,7 +205,10 @@ export function CreateTaskDialog() {
           label="Project"
           value={draft.projectId}
           onChange={(e) => set('projectId', e.target.value)}
-          options={[{ value: '', label: 'No project' }, ...projects.map((p) => ({ value: p.id, label: p.name }))]}
+          options={[
+            { value: '', label: 'No project' },
+            ...projects.map((p) => ({ value: p.id, label: p.name })),
+          ]}
           hint={projects.length ? undefined : 'Favorite a project to pick it here.'}
         />
       </form>

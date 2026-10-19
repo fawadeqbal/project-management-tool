@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isPriority, isTaskStatus, type GroupingId, type Priority, type SortId, type TaskFilter, type TaskStatus } from '@hearth/domain';
+import {
+  isPriority,
+  isTaskStatus,
+  type GroupingId,
+  type Priority,
+  type SortId,
+  type TaskFilter,
+  type TaskStatus,
+} from '@hearth/domain';
 import { useAuthStore } from '@/shared/auth/auth-store';
 
 /** Saved view “My focus”: what My tasks remembers between visits. */
@@ -43,14 +51,17 @@ const storageKey = (userId: string | undefined) => `hearth.myTasks.view.${userId
 const sanitize = (raw: unknown): MyTasksView => {
   if (typeof raw !== 'object' || raw === null) return DEFAULT_VIEW;
   const r = raw as Partial<Record<keyof MyTasksView, unknown>>;
-  const strings = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+  const strings = (v: unknown) =>
+    Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
   return {
     statuses: strings(r.statuses).filter(isTaskStatus),
     priorities: strings(r.priorities).filter(isPriority),
     projectIds: strings(r.projectIds),
     overdueOnly: r.overdueOnly === true,
     includeDone: r.includeDone === true,
-    grouping: GROUPINGS.some((g) => g.id === r.grouping) ? (r.grouping as MyTasksView['grouping']) : DEFAULT_VIEW.grouping,
+    grouping: GROUPINGS.some((g) => g.id === r.grouping)
+      ? (r.grouping as MyTasksView['grouping'])
+      : DEFAULT_VIEW.grouping,
     sort: SORTS.some((s) => s.id === r.sort) ? (r.sort as MyTasksView['sort']) : DEFAULT_VIEW.sort,
   };
 };
@@ -90,7 +101,17 @@ export interface UrlFilters {
   q: string | null;
 }
 
-export const URL_FILTER_KEYS = ['overdue', 'due', 'tag', 'team', 'project', 'assignee', 'status', 'priority', 'q'] as const;
+export const URL_FILTER_KEYS = [
+  'overdue',
+  'due',
+  'tag',
+  'team',
+  'project',
+  'assignee',
+  'status',
+  'priority',
+  'q',
+] as const;
 
 export const readUrlFilters = (params: URLSearchParams): UrlFilters => {
   const status = params.get('status');
@@ -109,14 +130,26 @@ export const readUrlFilters = (params: URLSearchParams): UrlFilters => {
 };
 
 export const hasUrlFilters = (f: UrlFilters) =>
-  f.overdue || f.dueToday || !!f.tag || !!f.teamId || !!f.projectId || !!f.assigneeId || !!f.status || !!f.priority || !!f.q;
+  f.overdue ||
+  f.dueToday ||
+  !!f.tag ||
+  !!f.teamId ||
+  !!f.projectId ||
+  !!f.assigneeId ||
+  !!f.status ||
+  !!f.priority ||
+  !!f.q;
 
 /** Saved view + URL filters → the domain's serializable TaskFilter (team is resolved by the caller). */
-export const toTaskFilter = (view: MyTasksView, url: UrlFilters, teamMemberIds: string[] | null): TaskFilter => {
+export const toTaskFilter = (
+  view: MyTasksView,
+  url: UrlFilters,
+  teamMemberIds: string[] | null,
+): TaskFilter => {
   const statuses = url.status ? [url.status] : view.statuses;
   const assigneeIds: (string | null)[] | undefined = url.assigneeId
     ? [url.assigneeId === 'none' ? null : url.assigneeId]
-    : teamMemberIds ?? undefined;
+    : (teamMemberIds ?? undefined);
   return {
     statuses: statuses.length ? statuses : undefined,
     priorities: url.priority ? [url.priority] : view.priorities.length ? view.priorities : undefined,
@@ -158,10 +191,17 @@ export function useMyTasksView() {
       }),
     [setParams],
   );
-  const resetView = useCallback(() => setView({ statuses: [], priorities: [], projectIds: [], overdueOnly: false, includeDone: false }), [setView]);
+  const resetView = useCallback(
+    () => setView({ statuses: [], priorities: [], projectIds: [], overdueOnly: false, includeDone: false }),
+    [setView],
+  );
 
   const activeFilterCount =
-    view.statuses.length + view.priorities.length + view.projectIds.length + (view.overdueOnly ? 1 : 0) + (view.includeDone ? 1 : 0);
+    view.statuses.length +
+    view.priorities.length +
+    view.projectIds.length +
+    (view.overdueOnly ? 1 : 0) +
+    (view.includeDone ? 1 : 0);
 
   return { view, setView, resetView, url, clearUrlFilters, activeFilterCount };
 }

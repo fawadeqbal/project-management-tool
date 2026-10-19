@@ -3,7 +3,12 @@ import { computeCriticalPath } from './critical-path';
 import { findScheduleConflicts, planDependentShifts } from './schedule-rules';
 import { parseDateOnly } from '../shared/dates';
 
-const n = (id: string, s: string, e: string, extra: object = {}) => ({ id, start: parseDateOnly(s), end: parseDateOnly(e), ...extra });
+const n = (id: string, s: string, e: string, extra: object = {}) => ({
+  id,
+  start: parseDateOnly(s),
+  end: parseDateOnly(e),
+  ...extra,
+});
 
 // The Website relaunch plan from the Timeline design.
 const nodes = [
@@ -39,7 +44,9 @@ describe('critical path', () => {
 
 describe('schedule rules', () => {
   it('flags a task that starts before its blocker ends', () => {
-    expect(findScheduleConflicts(nodes, edges)).toEqual([{ taskId: 'analytics', blockerId: 'nav', overlapDays: 4 }]);
+    expect(findScheduleConflicts(nodes, edges)).toEqual([
+      { taskId: 'analytics', blockerId: 'nav', overlapDays: 4 },
+    ]);
   });
 
   it('pushes dependents forward when a blocker slips', () => {

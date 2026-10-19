@@ -131,4 +131,5 @@ export const PROJECT_TEMPLATES: readonly ProjectTemplate[] = [
   },
 ];
 
-export const findTemplate = (id: string): ProjectTemplate | undefined => PROJECT_TEMPLATES.find((t) => t.id === id);
+export const findTemplate = (id: string): ProjectTemplate | undefined =>
+  PROJECT_TEMPLATES.find((t) => t.id === id);

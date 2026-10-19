@@ -22,16 +22,28 @@ export function TeamPage() {
   if (!teamsLoading && !team)
     return (
       <div className={styles.page}>
-        <EmptyState icon="users" title="We couldn’t find that team" description="It may have been renamed or removed. Pick a team from the sidebar." />
+        <EmptyState
+          icon="users"
+          title="We couldn’t find that team"
+          description="It may have been renamed or removed. Pick a team from the sidebar."
+        />
       </div>
     );
 
   return (
     <div className={styles.page}>
       <div className={styles.titleRow}>
-        {team ? <span className={styles.teamDot} style={{ background: `var(--accent-${team.color}-dot)` }} aria-hidden="true" /> : null}
+        {team ? (
+          <span
+            className={styles.teamDot}
+            style={{ background: `var(--accent-${team.color}-dot)` }}
+            aria-hidden="true"
+          />
+        ) : null}
         <h1 className={styles.title}>{team?.name ?? <Skeleton width={160} height={28} />}</h1>
-        <span className={styles.meta}>{team ? `${team.memberIds.length} ${team.memberIds.length === 1 ? 'person' : 'people'}` : ''}</span>
+        <span className={styles.meta}>
+          {team ? `${team.memberIds.length} ${team.memberIds.length === 1 ? 'person' : 'people'}` : ''}
+        </span>
         <span className={styles.grow} />
         <Link to={`/my-tasks?team=${teamId}`} className={styles.textLink}>
           See the team’s tasks
@@ -50,7 +62,12 @@ export function TeamPage() {
           ) : projects?.length ? (
             <ProjectsTable projects={projects} label={`${team?.name ?? 'Team'} projects`} />
           ) : (
-            <EmptyState icon="folder" title="No projects for this team yet" description="Create one and pick this team." headingLevel={3} />
+            <EmptyState
+              icon="folder"
+              title="No projects for this team yet"
+              description="Create one and pick this team."
+              headingLevel={3}
+            />
           )}
         </div>
         <aside className={styles.overviewSide}>

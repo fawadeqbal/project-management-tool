@@ -15,11 +15,16 @@ describe('Search (e2e)', () => {
     await app.close();
   });
 
-  const search = async (who: UserClient, query: string) => (await who.get(`/search?${query}`).expect(200)).body as SearchResultDto;
+  const search = async (who: UserClient, query: string) =>
+    (await who.get(`/search?${query}`).expect(200)).body as SearchResultDto;
 
   it('ranks "pric" with HRT-188 first and returns grouped results with timing', async () => {
     const res = await search(fawad, 'q=pric');
-    expect(res.tasks[0]).toMatchObject({ key: 'HRT-188', title: 'Design pricing page in light and dark mode', status: 'IN_PROGRESS' });
+    expect(res.tasks[0]).toMatchObject({
+      key: 'HRT-188',
+      title: 'Design pricing page in light and dark mode',
+      status: 'IN_PROGRESS',
+    });
     expect(res.tasks[0]!.indices.length).toBe(4);
     expect(res.tasks.length).toBeLessThanOrEqual(8);
     expect(typeof res.tookMs).toBe('number');

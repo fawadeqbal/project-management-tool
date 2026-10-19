@@ -27,9 +27,16 @@ export class LoginHandler implements ICommandHandler<LoginCommand, AuthResponseD
       include: { memberships: { where: { status: 'ACTIVE' }, orderBy: { joinedAt: 'asc' }, take: 1 } },
     });
     // Same message whether the email or the password is wrong — don't reveal which accounts exist.
-    if (!user || !(await this.hasher.verify(input.password, user.passwordHash))) throw new UnauthorizedException(WRONG_CREDENTIALS);
+    if (!user || !(await this.hasher.verify(input.password, user.passwordHash)))
+      throw new UnauthorizedException(WRONG_CREDENTIALS);
     const membership = user.memberships[0];
-    if (!membership) throw new UnauthorizedException('Your access to every workspace has been turned off. Contact your workspace admin.');
-    return { accessToken: await this.tokens.issue(user.id), me: await this.me.get(user.id, membership.workspaceId) };
+    if (!membership)
+      throw new UnauthorizedException(
+        'Your access to every workspace has been turned off. Contact your workspace admin.',
+      );
+    return {
+      accessToken: await this.tokens.issue(user.id),
+      me: await this.me.get(user.id, membership.workspaceId),
+    };
   }
 }

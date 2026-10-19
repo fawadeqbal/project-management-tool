@@ -5,10 +5,22 @@ import { DateOnlySchema, IdSchema, type ProjectRefDto, type TaskRefDto, type Use
 export const InboxTabSchema = z.enum(['all', 'mentions', 'assigned', 'approvals']);
 export type InboxTabDto = z.infer<typeof InboxTabSchema>;
 
-export const NotificationTypeSchema = z.enum(['MENTION', 'ASSIGNED', 'APPROVAL_REQUESTED', 'STATUS_CHANGED', 'COMMENT_REPLY', 'TASK_COMPLETED', 'DUE_SOON']);
+export const NotificationTypeSchema = z.enum([
+  'MENTION',
+  'ASSIGNED',
+  'APPROVAL_REQUESTED',
+  'STATUS_CHANGED',
+  'COMMENT_REPLY',
+  'TASK_COMPLETED',
+  'DUE_SOON',
+]);
 export type NotificationTypeDto = z.infer<typeof NotificationTypeSchema>;
 
-const flag = z.preprocess((v) => (v === 'true' || v === '1' || v === true ? true : v === 'false' || v === '0' || v === false ? false : v), z.boolean());
+const flag = z.preprocess(
+  (v) =>
+    v === 'true' || v === '1' || v === true ? true : v === 'false' || v === '0' || v === false ? false : v,
+  z.boolean(),
+);
 
 export const InboxQuerySchema = z.object({
   tab: InboxTabSchema.default('all'),
@@ -60,7 +72,9 @@ export const SnoozeSchema = z
     preset: SnoozePresetSchema.optional(),
     until: z.string().datetime({ message: 'Use a date and time like 2026-10-20T09:00:00Z.' }).optional(),
   })
-  .refine((v) => !!v.preset !== !!v.until, { message: 'Pick a snooze time: later today, tomorrow, next week or a date.' });
+  .refine((v) => !!v.preset !== !!v.until, {
+    message: 'Pick a snooze time: later today, tomorrow, next week or a date.',
+  });
 export type SnoozeInput = z.infer<typeof SnoozeSchema>;
 
 export const InboxBulkActionSchema = z.enum(['read', 'unread', 'archive', 'unarchive', 'unsnooze']);
@@ -87,7 +101,12 @@ export const ApprovalAttachmentInputSchema = z.object({
   name: z.string().trim().min(1).max(200),
   kind: z.enum(['file', 'doc', 'link']).default('file'),
   url: z.string().trim().min(1).max(2000),
-  sizeBytes: z.number().int().min(0).max(10 * 1024 ** 3).default(0),
+  sizeBytes: z
+    .number()
+    .int()
+    .min(0)
+    .max(10 * 1024 ** 3)
+    .default(0),
 });
 export type ApprovalAttachmentInput = z.infer<typeof ApprovalAttachmentInputSchema>;
 

@@ -13,7 +13,10 @@ export interface ScheduleConflict {
  * A task that starts before its blocker ends gets a warning badge — not a blocked action
  * (error prevention without taking control away).
  */
-export const findScheduleConflicts = (nodes: readonly ScheduleNode[], edges: readonly DependencyEdge[]): ScheduleConflict[] => {
+export const findScheduleConflicts = (
+  nodes: readonly ScheduleNode[],
+  edges: readonly DependencyEdge[],
+): ScheduleConflict[] => {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const conflicts: ScheduleConflict[] = [];
   for (const e of edges) {
@@ -23,7 +26,8 @@ export const findScheduleConflicts = (nodes: readonly ScheduleNode[], edges: rea
     // Finish-to-start: the task may start the day after the blocker ends (milestones: same day).
     const earliest = blocker.kind === 'milestone' ? 0 : 1;
     const gap = diffInDays(blocker.end, task.start);
-    if (gap < earliest) conflicts.push({ taskId: task.id, blockerId: blocker.id, overlapDays: earliest - gap });
+    if (gap < earliest)
+      conflicts.push({ taskId: task.id, blockerId: blocker.id, overlapDays: earliest - gap });
   }
   return conflicts;
 };

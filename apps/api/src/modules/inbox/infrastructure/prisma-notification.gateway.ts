@@ -10,13 +10,22 @@ export class PrismaNotificationGateway implements NotificationGateway {
 
   async contextFor(event: DomainEvent): Promise<NotificationContext> {
     const payload = event.payload as Record<string, unknown>;
-    const taskId = event.type.startsWith('task.') ? event.aggregateId : typeof payload['taskId'] === 'string' ? (payload['taskId'] as string) : null;
+    const taskId = event.type.startsWith('task.')
+      ? event.aggregateId
+      : typeof payload['taskId'] === 'string'
+        ? (payload['taskId'] as string)
+        : null;
     const [actor, task, workspace] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: event.actorId }, select: { name: true } }),
       taskId
         ? this.prisma.task.findFirst({
             where: { id: taskId, workspaceId: event.workspaceId },
-            select: { number: true, assigneeId: true, project: { select: { name: true } }, followers: { select: { userId: true } } },
+            select: {
+              number: true,
+              assigneeId: true,
+              project: { select: { name: true } },
+              followers: { select: { userId: true } },
+            },
           })
         : null,
       this.prisma.workspace.findUnique({ where: { id: event.workspaceId }, select: { keyPrefix: true } }),
@@ -34,7 +43,11 @@ export class PrismaNotificationGateway implements NotificationGateway {
     if (!notifications.length) return [];
     // Recipients must still belong to the workspace (a removed member never gets new items).
     const members = await this.prisma.membership.findMany({
-      where: { workspaceId: notifications[0]!.workspaceId, userId: { in: notifications.map((n) => n.recipientId) }, status: 'ACTIVE' },
+      where: {
+        workspaceId: notifications[0]!.workspaceId,
+        userId: { in: notifications.map((n) => n.recipientId) },
+        status: 'ACTIVE',
+      },
       select: { userId: true },
     });
     const allowed = new Set(members.map((m) => m.userId));

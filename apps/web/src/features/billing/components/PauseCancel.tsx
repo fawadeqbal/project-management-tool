@@ -29,7 +29,12 @@ export function PauseCancel({ billing }: { billing: BillingDto }) {
         {current.status === 'ACTIVE' ? (
           <>
             Need a break?{' '}
-            <button type="button" className={styles.linkButton} onClick={() => setModal('pause')} disabled={!canManage}>
+            <button
+              type="button"
+              className={styles.linkButton}
+              onClick={() => setModal('pause')}
+              disabled={!canManage}
+            >
               Pause billing for up to 3 months
             </button>
             {' · '}
@@ -40,7 +45,12 @@ export function PauseCancel({ billing }: { billing: BillingDto }) {
               type="button"
               className={styles.linkButton}
               disabled={!canManage || resume.isPending}
-              onClick={() => resume.mutate(undefined, { onSuccess: () => show({ message: 'Billing is active again.' }), onError: fail })}
+              onClick={() =>
+                resume.mutate(undefined, {
+                  onSuccess: () => show({ message: 'Billing is active again.' }),
+                  onError: fail,
+                })
+              }
             >
               {current.status === 'PAUSED' ? 'Resume billing now' : `Keep ${current.planName}`}
             </button>
@@ -53,7 +63,12 @@ export function PauseCancel({ billing }: { billing: BillingDto }) {
         {current.status !== 'CANCELED' && current.plan !== 'FREE' ? (
           <>
             {' · '}
-            <button type="button" className={`${styles.linkButton} ${styles.linkButtonQuiet}`} onClick={() => setModal('cancel')} disabled={!canManage}>
+            <button
+              type="button"
+              className={`${styles.linkButton} ${styles.linkButtonQuiet}`}
+              onClick={() => setModal('cancel')}
+              disabled={!canManage}
+            >
               Cancel plan
             </button>
           </>
@@ -77,7 +92,11 @@ export function PauseCancel({ billing }: { billing: BillingDto }) {
                 pause.mutate(Number(months) as 1 | 2 | 3, {
                   onSuccess: () => {
                     setModal(null);
-                    show({ message: `Billing paused for ${months} month${months === '1' ? '' : 's'}.`, action: 'Undo', onAction: () => resume.mutate(undefined) });
+                    show({
+                      message: `Billing paused for ${months} month${months === '1' ? '' : 's'}.`,
+                      action: 'Undo',
+                      onAction: () => resume.mutate(undefined),
+                    });
                   },
                   onError: fail,
                 })

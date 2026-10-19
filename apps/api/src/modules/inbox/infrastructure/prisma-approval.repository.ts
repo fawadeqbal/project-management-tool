@@ -22,7 +22,12 @@ export class PrismaApprovalRepository implements InboxApprovalRepository {
       summary: row.summary,
       dueDate: row.dueDate,
       status: row.status,
-      decisions: row.decisions.map((d) => ({ userId: d.userId, decision: d.decision, note: d.note, decidedAt: d.decidedAt })),
+      decisions: row.decisions.map((d) => ({
+        userId: d.userId,
+        decision: d.decision,
+        note: d.note,
+        decidedAt: d.decidedAt,
+      })),
       createdAt: row.createdAt,
       resolvedAt: row.resolvedAt,
     });
@@ -44,12 +49,24 @@ export class PrismaApprovalRepository implements InboxApprovalRepository {
           createdAt: s.createdAt,
           resolvedAt: s.resolvedAt,
         },
-        update: { title: s.title, summary: s.summary, dueDate: s.dueDate, status: s.status, resolvedAt: s.resolvedAt },
+        update: {
+          title: s.title,
+          summary: s.summary,
+          dueDate: s.dueDate,
+          status: s.status,
+          resolvedAt: s.resolvedAt,
+        },
       }),
       ...s.decisions.map((d) =>
         this.prisma.approvalDecision.upsert({
           where: { approvalId_userId: { approvalId: s.id, userId: d.userId } },
-          create: { approvalId: s.id, userId: d.userId, decision: d.decision, note: d.note, decidedAt: d.decidedAt },
+          create: {
+            approvalId: s.id,
+            userId: d.userId,
+            decision: d.decision,
+            note: d.note,
+            decidedAt: d.decidedAt,
+          },
           update: { decision: d.decision, note: d.note, decidedAt: d.decidedAt },
         }),
       ),

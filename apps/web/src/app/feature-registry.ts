@@ -19,7 +19,21 @@ import * as billing from '@/features/billing';
  * Registry of feature modules. Each feature exposes `routes` (rendered inside the app shell,
  * except auth) and `commands` (for ⌘K and shortcuts). Feature streams never edit this file.
  */
-const appFeatures = [myTasks, taskDetail, commandPalette, home, projects, timeline, calendar, workload, sprints, inbox, dashboard, settings, billing];
+const appFeatures = [
+  myTasks,
+  taskDetail,
+  commandPalette,
+  home,
+  projects,
+  timeline,
+  calendar,
+  workload,
+  sprints,
+  inbox,
+  dashboard,
+  settings,
+  billing,
+];
 
 export const publicRoutes: RouteObject[] = auth.routes;
 export const shellRoutes: RouteObject[] = appFeatures.flatMap((f) => f.routes);

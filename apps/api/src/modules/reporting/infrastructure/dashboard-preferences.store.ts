@@ -11,7 +11,8 @@ export interface DashboardSchedule {
   recipients: string[];
 }
 
-const isWidget = (v: unknown): v is DashboardWidgetId => (DASHBOARD_WIDGETS as readonly unknown[]).includes(v);
+const isWidget = (v: unknown): v is DashboardWidgetId =>
+  (DASHBOARD_WIDGETS as readonly unknown[]).includes(v);
 
 /**
  * Per-person dashboard preferences, persisted as SavedView rows (scope 'dashboard-layout' and
@@ -33,7 +34,10 @@ export class DashboardPreferencesStore {
     const row = await this.find(workspaceId, userId, SCHEDULE_SCOPE);
     const cfg = row?.config as { cadence?: string; recipients?: unknown[] } | undefined;
     if (!cfg || cfg.cadence !== 'weekly' || !Array.isArray(cfg.recipients)) return null;
-    return { cadence: 'weekly', recipients: cfg.recipients.filter((r): r is string => typeof r === 'string') };
+    return {
+      cadence: 'weekly',
+      recipients: cfg.recipients.filter((r): r is string => typeof r === 'string'),
+    };
   }
 
   saveLayout(workspaceId: string, userId: string, widgets: DashboardWidgetId[]): Promise<void> {
@@ -45,10 +49,19 @@ export class DashboardPreferencesStore {
   }
 
   private find(workspaceId: string, userId: string, scope: string) {
-    return this.prisma.savedView.findFirst({ where: { workspaceId, userId, scope }, orderBy: { createdAt: 'desc' } });
+    return this.prisma.savedView.findFirst({
+      where: { workspaceId, userId, scope },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  private async upsert(workspaceId: string, userId: string, scope: string, name: string, config: Prisma.InputJsonObject): Promise<void> {
+  private async upsert(
+    workspaceId: string,
+    userId: string,
+    scope: string,
+    name: string,
+    config: Prisma.InputJsonObject,
+  ): Promise<void> {
     const existing = await this.find(workspaceId, userId, scope);
     if (existing) await this.prisma.savedView.update({ where: { id: existing.id }, data: { config } });
     else await this.prisma.savedView.create({ data: { workspaceId, userId, scope, name, config } });

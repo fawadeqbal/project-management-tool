@@ -32,26 +32,51 @@ export const usageMeter = (
       used,
       limit,
       pct,
-      note: left <= 0 ? 'No seats left · upgrade to invite more people' : `${left} seat${left === 1 ? '' : 's'} left · next seat is prorated`,
+      note:
+        left <= 0
+          ? 'No seats left · upgrade to invite more people'
+          : `${left} seat${left === 1 ? '' : 's'} left · next seat is prorated`,
       warning: left <= 0,
     };
   }
-  if (meter === 'storage_bytes') return { meter, used, limit, pct, note: pct >= 90 ? `${formatMeter(meter, limit - used)} left` : 'Plenty of room', warning: pct >= 90 };
+  if (meter === 'storage_bytes')
+    return {
+      meter,
+      used,
+      limit,
+      pct,
+      note: pct >= 90 ? `${formatMeter(meter, limit - used)} left` : 'Plenty of room',
+      warning: pct >= 90,
+    };
 
   const elapsed = Math.max(1, diffInDays(period.start, today) + 1);
   const perDay = used / elapsed;
   const daysToLimit = perDay > 0 ? Math.ceil((limit - used) / perDay) : Infinity;
   const hitDate = addDays(startOfDay(today), daysToLimit);
-  const hitsBeforeReset = Number.isFinite(daysToLimit) && hitDate.getTime() < startOfDay(period.resetsAt).getTime();
-  if (used >= limit) return { meter, used, limit, pct, note: `Limit reached · ${resets.toLowerCase()}`, warning: true };
-  if (hitsBeforeReset) return { meter, used, limit, pct, note: `${resets} · on pace to hit the limit ${formatShortDate(hitDate)}`, warning: true };
+  const hitsBeforeReset =
+    Number.isFinite(daysToLimit) && hitDate.getTime() < startOfDay(period.resetsAt).getTime();
+  if (used >= limit)
+    return { meter, used, limit, pct, note: `Limit reached · ${resets.toLowerCase()}`, warning: true };
+  if (hitsBeforeReset)
+    return {
+      meter,
+      used,
+      limit,
+      pct,
+      note: `${resets} · on pace to hit the limit ${formatShortDate(hitDate)}`,
+      warning: true,
+    };
   return { meter, used, limit, pct, note: resets, warning: pct >= 90 };
 };
 
 /** Monthly / annual toggle shows the saving in money, not just a percentage. */
-export const annualSavings = (planId: PlanId, seats: number): { perYearCents: number; pct: number } | null => {
+export const annualSavings = (
+  planId: PlanId,
+  seats: number,
+): { perYearCents: number; pct: number } | null => {
   const p = PLANS[planId];
-  if (p.monthlyPerSeatCents === null || p.annualPerSeatCents === null || p.monthlyPerSeatCents === 0) return null;
+  if (p.monthlyPerSeatCents === null || p.annualPerSeatCents === null || p.monthlyPerSeatCents === 0)
+    return null;
   const perYearCents = (p.monthlyPerSeatCents - p.annualPerSeatCents) * 12 * seats;
   return { perYearCents, pct: Math.round((1 - p.annualPerSeatCents / p.monthlyPerSeatCents) * 100) };
 };
@@ -72,9 +97,17 @@ export const periodBounds = (d: Date): { start: Date; resetsAt: Date } => ({
 });
 
 /** Moving between plans: what changes, in plain words (downgrade is always reachable). */
-export const describePlanChange = (from: PlanId, to: PlanId): { direction: 'upgrade' | 'downgrade' | 'same'; lostFeatures: string[] } => {
+export const describePlanChange = (
+  from: PlanId,
+  to: PlanId,
+): { direction: 'upgrade' | 'downgrade' | 'same'; lostFeatures: string[] } => {
   const order = ['FREE', 'PRO', 'BUSINESS', 'ENTERPRISE'];
-  const direction = order.indexOf(to) > order.indexOf(from) ? 'upgrade' : order.indexOf(to) < order.indexOf(from) ? 'downgrade' : 'same';
+  const direction =
+    order.indexOf(to) > order.indexOf(from)
+      ? 'upgrade'
+      : order.indexOf(to) < order.indexOf(from)
+        ? 'downgrade'
+        : 'same';
   const lostFeatures = [...PLANS[from].features].filter((f) => !PLANS[to].features.has(f));
   return { direction, lostFeatures };
 };

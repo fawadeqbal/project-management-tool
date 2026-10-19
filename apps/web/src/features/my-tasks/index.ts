@@ -4,7 +4,9 @@ import type { RouteHandle } from '@/shared/routing/crumbs';
 import { MyTasksPage } from './pages/MyTasksPage';
 
 /** Public surface of the "my-tasks" feature: its routes and the commands it contributes to ⌘K. */
-export const routes: RouteObject[] = [{ path: 'my-tasks', Component: MyTasksPage, handle: { crumb: 'My tasks' } satisfies RouteHandle }];
+export const routes: RouteObject[] = [
+  { path: 'my-tasks', Component: MyTasksPage, handle: { crumb: 'My tasks' } satisfies RouteHandle },
+];
 
 export const commands: Command[] = [
   {

@@ -4,6 +4,13 @@ import { useSearchParams } from 'react-router-dom';
 export function useSafeNext(): string {
   const [params] = useSearchParams();
   const next = params.get('next');
-  if (next && next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/login') && !next.startsWith('/register')) return next;
+  if (
+    next &&
+    next.startsWith('/') &&
+    !next.startsWith('//') &&
+    !next.startsWith('/login') &&
+    !next.startsWith('/register')
+  )
+    return next;
   return '/my-tasks';
 }

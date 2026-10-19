@@ -32,7 +32,12 @@ import { DeleteSectionCommand } from '../application/commands/delete-section.han
 import { CreateMilestoneCommand } from '../application/commands/create-milestone.handler';
 import { UpdateMilestoneCommand } from '../application/commands/update-milestone.handler';
 import { DeleteMilestoneCommand } from '../application/commands/delete-milestone.handler';
-import { GetBoardQuery, GetProjectQuery, ListProjectsQuery, ListTeamProjectsQuery } from '../application/queries/project.queries';
+import {
+  GetBoardQuery,
+  GetProjectQuery,
+  ListProjectsQuery,
+  ListTeamProjectsQuery,
+} from '../application/queries/project.queries';
 
 /** Thin HTTP adapter for the projects context: validate → dispatch → return the contract DTO. */
 @Controller()
@@ -49,8 +54,13 @@ export class ProjectsController {
 
   @Post('projects')
   @RequirePermission('projects.create')
-  async create(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(CreateProjectSchema)) input: CreateProjectInput): Promise<ProjectDetailDto> {
-    const { id } = await this.commands.execute<CreateProjectCommand, { id: string }>(new CreateProjectCommand(actor, input));
+  async create(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(CreateProjectSchema)) input: CreateProjectInput,
+  ): Promise<ProjectDetailDto> {
+    const { id } = await this.commands.execute<CreateProjectCommand, { id: string }>(
+      new CreateProjectCommand(actor, input),
+    );
     return this.queries.execute(new GetProjectQuery(actor, id));
   }
 
@@ -101,7 +111,11 @@ export class ProjectsController {
   }
 
   @Patch('sections/:id')
-  updateSection(@CurrentActor() actor: Actor, @Param('id') id: string, @Body(new ZodValidationPipe(UpdateSectionSchema)) input: UpdateSectionInput) {
+  updateSection(
+    @CurrentActor() actor: Actor,
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateSectionSchema)) input: UpdateSectionInput,
+  ) {
     return this.commands.execute(new UpdateSectionCommand(actor, id, input));
   }
 

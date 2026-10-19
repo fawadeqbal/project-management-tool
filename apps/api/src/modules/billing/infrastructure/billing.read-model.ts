@@ -74,11 +74,23 @@ export class BillingReadModel {
         priceLabel: { MONTHLY: priceLabel(p.monthlyPerSeatCents), ANNUAL: priceLabel(p.annualPerSeatCents) },
         priceNote: p.priceNote,
         highlights: p.highlights,
-        annualSavings: savings ? { ...savings, label: `Save ${formatMoney(savings.perYearCents)} a year` } : null,
+        annualSavings: savings
+          ? { ...savings, label: `Save ${formatMoney(savings.perYearCents)} a year` }
+          : null,
         isCurrent: id === sub.plan,
         isRecommended: id === recommended && id !== sub.plan,
-        action: id === sub.plan ? 'current' : id === 'ENTERPRISE' ? 'contact' : change.direction === 'upgrade' ? 'upgrade' : 'downgrade',
-        lostFeatures: (change.lostFeatures as Feature[]).map((f) => ({ id: f, name: FEATURE_LABELS[f].name })),
+        action:
+          id === sub.plan
+            ? 'current'
+            : id === 'ENTERPRISE'
+              ? 'contact'
+              : change.direction === 'upgrade'
+                ? 'upgrade'
+                : 'downgrade',
+        lostFeatures: (change.lostFeatures as Feature[]).map((f) => ({
+          id: f,
+          name: FEATURE_LABELS[f].name,
+        })),
       };
     });
 
@@ -102,15 +114,25 @@ export class BillingReadModel {
   }
 
   /** Banner: the metered limit you're closest to hitting, what happens, and what the next plan offers. */
-  private alert(usage: UsageMeterDto[], current: PlanId, recommended: PlanId, resetsAt: Date): BillingDto['alert'] {
+  private alert(
+    usage: UsageMeterDto[],
+    current: PlanId,
+    recommended: PlanId,
+    resetsAt: Date,
+  ): BillingDto['alert'] {
     const metered: Meter[] = ['automation_runs', 'ai_credits'];
     const hot = usage.filter((u) => u.warning && metered.includes(u.meter)).sort((a, b) => b.pct - a.pct)[0];
     if (!hot || hot.limit === null) return null;
     const label = METER_LABELS[hot.meter].plural;
-    const pace = hot.note.includes('on pace') ? `At your current pace you’ll reach the limit on ${hot.note.split('limit ').pop()}. ` : '';
+    const pace = hot.note.includes('on pace')
+      ? `At your current pace you’ll reach the limit on ${hot.note.split('limit ').pop()}. `
+      : '';
     const next = PLANS[recommended];
     const nextLimit = next.limits[hot.meter];
-    const upsell = recommended !== current && nextLimit !== hot.limit ? ` ${next.name} includes ${nextLimit === null ? 'unlimited' : formatMeter(hot.meter, nextLimit)} ${label}.` : '';
+    const upsell =
+      recommended !== current && nextLimit !== hot.limit
+        ? ` ${next.name} includes ${nextLimit === null ? 'unlimited' : formatMeter(hot.meter, nextLimit)} ${label}.`
+        : '';
     return {
       meter: hot.meter,
       title: `You’ve used ${hot.usedLabel} of ${hot.limitLabel} ${label} this month`,

@@ -15,8 +15,11 @@ export class ZodValidationPipe<S extends ZodTypeAny> implements PipeTransform<un
     if (result.success) return result.data;
     const flat = result.error.flatten();
     const fieldErrors = flat.fieldErrors as Record<string, string[]>;
-    const first = flat.formErrors[0] ?? Object.values(fieldErrors)[0]?.[0] ?? 'Some fields need another look.';
-    const body: ApiErrorBody = { error: { code: 'validation.failed', kind: 'validation', message: first, fieldErrors } };
+    const first =
+      flat.formErrors[0] ?? Object.values(fieldErrors)[0]?.[0] ?? 'Some fields need another look.';
+    const body: ApiErrorBody = {
+      error: { code: 'validation.failed', kind: 'validation', message: first, fieldErrors },
+    };
     throw new BadRequestException(body);
   }
 }

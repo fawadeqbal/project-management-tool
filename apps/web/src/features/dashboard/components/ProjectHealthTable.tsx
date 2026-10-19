@@ -15,7 +15,11 @@ const COLUMNS: { key: HealthSortKey; label: string }[] = [
   { key: 'budget', label: 'Budget used' },
 ];
 
-const TONE_CLASS = { success: styles.healthSuccess, warning: styles.healthWarning, danger: styles.healthDanger };
+const TONE_CLASS = {
+  success: styles.healthSuccess,
+  warning: styles.healthWarning,
+  danger: styles.healthDanger,
+};
 
 /** Project health: icon + label + color, sortable column headers (aria-sort), rows link to projects. */
 export function ProjectHealthTable({ rows }: { rows: ProjectHealthRowDto[] }) {
@@ -40,10 +44,18 @@ export function ProjectHealthTable({ rows }: { rows: ProjectHealthRowDto[] }) {
               {COLUMNS.map((c) => {
                 const active = sort?.key === c.key;
                 return (
-                  <span key={c.key} role="columnheader" aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                  <span
+                    key={c.key}
+                    role="columnheader"
+                    aria-sort={active ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                  >
                     <button type="button" className={styles.sortButton} onClick={() => toggle(c.key)}>
                       {c.label}
-                      <Icon name="chevron-down" size={12} className={`${styles.sortIcon} ${active ? styles.sortActive : ''} ${active && sort.dir === 'asc' ? styles.sortAsc : ''}`} />
+                      <Icon
+                        name="chevron-down"
+                        size={12}
+                        className={`${styles.sortIcon} ${active ? styles.sortActive : ''} ${active && sort.dir === 'asc' ? styles.sortAsc : ''}`}
+                      />
                     </button>
                   </span>
                 );
@@ -54,13 +66,21 @@ export function ProjectHealthTable({ rows }: { rows: ProjectHealthRowDto[] }) {
             {sorted.map((r) => (
               <div key={r.project.id} role="row" className={styles.healthRow}>
                 <span role="cell" className={styles.projectCell}>
-                  <span className={styles.dot} style={{ background: `var(--accent-${r.project.color}-dot)` }} aria-hidden="true" />
+                  <span
+                    className={styles.dot}
+                    style={{ background: `var(--accent-${r.project.color}-dot)` }}
+                    aria-hidden="true"
+                  />
                   <Link to={`/projects/${r.project.id}`} className={styles.projectLink}>
                     {r.project.name}
                   </Link>
                 </span>
                 <span role="cell">
-                  <Tooltip content={r.suggestedHealth !== r.health ? `Suggested: ${r.suggestedReason}` : r.suggestedReason}>
+                  <Tooltip
+                    content={
+                      r.suggestedHealth !== r.health ? `Suggested: ${r.suggestedReason}` : r.suggestedReason
+                    }
+                  >
                     <span tabIndex={0} className={`${styles.healthBadge} ${TONE_CLASS[r.healthMeta.tone]}`}>
                       {isIconName(r.healthMeta.icon) ? <Icon name={r.healthMeta.icon} size={12} /> : null}
                       {r.healthMeta.label}
@@ -68,7 +88,12 @@ export function ProjectHealthTable({ rows }: { rows: ProjectHealthRowDto[] }) {
                   </Tooltip>
                 </span>
                 <span role="cell" className={styles.ownerCell}>
-                  <Avatar initials={r.owner.initials} name={r.owner.name} color={r.owner.avatarColor} size={24} />
+                  <Avatar
+                    initials={r.owner.initials}
+                    name={r.owner.name}
+                    color={r.owner.avatarColor}
+                    size={24}
+                  />
                   {r.owner.name.split(' ')[0]}
                 </span>
                 <span role="cell" className={styles.progressCell}>
@@ -82,7 +107,9 @@ export function ProjectHealthTable({ rows }: { rows: ProjectHealthRowDto[] }) {
                 </span>
                 <span role="cell" className={r.budgetTone === 'danger' ? styles.budgetDanger : styles.budget}>
                   {r.budgetUsedPct === null ? '—' : `${r.budgetUsedPct}%`}
-                  {r.budgetTone === 'danger' ? <Icon name="alert" size={12} label="Over budget pace" /> : null}
+                  {r.budgetTone === 'danger' ? (
+                    <Icon name="alert" size={12} label="Over budget pace" />
+                  ) : null}
                 </span>
               </div>
             ))}

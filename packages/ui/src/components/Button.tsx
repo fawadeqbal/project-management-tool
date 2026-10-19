@@ -18,17 +18,37 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', icon, iconRight, loading = false, disabled, children, className, type = 'button', ...rest },
+  {
+    variant = 'primary',
+    size = 'md',
+    icon,
+    iconRight,
+    loading = false,
+    disabled,
+    children,
+    className,
+    type = 'button',
+    ...rest
+  },
   ref,
 ) {
   const iconOnly = Boolean(icon) && (children === undefined || children === null || children === false);
-  useDevWarning(iconOnly && !hasAccessibleName(rest), `Icon-only Button (icon="${String(icon)}") needs an aria-label.`);
+  useDevWarning(
+    iconOnly && !hasAccessibleName(rest),
+    `Icon-only Button (icon="${String(icon)}") needs an aria-label.`,
+  );
   return (
     <button
       ref={ref}
       type={type}
       {...rest}
-      className={cx('ht-btn', `ht-btn-${variant}`, size !== 'md' && `ht-btn-${size}`, iconOnly && 'ht-btn-icon', className)}
+      className={cx(
+        'ht-btn',
+        `ht-btn-${variant}`,
+        size !== 'md' && `ht-btn-${size}`,
+        iconOnly && 'ht-btn-icon',
+        className,
+      )}
       disabled={disabled}
       aria-busy={loading ? true : undefined}
     >

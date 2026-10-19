@@ -29,4 +29,8 @@ export interface PermissionMatrixRow {
 
 /** The role matrix as rows (permission → roles allowed), derived from the enforced policy. */
 export const permissionMatrix = (): PermissionMatrixRow[] =>
-  PERMISSIONS.map((permission) => ({ permission, label: PERMISSION_LABELS[permission], roles: ROLES.filter((r) => can(r, permission)) }));
+  PERMISSIONS.map((permission) => ({
+    permission,
+    label: PERMISSION_LABELS[permission],
+    roles: ROLES.filter((r) => can(r, permission)),
+  }));

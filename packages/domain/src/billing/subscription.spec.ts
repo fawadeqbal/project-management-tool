@@ -18,9 +18,14 @@ const sub = (over: Partial<SubscriptionProps> = {}) =>
 describe('Subscription', () => {
   it('upgrades immediately', () => {
     const s = sub();
-    expect(s.changePlan({ plan: 'BUSINESS', interval: 'ANNUAL', confirm: false, activeSeats: 7 }, 'u', now)).toEqual({ lostFeatures: [] });
+    expect(
+      s.changePlan({ plan: 'BUSINESS', interval: 'ANNUAL', confirm: false, activeSeats: 7 }, 'u', now),
+    ).toEqual({ lostFeatures: [] });
     expect(s.toSnapshot()).toMatchObject({ plan: 'BUSINESS', interval: 'ANNUAL' });
-    expect(s.pullEvents()[0]).toMatchObject({ type: 'billing.plan_changed', payload: { direction: 'upgrade' } });
+    expect(s.pullEvents()[0]).toMatchObject({
+      type: 'billing.plan_changed',
+      payload: { direction: 'upgrade' },
+    });
   });
 
   it('asks to confirm a downgrade that loses features, listing them', () => {
@@ -32,11 +37,16 @@ describe('Subscription', () => {
       expect(e).toBeInstanceOf(ConflictError);
       expect((e as ConflictError).details?.lostFeatures).toContain('dashboards');
     }
-    expect(s.changePlan({ plan: 'PRO', interval: 'MONTHLY', confirm: true, activeSeats: 7 }, 'u', now).lostFeatures).toContain('sprints');
+    expect(
+      s.changePlan({ plan: 'PRO', interval: 'MONTHLY', confirm: true, activeSeats: 7 }, 'u', now)
+        .lostFeatures,
+    ).toContain('sprints');
   });
 
   it('refuses a plan the team does not fit in', () => {
-    expect(() => sub().changePlan({ plan: 'FREE', interval: 'MONTHLY', confirm: true, activeSeats: 7 }, 'u', now)).toThrow(/allows 5 people/);
+    expect(() =>
+      sub().changePlan({ plan: 'FREE', interval: 'MONTHLY', confirm: true, activeSeats: 7 }, 'u', now),
+    ).toThrow(/allows 5 people/);
   });
 
   it('pauses, resumes and cancels at period end', () => {

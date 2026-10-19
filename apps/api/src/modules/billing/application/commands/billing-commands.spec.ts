@@ -1,4 +1,10 @@
-import { ConflictError, FixedClock, Subscription, type DomainEvent, type SubscriptionRepository } from '@hearth/domain';
+import {
+  ConflictError,
+  FixedClock,
+  Subscription,
+  type DomainEvent,
+  type SubscriptionRepository,
+} from '@hearth/domain';
 import type { BillingDto } from '@hearth/contracts';
 import type { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
 import type { BillingReadModel } from '../../infrastructure/billing.read-model';
@@ -34,7 +40,9 @@ const events = {
   publishFrom: (...a: Subscription[]) => a.forEach((x) => published.push(...x.pullEvents())),
 } as unknown as DomainEventPublisher;
 const clock = new FixedClock(new Date('2026-10-19T12:00:00Z'));
-const usage = { read: async () => ({ seats: 7, storage_bytes: 0, automation_runs: 0, ai_credits: 0 }) } as unknown as UsageReader;
+const usage = {
+  read: async () => ({ seats: 7, storage_bytes: 0, automation_runs: 0, ai_credits: 0 }),
+} as unknown as UsageReader;
 const read = { get: async () => ({}) as BillingDto } as unknown as BillingReadModel;
 const owner = { userId: 'fawad', workspaceId: 'w', role: 'OWNER' as const };
 
@@ -46,7 +54,9 @@ describe('billing commands', () => {
   });
 
   it('upgrades to Business immediately and publishes billing.plan_changed', async () => {
-    const res = await new ChangePlanHandler(repo, usage, read, events, clock).execute(new ChangePlanCommand(owner, { plan: 'BUSINESS', interval: 'ANNUAL', confirm: false }));
+    const res = await new ChangePlanHandler(repo, usage, read, events, clock).execute(
+      new ChangePlanCommand(owner, { plan: 'BUSINESS', interval: 'ANNUAL', confirm: false }),
+    );
     expect(res.lostFeatures).toEqual([]);
     expect(repo.current.plan).toBe('BUSINESS');
     expect(published[0]!.type).toBe('billing.plan_changed');
@@ -54,8 +64,12 @@ describe('billing commands', () => {
 
   it('requires confirm for a lossy downgrade and lists the features', async () => {
     const handler = new ChangePlanHandler(repo, usage, read, events, clock);
-    await handler.execute(new ChangePlanCommand(owner, { plan: 'BUSINESS', interval: 'MONTHLY', confirm: false }));
-    const err = await handler.execute(new ChangePlanCommand(owner, { plan: 'PRO', interval: 'MONTHLY', confirm: false })).catch((e: unknown) => e);
+    await handler.execute(
+      new ChangePlanCommand(owner, { plan: 'BUSINESS', interval: 'MONTHLY', confirm: false }),
+    );
+    const err = await handler
+      .execute(new ChangePlanCommand(owner, { plan: 'PRO', interval: 'MONTHLY', confirm: false }))
+      .catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ConflictError);
     expect((err as ConflictError).details?.lostFeatureNames).toContain('Dashboards');
     expect(repo.current.plan).toBe('BUSINESS');

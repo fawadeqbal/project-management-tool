@@ -75,7 +75,9 @@ export interface ChangePlanResultDto {
 }
 
 export const PauseBillingSchema = z.object({
-  months: z.union([z.literal(1), z.literal(2), z.literal(3)], { errorMap: () => ({ message: 'You can pause for 1, 2 or 3 months.' }) }),
+  months: z.union([z.literal(1), z.literal(2), z.literal(3)], {
+    errorMap: () => ({ message: 'You can pause for 1, 2 or 3 months.' }),
+  }),
 });
 export type PauseBillingInput = z.infer<typeof PauseBillingSchema>;
 
@@ -97,7 +99,14 @@ export interface FeatureLimitDto {
 export interface WorkspaceExportDto {
   exportedAt: string;
   workspace: { id: string; name: string };
-  projects: { id: string; name: string; description: string | null; sections: string[]; startDate: string | null; dueDate: string | null }[];
+  projects: {
+    id: string;
+    name: string;
+    description: string | null;
+    sections: string[];
+    startDate: string | null;
+    dueDate: string | null;
+  }[];
   tasks: {
     key: string;
     title: string;

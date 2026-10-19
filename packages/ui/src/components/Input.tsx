@@ -17,7 +17,22 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, hideLabel, hint, error, icon, shortcut, disabled, className, style, wrapperClassName, inputClassName, inputStyle, id, ...rest },
+  {
+    label,
+    hideLabel,
+    hint,
+    error,
+    icon,
+    shortcut,
+    disabled,
+    className,
+    style,
+    wrapperClassName,
+    inputClassName,
+    inputStyle,
+    id,
+    ...rest
+  },
   ref,
 ) {
   const ids = useFieldIds(id, Boolean(error || hint));
@@ -27,7 +42,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     'Input needs a label, aria-label or aria-labelledby.',
   );
   const control = (
-    <div className={cx('ht-input', error ? 'ht-input-error' : null, disabled && 'ht-input-disabled', className)} style={style}>
+    <div
+      className={cx('ht-input', error ? 'ht-input-error' : null, disabled && 'ht-input-disabled', className)}
+      style={style}
+    >
       {icon ? <Icon name={icon} /> : null}
       <input
         ref={ref}
@@ -44,7 +62,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   );
   if (!hasLabel && !error && !hint) return control;
   return (
-    <Field ids={ids} label={label} hideLabel={hideLabel} hint={hint} error={error} className={wrapperClassName}>
+    <Field
+      ids={ids}
+      label={label}
+      hideLabel={hideLabel}
+      hint={hint}
+      error={error}
+      className={wrapperClassName}
+    >
       {control}
     </Field>
   );

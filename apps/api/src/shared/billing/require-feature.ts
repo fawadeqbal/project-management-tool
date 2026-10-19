@@ -37,7 +37,10 @@ export class FeatureGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     if (ctx.getType() !== 'http') return true;
-    const feature = this.reflector.getAllAndOverride<Feature | undefined>(REQUIRED_FEATURE, [ctx.getHandler(), ctx.getClass()]);
+    const feature = this.reflector.getAllAndOverride<Feature | undefined>(REQUIRED_FEATURE, [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
     if (!feature) return true;
     const { actor } = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
     if (actor) (await this.plans.policyFor(actor.workspaceId)).assertFeature(feature);

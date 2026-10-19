@@ -13,8 +13,14 @@ export class PrismaTaskRelations implements TaskRelations {
     scope: { projectId: string | null; status: TaskStatus; parentId: string | null },
   ): Promise<{ board: number | null; list: number | null }> {
     const [board, list] = await Promise.all([
-      this.prisma.task.aggregate({ where: { workspaceId, projectId: scope.projectId, status: scope.status, parentId: null }, _max: { boardPosition: true } }),
-      this.prisma.task.aggregate({ where: { workspaceId, projectId: scope.projectId, parentId: scope.parentId }, _max: { listPosition: true } }),
+      this.prisma.task.aggregate({
+        where: { workspaceId, projectId: scope.projectId, status: scope.status, parentId: null },
+        _max: { boardPosition: true },
+      }),
+      this.prisma.task.aggregate({
+        where: { workspaceId, projectId: scope.projectId, parentId: scope.parentId },
+        _max: { listPosition: true },
+      }),
     ]);
     return { board: board._max.boardPosition, list: list._max.listPosition };
   }
@@ -34,20 +40,29 @@ export class PrismaTaskRelations implements TaskRelations {
   }
 
   async setEpic(taskId: string, epic: string | null): Promise<void> {
-    await this.prisma.task.update({ where: { id: taskId }, data: { epic: epic?.trim() ? epic.trim() : null } });
+    await this.prisma.task.update({
+      where: { id: taskId },
+      data: { epic: epic?.trim() ? epic.trim() : null },
+    });
   }
 
   async replaceTags(taskId: string, tagIds: readonly string[]): Promise<void> {
     await this.prisma.$transaction([
       this.prisma.taskTag.deleteMany({ where: { taskId } }),
-      this.prisma.taskTag.createMany({ data: [...new Set(tagIds)].map((tagId) => ({ taskId, tagId })), skipDuplicates: true }),
+      this.prisma.taskTag.createMany({
+        data: [...new Set(tagIds)].map((tagId) => ({ taskId, tagId })),
+        skipDuplicates: true,
+      }),
     ]);
   }
 
   async follow(taskId: string, userIds: readonly string[]): Promise<void> {
     const ids = [...new Set(userIds.filter(Boolean))];
     if (!ids.length) return;
-    await this.prisma.taskFollower.createMany({ data: ids.map((userId) => ({ taskId, userId })), skipDuplicates: true });
+    await this.prisma.taskFollower.createMany({
+      data: ids.map((userId) => ({ taskId, userId })),
+      skipDuplicates: true,
+    });
   }
 
   async unfollow(taskId: string, userId: string): Promise<void> {
@@ -76,10 +91,19 @@ export class PrismaTaskRelations implements TaskRelations {
   }
 
   async findComment(taskId: string, commentId: string): Promise<{ id: string; authorId: string } | null> {
-    return this.prisma.comment.findFirst({ where: { id: commentId, taskId }, select: { id: true, authorId: true } });
+    return this.prisma.comment.findFirst({
+      where: { id: commentId, taskId },
+      select: { id: true, authorId: true },
+    });
   }
 
-  async createComment(input: { taskId: string; authorId: string; body: string; parentId: string | null; createdAt: Date }): Promise<{ id: string }> {
+  async createComment(input: {
+    taskId: string;
+    authorId: string;
+    body: string;
+    parentId: string | null;
+    createdAt: Date;
+  }): Promise<{ id: string }> {
     return this.prisma.comment.create({ data: input, select: { id: true } });
   }
 }

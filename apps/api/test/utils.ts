@@ -21,8 +21,15 @@ export async function createTestApp(): Promise<INestApplication> {
 export const api = (path: string) => `/api/v1${path}`;
 
 /** Signs in as a seeded user (password hearth123) and returns a bearer token. */
-export async function login(app: INestApplication, email = 'fawad@acme.com', password = 'hearth123'): Promise<string> {
-  const res = await request(app.getHttpServer()).post(api('/auth/login')).send({ email, password }).expect(200);
+export async function login(
+  app: INestApplication,
+  email = 'fawad@acme.com',
+  password = 'hearth123',
+): Promise<string> {
+  const res = await request(app.getHttpServer())
+    .post(api('/auth/login'))
+    .send({ email, password })
+    .expect(200);
   return res.body.accessToken as string;
 }
 

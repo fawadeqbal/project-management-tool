@@ -25,7 +25,14 @@ export function CellPopover({ open, anchorRef, workload, onClose, onReassign }: 
   const person = open ? workload.people.find((p) => p.user.id === open.userId) : undefined;
   const cell = person?.cells.find((c) => c.date === open?.date);
   return (
-    <Popover open={!!(open && person && cell)} onOpenChange={(o) => !o && onClose()} anchorRef={anchorRef} aria-label="Tasks this day" role="dialog" className={styles.popover}>
+    <Popover
+      open={!!(open && person && cell)}
+      onOpenChange={(o) => !o && onClose()}
+      anchorRef={anchorRef}
+      aria-label="Tasks this day"
+      role="dialog"
+      className={styles.popover}
+    >
       {person && cell ? (
         <div className={styles.popoverBody}>
           <div className={styles.popoverHead}>
@@ -34,16 +41,32 @@ export function CellPopover({ open, anchorRef, workload, onClose, onReassign }: 
             </strong>
             <span className={cell.state === 'over' ? styles.overText : styles.mutedText}>
               {cell.state === 'over' ? <Icon name="alert" size={12} /> : null}
-              {formatAmount(cell.planned, workload.unit)} of {cell.capacity} {unitWord(cell.capacity, workload.unit)}
+              {formatAmount(cell.planned, workload.unit)} of {cell.capacity}{' '}
+              {unitWord(cell.capacity, workload.unit)}
             </span>
           </div>
-          {cell.items.length === 0 ? <p className={styles.mutedText}>Nothing planned — {person.user.name.split(' ')[0]} has room this day.</p> : null}
+          {cell.items.length === 0 ? (
+            <p className={styles.mutedText}>
+              Nothing planned — {person.user.name.split(' ')[0]} has room this day.
+            </p>
+          ) : null}
           <ul className={styles.taskList}>
             {cell.items.map((item) => (
-              <TaskChip key={item.taskId} person={person} taskId={item.taskId} amount={item.amount} unit={workload.unit} workload={workload} onClose={onClose} onReassign={onReassign} />
+              <TaskChip
+                key={item.taskId}
+                person={person}
+                taskId={item.taskId}
+                amount={item.amount}
+                unit={workload.unit}
+                workload={workload}
+                onClose={onClose}
+                onReassign={onReassign}
+              />
             ))}
           </ul>
-          {cell.items.length ? <p className={styles.hint}>Drag a task onto someone’s row to reassign it.</p> : null}
+          {cell.items.length ? (
+            <p className={styles.hint}>Drag a task onto someone’s row to reassign it.</p>
+          ) : null}
         </div>
       ) : null}
     </Popover>
@@ -69,11 +92,20 @@ function TaskChip({
 }) {
   const task = workload.tasks[taskId];
   const panel = useTaskPanel();
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `task:${taskId}`, data: { taskId, fromUserId: person.user.id } });
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `task:${taskId}`,
+    data: { taskId, fromUserId: person.user.id },
+  });
   if (!task) return null;
   return (
     <li className={isDragging ? styles.chipDragging : styles.chip}>
-      <span ref={setNodeRef} className={styles.chipGrip} aria-label={`Drag ${task.key} to reassign`} {...attributes} {...listeners}>
+      <span
+        ref={setNodeRef}
+        className={styles.chipGrip}
+        aria-label={`Drag ${task.key} to reassign`}
+        {...attributes}
+        {...listeners}
+      >
         <Icon name="grip" size={14} />
       </span>
       <span className={styles.chipKey}>{task.key}</span>

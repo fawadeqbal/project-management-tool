@@ -50,9 +50,15 @@ export function PickerList({
     const q = query.trim().toLowerCase();
     return q ? options.filter((o) => o.text.toLowerCase().includes(q)) : options;
   }, [options, query]);
-  const showCreate = !!onCreate && query.trim().length > 0 && !options.some((o) => o.text.toLowerCase() === query.trim().toLowerCase());
+  const showCreate =
+    !!onCreate &&
+    query.trim().length > 0 &&
+    !options.some((o) => o.text.toLowerCase() === query.trim().toLowerCase());
   const total = filtered.length + (showCreate ? 1 : 0);
-  const initial = Math.max(0, filtered.findIndex((o) => o.selected));
+  const initial = Math.max(
+    0,
+    filtered.findIndex((o) => o.selected),
+  );
   const [active, setActive] = useState(initial);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -101,7 +107,13 @@ export function PickerList({
   const optionId = (i: number) => `${listId}-opt-${i}`;
 
   return (
-    <div className={styles.picker} onKeyDown={searchable ? undefined : onKeyDown} ref={containerRef} tabIndex={searchable ? undefined : -1} aria-label={label}>
+    <div
+      className={styles.picker}
+      onKeyDown={searchable ? undefined : onKeyDown}
+      ref={containerRef}
+      tabIndex={searchable ? undefined : -1}
+      aria-label={label}
+    >
       {searchable ? (
         <input
           className={styles.search}

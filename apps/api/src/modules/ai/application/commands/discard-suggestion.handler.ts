@@ -22,6 +22,8 @@ export class DiscardSuggestionHandler implements ICommandHandler<DiscardSuggesti
     if (!s) throw new NotFoundError('Suggestion', suggestionId);
     this.access.assert(actor, 'tasks.view', { projectId: s.task.projectId });
     if (s.status !== 'PENDING') return toSuggestionDto(s);
-    return toSuggestionDto(await this.prisma.aiSuggestion.update({ where: { id: s.id }, data: { status: 'DISCARDED' } }));
+    return toSuggestionDto(
+      await this.prisma.aiSuggestion.update({ where: { id: s.id }, data: { status: 'DISCARDED' } }),
+    );
   }
 }

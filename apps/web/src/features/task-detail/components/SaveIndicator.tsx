@@ -14,7 +14,8 @@ export function SaveIndicator() {
   useEffect(
     () =>
       client.getMutationCache().subscribe((event) => {
-        if (event.type === 'added' && matchMutation({ mutationKey: TASK_SAVE_KEY }, event.mutation)) setEverSaved(true);
+        if (event.type === 'added' && matchMutation({ mutationKey: TASK_SAVE_KEY }, event.mutation))
+          setEverSaved(true);
       }),
     [client],
   );

@@ -10,6 +10,9 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /** Surface container: bg-surface, hairline border, radius-lg. */
-export const Card = forwardRef<HTMLDivElement, CardProps>(function Card({ padding = 'md', className, ...rest }, ref) {
+export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
+  { padding = 'md', className, ...rest },
+  ref,
+) {
   return <div ref={ref} {...rest} className={cx('ht-surface', `ht-surface-pad-${padding}`, className)} />;
 });

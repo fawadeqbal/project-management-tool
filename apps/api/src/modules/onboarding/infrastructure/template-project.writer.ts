@@ -17,7 +17,14 @@ export interface CreatedFromTemplate {
 export class TemplateProjectWriter {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(input: { workspaceId: string; ownerId: string; name: string; template: ProjectTemplate; today: Date; now: Date }): Promise<CreatedFromTemplate> {
+  create(input: {
+    workspaceId: string;
+    ownerId: string;
+    name: string;
+    template: ProjectTemplate;
+    today: Date;
+    now: Date;
+  }): Promise<CreatedFromTemplate> {
     const { workspaceId, ownerId, template, today, now } = input;
     const lastDue = Math.max(0, ...template.tasks.map((t) => t.dueInDays ?? 0));
     return this.prisma.$transaction(async (tx) => {
@@ -35,10 +42,16 @@ export class TemplateProjectWriter {
         },
       });
       const sections = await Promise.all(
-        template.sections.map((name, position) => tx.section.create({ data: { projectId: project.id, name, position } })),
+        template.sections.map((name, position) =>
+          tx.section.create({ data: { projectId: project.id, name, position } }),
+        ),
       );
       const sectionId = (name: string) => sections.find((s) => s.name === name)?.id ?? null;
-      const ws = await tx.workspace.update({ where: { id: workspaceId }, data: { taskSeq: { increment: template.tasks.length } }, select: { taskSeq: true, keyPrefix: true } });
+      const ws = await tx.workspace.update({
+        where: { id: workspaceId },
+        data: { taskSeq: { increment: template.tasks.length } },
+        select: { taskSeq: true, keyPrefix: true },
+      });
       const firstNumber = ws.taskSeq - template.tasks.length + 1;
       const tasks: CreatedFromTemplate['tasks'] = [];
       for (const [i, t] of template.tasks.entries()) {
@@ -64,7 +77,11 @@ export class TemplateProjectWriter {
       }
       const favorites = await tx.favorite.count({ where: { userId: ownerId } });
       await tx.favorite.create({ data: { userId: ownerId, projectId: project.id, position: favorites } });
-      return { project: { id: project.id, name: project.name, color: project.color, teamId: project.teamId }, tasks, keyPrefix: ws.keyPrefix };
+      return {
+        project: { id: project.id, name: project.name, color: project.color, teamId: project.teamId },
+        tasks,
+        keyPrefix: ws.keyPrefix,
+      };
     });
   }
 }

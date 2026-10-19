@@ -21,7 +21,10 @@ export class PrismaProjectRepository implements ProjectRepository {
   }
 
   async findById(workspaceId: string, id: string): Promise<Project | null> {
-    const row = await this.prisma.project.findFirst({ where: { id, workspaceId, archivedAt: null }, include: WITH_SECTIONS });
+    const row = await this.prisma.project.findFirst({
+      where: { id, workspaceId, archivedAt: null },
+      include: WITH_SECTIONS,
+    });
     return row ? toAggregate(row) : null;
   }
 

@@ -18,7 +18,9 @@ describe('Input', () => {
     expect(input).toHaveAccessibleDescription('We never share it.');
     rerender(<Input label="Email" error="Enter an email like name@company.com" />);
     expect(screen.getByRole('textbox', { name: 'Email' })).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByRole('textbox', { name: 'Email' })).toHaveAccessibleDescription('Enter an email like name@company.com');
+    expect(screen.getByRole('textbox', { name: 'Email' })).toHaveAccessibleDescription(
+      'Enter an email like name@company.com',
+    );
   });
 
   it('supports an aria-only label', () => {
@@ -37,12 +39,11 @@ describe('NavItem', () => {
   });
 
   it('accepts a custom link component (router Link) and passes `to` through', () => {
-    const FakeLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }>(function FakeLink(
-      { to, ...rest },
-      ref,
-    ) {
-      return <a ref={ref} href={to} data-router="yes" {...rest} />;
-    });
+    const FakeLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }>(
+      function FakeLink({ to, ...rest }, ref) {
+        return <a ref={ref} href={to} data-router="yes" {...rest} />;
+      },
+    );
     render(<NavItem linkComponent={FakeLink} to="/projects/1" label="Website" dot="violet" />);
     const link = screen.getByRole('link', { name: 'Website' });
     expect(link).toHaveAttribute('href', '/projects/1');
@@ -104,10 +105,22 @@ describe('Tooltip', () => {
 
 describe('KpiTile and Badge', () => {
   it('render label, value, delta and sub', () => {
-    render(<KpiTile label="Tasks completed" value="251" delta="+8%" deltaTone="success" sub="vs. previous 6 weeks" />);
+    render(
+      <KpiTile
+        label="Tasks completed"
+        value="251"
+        delta="+8%"
+        deltaTone="success"
+        sub="vs. previous 6 weeks"
+      />,
+    );
     expect(screen.getByText('251')).toHaveClass('ht-kpi-value');
     expect(screen.getByText('+8%')).toHaveClass('ht-kpi-delta-success');
-    render(<Badge tone="warning" icon="clock">Approval due tomorrow</Badge>);
+    render(
+      <Badge tone="warning" icon="clock">
+        Approval due tomorrow
+      </Badge>,
+    );
     expect(screen.getByText('Approval due tomorrow')).toHaveClass('ht-badge-warning');
   });
 });

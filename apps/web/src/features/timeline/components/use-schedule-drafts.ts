@@ -12,8 +12,13 @@ export interface Draft {
 export type DragMode = 'move' | 'start' | 'end';
 
 /** Applies a day delta to a bar for a drag mode, never letting the end pass the start. */
-export const applyDelta = (row: Pick<TimelineTaskRowDto, 'startDate' | 'dueDate'>, mode: DragMode, days: number): Draft => {
-  if (mode === 'move') return { startDate: shiftIso(row.startDate, days), dueDate: shiftIso(row.dueDate, days) };
+export const applyDelta = (
+  row: Pick<TimelineTaskRowDto, 'startDate' | 'dueDate'>,
+  mode: DragMode,
+  days: number,
+): Draft => {
+  if (mode === 'move')
+    return { startDate: shiftIso(row.startDate, days), dueDate: shiftIso(row.dueDate, days) };
   if (mode === 'start') {
     const s = shiftIso(row.startDate, days);
     return { startDate: s > row.dueDate ? row.dueDate : s, dueDate: row.dueDate };
@@ -56,12 +61,17 @@ export function useScheduleDrafts(projectId: string, opts: { keyboardDelayMs?: n
       timers.current.delete(row.id);
       if (draft.startDate === row.startDate && draft.dueDate === row.dueDate) return setDraft(row.id, null);
       try {
-        const res = await reschedule.mutateAsync({ taskId: row.id, input: { ...draft, shiftDependents: true } });
+        const res = await reschedule.mutateAsync({
+          taskId: row.id,
+          input: { ...draft, shiftDependents: true },
+        });
         setDraft(row.id, null);
         const n = res.shifted.length;
         show({
           id: 'timeline-reschedule',
-          message: n ? `Rescheduled ${row.key} · ${plural(n, 'dependent')} shifted` : `Rescheduled ${row.key}`,
+          message: n
+            ? `Rescheduled ${row.key} · ${plural(n, 'dependent')} shifted`
+            : `Rescheduled ${row.key}`,
           icon: 'calendar',
           action: 'Undo',
           onAction: () => void applySchedule.mutateAsync(res.previous).catch(() => undefined),

@@ -99,12 +99,19 @@ export class CommandRegistry {
     this.unbind = this.snapshot
       .filter((c) => c.shortcut && c.shortcut.length > 0)
       .map((c) =>
-        this.hotkeys.register(c.shortcut!, () => {
-          const ctx = this.getContext();
-          if (c.isAvailable && !c.isAvailable(ctx)) return false;
-          void c.run(ctx);
-          return true;
-        }, { priority: -1, allowInModals: c.shortcut!.length === 1 && /^(mod|cmd|ctrl|⌘)/i.test(c.shortcut![0]!) }),
+        this.hotkeys.register(
+          c.shortcut!,
+          () => {
+            const ctx = this.getContext();
+            if (c.isAvailable && !c.isAvailable(ctx)) return false;
+            void c.run(ctx);
+            return true;
+          },
+          {
+            priority: -1,
+            allowInModals: c.shortcut!.length === 1 && /^(mod|cmd|ctrl|⌘)/i.test(c.shortcut![0]!),
+          },
+        ),
       );
   }
 }

@@ -9,12 +9,19 @@ export const Guard = {
   },
   maxLength(value: string, max: number, field: string): string {
     if (value.length > max)
-      throw new ValidationError(`${field}.too_long`, `Keep the ${field} under ${max} characters.`, { field, max });
+      throw new ValidationError(`${field}.too_long`, `Keep the ${field} under ${max} characters.`, {
+        field,
+        max,
+      });
     return value;
   },
   inRange(value: number, min: number, max: number, field: string): number {
     if (!Number.isFinite(value) || value < min || value > max)
-      throw new ValidationError(`${field}.out_of_range`, `${field} must be between ${min} and ${max}.`, { field, min, max });
+      throw new ValidationError(`${field}.out_of_range`, `${field} must be between ${min} and ${max}.`, {
+        field,
+        min,
+        max,
+      });
     return value;
   },
 };

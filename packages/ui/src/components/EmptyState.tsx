@@ -29,11 +29,12 @@ export function EmptyState({
   const Heading = `h${headingLevel}` as const;
   return (
     <div {...rest} className={cx('ht-empty', className)}>
-      {illustration ?? (icon ? (
-        <span className="ht-empty-art" aria-hidden="true">
-          <Icon name={icon} size={20} />
-        </span>
-      ) : null)}
+      {illustration ??
+        (icon ? (
+          <span className="ht-empty-art" aria-hidden="true">
+            <Icon name={icon} size={20} />
+          </span>
+        ) : null)}
       <Heading className="ht-empty-title">{title}</Heading>
       {description ? <p className="ht-empty-desc">{description}</p> : null}
       {primaryAction || secondaryAction ? (

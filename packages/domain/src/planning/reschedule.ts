@@ -25,7 +25,9 @@ export const planReschedule = (
   const start = startOfDay(next.start);
   const end = startOfDay(next.end);
   if (end.getTime() < start.getTime())
-    throw new ValidationError('schedule.dates', 'The due date has to be on or after the start date.', { field: 'dueDate' });
+    throw new ValidationError('schedule.dates', 'The due date has to be on or after the start date.', {
+      field: 'dueDate',
+    });
   const moved = nodes.find((n) => n.id === movedId);
   const movedDays = moved ? diffInDays(moved.start, start) : 0;
   if (!shiftDependents) return { movedDays, shifts: {} };

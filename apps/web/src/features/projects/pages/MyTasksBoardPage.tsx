@@ -8,7 +8,11 @@ import { TaskBoard } from '../components/board/TaskBoard';
 import { BoardSkeleton } from './ProjectBoardPage';
 import styles from '../projects.module.css';
 
-const PATHS: Record<string, string> = { list: '/my-tasks', board: '/my-tasks/board', calendar: '/my-tasks/calendar' };
+const PATHS: Record<string, string> = {
+  list: '/my-tasks',
+  board: '/my-tasks/board',
+  calendar: '/my-tasks/calendar',
+};
 
 /** My tasks as a board: the same board component over "mine" (no WIP limits — they're per project). */
 export function MyTasksBoardPage() {
@@ -23,14 +27,23 @@ export function MyTasksBoardPage() {
       <div className={styles.titleRow}>
         <h1 className={styles.title}>My tasks</h1>
         <span className={styles.grow} />
-        <ViewTabs tabs={MY_TASKS_TABS} value="board" label="My tasks views" onChange={(id) => void navigate(PATHS[id] ?? '/my-tasks')} />
+        <ViewTabs
+          tabs={MY_TASKS_TABS}
+          value="board"
+          label="My tasks views"
+          onChange={(id) => void navigate(PATHS[id] ?? '/my-tasks')}
+        />
       </div>
       {isLoading ? (
         <BoardSkeleton />
       ) : tasks?.length ? (
         <TaskBoard tasks={tasks} label="My tasks board" createDefaults={{ assigneeId: myId }} />
       ) : (
-        <EmptyState icon="board" title="Nothing assigned to you" description="Press C to add a task — it lands here." />
+        <EmptyState
+          icon="board"
+          title="Nothing assigned to you"
+          description="Press C to add a task — it lands here."
+        />
       )}
     </div>
   );

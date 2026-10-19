@@ -9,10 +9,17 @@ const STEP_IDS = new Set<string>(ONBOARDING_STEPS.map((s) => s.id));
 export class OnboardingProgressStore {
   constructor(private readonly prisma: PrismaService) {}
 
-  async get(workspaceId: string, userId: string): Promise<{ completedSteps: OnboardingStepId[]; dismissedAt: Date | null }> {
-    const row = await this.prisma.onboardingProgress.findUnique({ where: { workspaceId_userId: { workspaceId, userId } } });
+  async get(
+    workspaceId: string,
+    userId: string,
+  ): Promise<{ completedSteps: OnboardingStepId[]; dismissedAt: Date | null }> {
+    const row = await this.prisma.onboardingProgress.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
     return {
-      completedSteps: (row?.completedSteps ?? ['create-workspace']).filter((s): s is OnboardingStepId => STEP_IDS.has(s)),
+      completedSteps: (row?.completedSteps ?? ['create-workspace']).filter((s): s is OnboardingStepId =>
+        STEP_IDS.has(s),
+      ),
       dismissedAt: row?.dismissedAt ?? null,
     };
   }

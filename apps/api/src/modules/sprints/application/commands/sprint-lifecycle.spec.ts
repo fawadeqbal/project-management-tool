@@ -2,7 +2,13 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { ConflictError, FixedClock, Sprint, parseDateOnly, type Actor } from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import type { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
-import { FakePublisher, InMemorySnapshotStore, InMemorySprintRepository, InMemorySprintTaskStore, task } from '../testing/in-memory';
+import {
+  FakePublisher,
+  InMemorySnapshotStore,
+  InMemorySprintRepository,
+  InMemorySprintTaskStore,
+  task,
+} from '../testing/in-memory';
 import { StartSprintHandler } from './start-sprint.handler';
 import { StartSprintCommand } from './start-sprint.command';
 import { CompleteSprintHandler } from './complete-sprint.handler';
@@ -15,7 +21,18 @@ import { RankBacklogCommand } from './rank-backlog.command';
 const actor: Actor = { userId: 'u1', workspaceId: 'w1', role: 'MEMBER' };
 const clock = new FixedClock(new Date('2026-10-19T10:00:00Z'));
 const plan = (id: string, number: number, start: string, end: string) =>
-  Sprint.plan({ id, projectId: 'p1', workspaceId: 'w1', number, startDate: parseDateOnly(start), endDate: parseDateOnly(end) }, 'u1', clock.now());
+  Sprint.plan(
+    {
+      id,
+      projectId: 'p1',
+      workspaceId: 'w1',
+      number,
+      startDate: parseDateOnly(start),
+      endDate: parseDateOnly(end),
+    },
+    'u1',
+    clock.now(),
+  );
 
 describe('sprint lifecycle handlers', () => {
   let repo: InMemorySprintRepository;
@@ -57,33 +74,59 @@ describe('sprint lifecycle handlers', () => {
   });
 
   it('completes into the backlog: unfinished work goes to the top, pre-sorted', async () => {
-    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(new StartSprintCommand(actor, 's24'));
-    const retro = await new CompleteSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(new CompleteSprintCommand(actor, 's24', 'backlog'));
+    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(
+      new StartSprintCommand(actor, 's24'),
+    );
+    const retro = await new CompleteSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(
+      new CompleteSprintCommand(actor, 's24', 'backlog'),
+    );
     expect(retro.sprint.status).toBe('COMPLETED');
     expect(retro.unfinished.map((t) => t.id)).toEqual(['306', '311']);
-    expect(retro).toMatchObject({ completedPoints: 5, unfinishedPoints: 16, completionPct: 24, movedTo: { kind: 'backlog', sprint: null } });
-    const backlog = tasks.tasks.filter((t) => !t.sprintId && t.status !== 'DONE').sort((a, b) => a.backlogRank! - b.backlogRank!);
+    expect(retro).toMatchObject({
+      completedPoints: 5,
+      unfinishedPoints: 16,
+      completionPct: 24,
+      movedTo: { kind: 'backlog', sprint: null },
+    });
+    const backlog = tasks.tasks
+      .filter((t) => !t.sprintId && t.status !== 'DONE')
+      .sort((a, b) => a.backlogRank! - b.backlogRank!);
     expect(backlog.map((t) => t.id)).toEqual(['306', '311', '320', '322']);
   });
 
   it('completes into the next sprint, planning one if none is planned', async () => {
     repo.rows.delete('s25');
-    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(new StartSprintCommand(actor, 's24'));
-    const retro = await new CompleteSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(new CompleteSprintCommand(actor, 's24', 'next'));
-    expect(retro.movedTo.sprint).toMatchObject({ number: 25, status: 'PLANNED', startDate: '2026-10-27', taskCount: 2 });
+    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(
+      new StartSprintCommand(actor, 's24'),
+    );
+    const retro = await new CompleteSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(
+      new CompleteSprintCommand(actor, 's24', 'next'),
+    );
+    expect(retro.movedTo.sprint).toMatchObject({
+      number: 25,
+      status: 'PLANNED',
+      startDate: '2026-10-27',
+      taskCount: 2,
+    });
     expect(events.events.map((e) => e.type)).toContain('sprint.planned');
   });
 
   it('records a scope change when work is added after the start', async () => {
-    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(new StartSprintCommand(actor, 's24'));
-    const dto = await new AddSprintTaskHandler(repo, tasks, access, pub(), clock).execute(new AddSprintTaskCommand(actor, 's24', '320'));
+    await new StartSprintHandler(repo, tasks, snaps, access, pub(), clock).execute(
+      new StartSprintCommand(actor, 's24'),
+    );
+    const dto = await new AddSprintTaskHandler(repo, tasks, access, pub(), clock).execute(
+      new AddSprintTaskCommand(actor, 's24', '320'),
+    );
     expect(dto.scopePoints).toBe(29);
     const added = events.events.find((e) => e.type === 'sprint.task_added')!;
     expect(added.payload).toMatchObject({ taskId: '320', points: 8, afterStart: true });
   });
 
   it('ranks a backlog task between two others with one write', async () => {
-    const res = await new RankBacklogHandler(tasks, access, pub(), clock).execute(new RankBacklogCommand(actor, 'p1', { taskId: '322', afterId: '320' }));
+    const res = await new RankBacklogHandler(tasks, access, pub(), clock).execute(
+      new RankBacklogCommand(actor, 'p1', { taskId: '322', afterId: '320' }),
+    );
     expect(res.backlogRank).toBeLessThan(1);
   });
 });

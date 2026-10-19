@@ -33,7 +33,16 @@ export function MembersPage() {
   const actions = useMemberActions();
 
   const pageCommands = useMemo<Command[]>(
-    () => [{ id: 'members.matrix', title: 'View permission matrix', group: 'Settings', icon: 'doc', keywords: ['roles', 'permissions'], run: () => setMatrixOpen(true) }],
+    () => [
+      {
+        id: 'members.matrix',
+        title: 'View permission matrix',
+        group: 'Settings',
+        icon: 'doc',
+        keywords: ['roles', 'permissions'],
+        run: () => setMatrixOpen(true),
+      },
+    ],
     [],
   );
   useRegisterCommands(pageCommands);
@@ -65,7 +74,12 @@ export function MembersPage() {
   if (error || !data)
     return (
       <div className={styles.page}>
-        <EmptyState icon="alert" title="Members didn’t load" description={error?.message ?? 'Try again in a moment.'} primaryAction={<Button onClick={() => void refetch()}>Try again</Button>} />
+        <EmptyState
+          icon="alert"
+          title="Members didn’t load"
+          description={error?.message ?? 'Try again in a moment.'}
+          primaryAction={<Button onClick={() => void refetch()}>Try again</Button>}
+        />
       </div>
     );
 
@@ -74,7 +88,9 @@ export function MembersPage() {
     plural(counts.members, 'member'),
     plural(counts.guests, 'guest'),
     plural(counts.pendingInvites, 'pending invite'),
-    counts.seatLimit === null ? `unlimited seats on ${plan.name}` : `${counts.seatsUsed} of ${counts.seatLimit} seats on ${plan.name}`,
+    counts.seatLimit === null
+      ? `unlimited seats on ${plan.name}`
+      : `${counts.seatsUsed} of ${counts.seatLimit} seats on ${plan.name}`,
   ].join(' · ');
 
   return (
@@ -97,13 +113,22 @@ export function MembersPage() {
       <div className={styles.identity}>
         <Icon name="link" className={styles.identityIcon} />
         <span>
-          <strong>{identity.summary}.</strong> People join by invite and sign in with email. Guests only see the project they’re invited to.
+          <strong>{identity.summary}.</strong> People join by invite and sign in with email. Guests only see
+          the project they’re invited to.
         </span>
         <a href="/settings/security">Manage SSO</a>
       </div>
 
       <div className={styles.filters}>
-        <Input wrapperClassName={styles.search} icon="search" label="Search members" hideLabel placeholder="Search by name or email" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <Input
+          wrapperClassName={styles.search}
+          icon="search"
+          label="Search members"
+          hideLabel
+          placeholder="Search by name or email"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
         <DropdownMenu
           label="Filter by role"
           trigger={
@@ -111,7 +136,10 @@ export function MembersPage() {
               Role: {roleFilter === 'ALL' ? 'All' : ROLE_META[roleFilter].label}
             </Button>
           }
-          items={[{ id: 'ALL', label: 'All roles', onSelect: () => setRoleFilter('ALL') }, ...ROLES.map((r) => ({ id: r, label: ROLE_META[r].label, onSelect: () => setRoleFilter(r) }))]}
+          items={[
+            { id: 'ALL', label: 'All roles', onSelect: () => setRoleFilter('ALL') },
+            ...ROLES.map((r) => ({ id: r, label: ROLE_META[r].label, onSelect: () => setRoleFilter(r) })),
+          ]}
         />
         <DropdownMenu
           label="Filter by team"
@@ -120,7 +148,10 @@ export function MembersPage() {
               Team: {teamFilter === 'ALL' ? 'All' : (teams.find(([id]) => id === teamFilter)?.[1] ?? 'All')}
             </Button>
           }
-          items={[{ id: 'ALL', label: 'All teams', onSelect: () => setTeamFilter('ALL') }, ...teams.map(([id, name]) => ({ id, label: name, onSelect: () => setTeamFilter(id) }))]}
+          items={[
+            { id: 'ALL', label: 'All teams', onSelect: () => setTeamFilter('ALL') },
+            ...teams.map(([id, name]) => ({ id, label: name, onSelect: () => setTeamFilter(id) })),
+          ]}
         />
       </div>
 
@@ -162,7 +193,9 @@ export function MembersPage() {
             <Button
               variant="danger"
               loading={actions.remove.isPending}
-              onClick={() => removing && actions.remove.mutate(removing, { onSettled: () => setRemoving(null) })}
+              onClick={() =>
+                removing && actions.remove.mutate(removing, { onSettled: () => setRemoving(null) })
+              }
             >
               Remove permanently
             </Button>

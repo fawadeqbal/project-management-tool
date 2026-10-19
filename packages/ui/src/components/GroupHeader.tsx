@@ -56,7 +56,13 @@ export function GroupHeader({
     <div {...rest} role={table ? 'row' : undefined} className={cx('ht-group', className)}>
       <span role={table ? 'rowheader' : undefined} className="ht-group-static">
         {onToggle ? (
-          <button type="button" className="ht-group-toggle" aria-expanded={!collapsed} aria-controls={controls} onClick={onToggle}>
+          <button
+            type="button"
+            className="ht-group-toggle"
+            aria-expanded={!collapsed}
+            aria-controls={controls}
+            onClick={onToggle}
+          >
             {content}
           </button>
         ) : (

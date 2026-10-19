@@ -21,19 +21,36 @@ interface Props {
  * Home/End jump within a row, Enter opens the day's tasks. Rows accept dropped task chips.
  */
 export function WorkloadGrid({ workload, onOpenCell }: Props) {
-  const [focus, setFocus] = useState<CellPos>({ row: 0, col: Math.max(0, workload.days.findIndex((d) => d.isToday)) });
+  const [focus, setFocus] = useState<CellPos>({
+    row: 0,
+    col: Math.max(
+      0,
+      workload.days.findIndex((d) => d.isToday),
+    ),
+  });
   const cellRefs = useRef(new Map<string, HTMLButtonElement>());
   const rows = workload.people.length;
   const cols = workload.days.length;
   const at = (p: CellPos) => cellRefs.current.get(`${p.row}:${p.col}`);
-  const safe = { row: Math.min(focus.row, Math.max(0, rows - 1)), col: Math.min(focus.col, Math.max(0, cols - 1)) };
+  const safe = {
+    row: Math.min(focus.row, Math.max(0, rows - 1)),
+    col: Math.min(focus.col, Math.max(0, cols - 1)),
+  };
 
   const move = (e: KeyboardEvent<HTMLButtonElement>, pos: CellPos) => {
-    const deltas: Record<string, [number, number]> = { ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0] };
+    const deltas: Record<string, [number, number]> = {
+      ArrowRight: [0, 1],
+      ArrowLeft: [0, -1],
+      ArrowDown: [1, 0],
+      ArrowUp: [-1, 0],
+    };
     let next: CellPos | null = null;
     if (deltas[e.key]) {
       const [dr, dc] = deltas[e.key]!;
-      next = { row: Math.max(0, Math.min(rows - 1, pos.row + dr)), col: Math.max(0, Math.min(cols - 1, pos.col + dc)) };
+      next = {
+        row: Math.max(0, Math.min(rows - 1, pos.row + dr)),
+        col: Math.max(0, Math.min(cols - 1, pos.col + dc)),
+      };
     } else if (e.key === 'Home') next = { row: pos.row, col: 0 };
     else if (e.key === 'End') next = { row: pos.row, col: cols - 1 };
     if (!next) return;
@@ -46,7 +63,13 @@ export function WorkloadGrid({ workload, onOpenCell }: Props) {
 
   return (
     <div className={styles.gridScroll}>
-      <div role="grid" aria-label="Team workload" aria-rowcount={rows + 1} aria-colcount={cols + 2} className={styles.grid}>
+      <div
+        role="grid"
+        aria-label="Team workload"
+        aria-rowcount={rows + 1}
+        aria-colcount={cols + 2}
+        className={styles.grid}
+      >
         <div role="row" className={styles.headRow} style={template}>
           <div role="columnheader" className={styles.personHead}>
             Person
@@ -95,23 +118,51 @@ export function WorkloadGrid({ workload, onOpenCell }: Props) {
   );
 }
 
-function PersonRow({ person, template, children }: { person: WorkloadPersonDto; template: { gridTemplateColumns: string }; children: React.ReactNode }) {
-  const { setNodeRef, isOver } = useDroppable({ id: `person:${person.user.id}`, data: { userId: person.user.id } });
+function PersonRow({
+  person,
+  template,
+  children,
+}: {
+  person: WorkloadPersonDto;
+  template: { gridTemplateColumns: string };
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `person:${person.user.id}`,
+    data: { userId: person.user.id },
+  });
   const over = person.loadPct > 100;
   return (
-    <div ref={setNodeRef} role="row" className={isOver ? styles.rowDropping : styles.row} style={template} aria-label={`${person.user.name}, ${person.loadPct}% load`}>
+    <div
+      ref={setNodeRef}
+      role="row"
+      className={isOver ? styles.rowDropping : styles.row}
+      style={template}
+      aria-label={`${person.user.name}, ${person.loadPct}% load`}
+    >
       <div role="rowheader" className={styles.person}>
-        <Avatar initials={person.user.initials} name={person.user.name} color={person.user.avatarColor} size={32} />
+        <Avatar
+          initials={person.user.initials}
+          name={person.user.name}
+          color={person.user.avatarColor}
+          size={32}
+        />
         <span className={styles.personText}>
           <span className={styles.personName}>{person.user.name}</span>
-          <span className={styles.personRole}>{person.jobTitle ?? `${person.capacityHoursPerDay}h a day`}</span>
+          <span className={styles.personRole}>
+            {person.jobTitle ?? `${person.capacityHoursPerDay}h a day`}
+          </span>
         </span>
       </div>
       {children}
       <div role="gridcell" className={styles.load}>
         <span className={over ? styles.loadOver : styles.loadValue}>{person.loadPct}%</span>
         <span className={styles.loadBar}>
-          <ProgressBar value={Math.min(100, person.loadPct)} height={4} label={`${person.user.name}’s load`} />
+          <ProgressBar
+            value={Math.min(100, person.loadPct)}
+            height={4}
+            label={`${person.user.name}’s load`}
+          />
         </span>
       </div>
     </div>

@@ -9,26 +9,70 @@ vi.mock('@/shared/api/client', () => ({
   api: {
     me: { get: vi.fn() },
     workspace: { members: vi.fn(), teams: vi.fn(), tags: vi.fn(), shell: vi.fn() },
-    tasks: { list: vi.fn(), update: vi.fn(), quickAdd: vi.fn(), create: vi.fn(), move: vi.fn(), remove: vi.fn() },
+    tasks: {
+      list: vi.fn(),
+      update: vi.fn(),
+      quickAdd: vi.fn(),
+      create: vi.fn(),
+      move: vi.fn(),
+      remove: vi.fn(),
+    },
   },
 }));
 const mocked = vi.mocked(api, true);
 const web = { id: 'web', name: 'Website relaunch', color: 'blue' as const };
 const brand = { id: 'brand', name: 'Q4 brand campaign', color: 'violet' as const };
 
-const busy = ['Update pricing table', 'Wireframes & IA', 'Push notification copy', 'Social teaser', 'Ad budget review'].map((title, i) =>
-  makeTask({ id: `b${i}`, key: `HRT-${300 + i}`, title, dueDate: '2026-10-23', project: i % 2 ? brand : web, projectId: i % 2 ? 'brand' : 'web' }),
+const busy = [
+  'Update pricing table',
+  'Wireframes & IA',
+  'Push notification copy',
+  'Social teaser',
+  'Ad budget review',
+].map((title, i) =>
+  makeTask({
+    id: `b${i}`,
+    key: `HRT-${300 + i}`,
+    title,
+    dueDate: '2026-10-23',
+    project: i % 2 ? brand : web,
+    projectId: i % 2 ? 'brand' : 'web',
+  }),
 );
-const scheduled = [...busy, makeTask({ id: 'k', key: 'HRT-170', title: 'Kickoff workshop', status: 'DONE', dueDate: '2026-10-12', project: web })];
-const unscheduled = [makeTask({ id: 'u1', key: 'HRT-207', title: 'Collect customer logos', priority: 'LOW', project: web })];
+const scheduled = [
+  ...busy,
+  makeTask({
+    id: 'k',
+    key: 'HRT-170',
+    title: 'Kickoff workshop',
+    status: 'DONE',
+    dueDate: '2026-10-12',
+    project: web,
+  }),
+];
+const unscheduled = [
+  makeTask({ id: 'u1', key: 'HRT-207', title: 'Collect customer logos', priority: 'LOW', project: web }),
+];
 
 const renderCal = (range: 'month' | 'week' = 'month') =>
-  renderApp(<TaskCalendar scheduled={scheduled} unscheduled={unscheduled} cursor="2026-10-19" range={range} onCursorChange={() => undefined} onRangeChange={() => undefined} label="Calendar" />);
+  renderApp(
+    <TaskCalendar
+      scheduled={scheduled}
+      unscheduled={unscheduled}
+      cursor="2026-10-19"
+      range={range}
+      onCursorChange={() => undefined}
+      onRangeChange={() => undefined}
+      label="Calendar"
+    />,
+  );
 
 describe('TaskCalendar', () => {
   beforeEach(() => {
     signIn();
-    mocked.tasks.update.mockImplementation(async (id: string, patch) => ({ ...unscheduled[0]!, id, ...patch }) as never);
+    mocked.tasks.update.mockImplementation(
+      async (id: string, patch) => ({ ...unscheduled[0]!, id, ...patch }) as never,
+    );
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -49,7 +93,10 @@ describe('TaskCalendar', () => {
 
   it('strikes through done chips, fills only today and lists projects in the legend', () => {
     const { unmount } = renderCal();
-    expect(screen.getByRole('button', { name: /^HRT-170 Kickoff workshop, Done/ })).toHaveAttribute('data-done', 'true');
+    expect(screen.getByRole('button', { name: /^HRT-170 Kickoff workshop, Done/ })).toHaveAttribute(
+      'data-done',
+      'true',
+    );
     expect(document.querySelectorAll('[data-today]')).toHaveLength(1);
     const legend = screen.getByRole('complementary', { name: 'Unscheduled tasks' });
     expect(within(legend).getByText('Website relaunch')).toBeInTheDocument();

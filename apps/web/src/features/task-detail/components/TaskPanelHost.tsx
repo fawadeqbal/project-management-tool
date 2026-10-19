@@ -70,8 +70,16 @@ export function TaskPanelHost() {
         <EmptyState
           icon="search"
           title={notFound ? `We couldn’t find ${openKey}` : 'This task didn’t load'}
-          description={notFound ? 'It may have been deleted or moved to a project you can’t see.' : 'Check your connection and try again.'}
-          primaryAction={<Button variant="secondary" onClick={closePanel}>Close panel</Button>}
+          description={
+            notFound
+              ? 'It may have been deleted or moved to a project you can’t see.'
+              : 'Check your connection and try again.'
+          }
+          primaryAction={
+            <Button variant="secondary" onClick={closePanel}>
+              Close panel
+            </Button>
+          }
         />
       </div>
     );
@@ -89,7 +97,12 @@ export function TaskPanelHost() {
   }
 
   return (
-    <aside ref={panelRef} tabIndex={-1} className={styles.panel} aria-label={task ? `Task ${task.key}` : 'Task'}>
+    <aside
+      ref={panelRef}
+      tabIndex={-1}
+      className={styles.panel}
+      aria-label={task ? `Task ${task.key}` : 'Task'}
+    >
       {body}
     </aside>
   );

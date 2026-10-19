@@ -49,7 +49,12 @@ export function MenuItem({
       {icon ? <Icon name={icon} style={iconColor ? { color: iconColor } : undefined} /> : null}
       <span className="ht-menuitem-label">
         {label}
-        {hint ? <span className="ht-menuitem-hint">{'  ·  '}{hint}</span> : null}
+        {hint ? (
+          <span className="ht-menuitem-hint">
+            {'  ·  '}
+            {hint}
+          </span>
+        ) : null}
       </span>
       {shortcut ? <Kbd keys={shortcut} aria-hidden="true" /> : null}
     </div>

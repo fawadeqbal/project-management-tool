@@ -3,7 +3,17 @@ import { Icon } from '@hearth/ui';
 import styles from './board.module.css';
 
 /** "+ Add task" at the foot of a column: inline title entry with the column's status preset. */
-export function QuickAddCard({ label, open, onOpenChange, onSubmit }: { label: string; open: boolean; onOpenChange: (open: boolean) => void; onSubmit: (title: string) => void }) {
+export function QuickAddCard({
+  label,
+  open,
+  onOpenChange,
+  onSubmit,
+}: {
+  label: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (title: string) => void;
+}) {
   const [title, setTitle] = useState('');
   if (!open)
     return (

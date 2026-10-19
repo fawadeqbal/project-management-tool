@@ -1,7 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { TaskDetailDto } from '@hearth/contracts';
-import { DependencyGraph, TASK_REPOSITORY, type Actor, type Clock, type TaskRepository } from '@hearth/domain';
+import {
+  DependencyGraph,
+  TASK_REPOSITORY,
+  type Actor,
+  type Clock,
+  type TaskRepository,
+} from '@hearth/domain';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { AccessService } from '../../../../shared/access/access.service';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -42,7 +48,10 @@ export class AddDependencyHandler implements ICommandHandler<AddDependencyComman
     await this.relations.addDependency({ blockerId: blocker.id, blockedId: blocked.id });
 
     const now = this.clock.now();
-    this.publisher.publish(taskUpdatedEvent(blocked, ['dependencies'], actor.userId, now), taskUpdatedEvent(blocker, ['dependencies'], actor.userId, now));
+    this.publisher.publish(
+      taskUpdatedEvent(blocked, ['dependencies'], actor.userId, now),
+      taskUpdatedEvent(blocker, ['dependencies'], actor.userId, now),
+    );
     return this.read.detail(actor, blocked.id);
   }
 }

@@ -90,7 +90,10 @@ export function fuzzyMatch(query: string, target: string): FuzzyMatch | null {
 }
 
 /** Matches against several fields (title, key, keywords); returns the best with which field won. */
-export function fuzzyMatchAny(query: string, fields: readonly string[]): (FuzzyMatch & { field: number }) | null {
+export function fuzzyMatchAny(
+  query: string,
+  fields: readonly string[],
+): (FuzzyMatch & { field: number }) | null {
   let best: (FuzzyMatch & { field: number }) | null = null;
   fields.forEach((f, field) => {
     const m = fuzzyMatch(query, f);
@@ -101,7 +104,11 @@ export function fuzzyMatchAny(query: string, fields: readonly string[]): (FuzzyM
 }
 
 /** Ranks items by score, dropping non-matches. Stable for equal scores. */
-export function rank<T>(query: string, items: readonly T[], fields: (item: T) => readonly string[]): { item: T; match: FuzzyMatch & { field: number } }[] {
+export function rank<T>(
+  query: string,
+  items: readonly T[],
+  fields: (item: T) => readonly string[],
+): { item: T; match: FuzzyMatch & { field: number } }[] {
   return items
     .map((item, i) => ({ item, i, match: fuzzyMatchAny(query, fields(item)) }))
     .filter((r): r is { item: T; i: number; match: FuzzyMatch & { field: number } } => r.match !== null)
@@ -110,7 +117,10 @@ export function rank<T>(query: string, items: readonly T[], fields: (item: T) =>
 }
 
 /** Splits text into highlighted/plain segments for rendering <mark>. */
-export function highlightSegments(text: string, indices: readonly number[]): { text: string; match: boolean }[] {
+export function highlightSegments(
+  text: string,
+  indices: readonly number[],
+): { text: string; match: boolean }[] {
   if (!indices.length) return [{ text, match: false }];
   const set = new Set(indices);
   const out: { text: string; match: boolean }[] = [];

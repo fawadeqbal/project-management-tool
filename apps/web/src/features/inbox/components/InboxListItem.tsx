@@ -14,7 +14,14 @@ interface Props {
 }
 
 /** One notification: unread dot + bold title (never color alone), who/what/where, quoted excerpt. */
-export const InboxListItem = memo(function InboxListItem({ item, selected, checked, selectionMode, onSelect, onToggleChecked }: Props) {
+export const InboxListItem = memo(function InboxListItem({
+  item,
+  selected,
+  checked,
+  selectionMode,
+  onSelect,
+  onToggleChecked,
+}: Props) {
   return (
     <div
       id={`inbox-item-${item.id}`}
@@ -39,7 +46,12 @@ export const InboxListItem = memo(function InboxListItem({ item, selected, check
           <span className={styles.dot} aria-hidden="true" />
         ) : null}
       </span>
-      <Avatar initials={item.actor?.initials ?? '·'} name={item.actor?.name} size={32} color={item.actor?.avatarColor ?? 'slate'} />
+      <Avatar
+        initials={item.actor?.initials ?? '·'}
+        name={item.actor?.name}
+        size={32}
+        color={item.actor?.avatarColor ?? 'slate'}
+      />
       <div className={styles.itemBody}>
         <div className={styles.itemTop}>
           <span className={styles.itemTitle}>

@@ -25,7 +25,11 @@ const planWord = (id: string) => id.charAt(0) + id.slice(1).toLowerCase();
 export function UpgradePrompt({ open, feature, onClose, onPreview, message }: UpgradePromptProps) {
   const navigate = useNavigate();
   const { data, isLoading } = useFeatureLimit(open && feature ? feature : null);
-  const title = feature ? (data ? `${data.featureName} is part of ${data.requiredPlanName}` : 'Unlock this feature') : 'You’ve reached a plan limit';
+  const title = feature
+    ? data
+      ? `${data.featureName} is part of ${data.requiredPlanName}`
+      : 'Unlock this feature'
+    : 'You’ve reached a plan limit';
   return (
     <Dialog
       open={open}
@@ -71,7 +75,8 @@ export function UpgradePrompt({ open, feature, onClose, onPreview, message }: Up
             <Skeleton width="100%" height={40} />
           ) : (
             <p className={styles.promptPitch}>
-              {data.pitch} You’re on {planWord(data.currentPlan)}; {data.requiredPlanName} includes it. Preview it here before you decide.
+              {data.pitch} You’re on {planWord(data.currentPlan)}; {data.requiredPlanName} includes it.
+              Preview it here before you decide.
             </p>
           )
         ) : null}
@@ -103,7 +108,10 @@ export interface UpgradePromptApi {
  */
 export function useUpgradePrompt(opts: { onPreview?: () => void } = {}): UpgradePromptApi {
   const [state, setState] = useState<PromptState>({ open: false });
-  const open = useCallback((feature: string | null, message?: string) => setState({ open: true, feature, message }), []);
+  const open = useCallback(
+    (feature: string | null, message?: string) => setState({ open: true, feature, message }),
+    [],
+  );
   const close = useCallback(() => setState((s) => ({ ...s, open: false })), []);
   const handleError = useCallback((error: unknown) => {
     if (!(error instanceof ApiError) || error.kind !== 'limit_reached') return false;
@@ -113,7 +121,15 @@ export function useUpgradePrompt(opts: { onPreview?: () => void } = {}): Upgrade
   }, []);
   const { onPreview } = opts;
   const element = useMemo(
-    () => <UpgradePrompt open={state.open} feature={state.feature} message={state.message} onClose={close} onPreview={onPreview} />,
+    () => (
+      <UpgradePrompt
+        open={state.open}
+        feature={state.feature}
+        message={state.message}
+        onClose={close}
+        onPreview={onPreview}
+      />
+    ),
     [state, close, onPreview],
   );
   return { open, handleError, close, element };

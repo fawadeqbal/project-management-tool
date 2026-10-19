@@ -20,7 +20,8 @@ export const billingKeys = {
 export const billingApi = {
   get: () => http.get<BillingDto>(BILLING_ROUTES.billing),
   limit: (feature: string) => http.get<FeatureLimitDto>(BILLING_ROUTES.limit(feature)),
-  changePlan: (input: { plan: PlanIdDto; interval: BillingIntervalDto; confirm?: boolean }) => http.post<ChangePlanResultDto>(BILLING_ROUTES.plan, input),
+  changePlan: (input: { plan: PlanIdDto; interval: BillingIntervalDto; confirm?: boolean }) =>
+    http.post<ChangePlanResultDto>(BILLING_ROUTES.plan, input),
   pause: (months: 1 | 2 | 3) => http.post<BillingDto>(BILLING_ROUTES.pause, { months }),
   resume: () => http.post<BillingDto>(BILLING_ROUTES.resume),
   cancel: () => http.post<BillingDto>(BILLING_ROUTES.cancel, { confirm: true }),
@@ -34,7 +35,12 @@ export function useBilling() {
 
 export function useFeatureLimit(feature: string | null) {
   const token = useAuthStore((s) => s.token);
-  return useQuery({ queryKey: billingKeys.limit(feature ?? ''), queryFn: () => billingApi.limit(feature!), enabled: !!token && !!feature, staleTime: 60_000 });
+  return useQuery({
+    queryKey: billingKeys.limit(feature ?? ''),
+    queryFn: () => billingApi.limit(feature!),
+    enabled: !!token && !!feature,
+    staleTime: 60_000,
+  });
 }
 
 /** Billing writes return the fresh BillingDto; we write it straight into the cache. */
@@ -62,7 +68,11 @@ export async function downloadExport(): Promise<void> {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const slug = data.workspace.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'workspace';
+  const slug =
+    data.workspace.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'workspace';
   a.href = url;
   a.download = `${slug}-export-${data.exportedAt.slice(0, 10)}.json`;
   document.body.appendChild(a);

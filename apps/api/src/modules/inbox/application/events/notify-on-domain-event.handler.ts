@@ -13,7 +13,13 @@ import { NOTIFICATION_GATEWAY, type NotificationGateway } from '../ports';
  */
 @EventsHandler(DomainEventEnvelope)
 export class NotifyOnDomainEventHandler extends DomainEventSubscriber {
-  protected readonly types = ['task.assigned', 'task.status_changed', 'comment.created', 'approval.requested', 'approval.decided'];
+  protected readonly types = [
+    'task.assigned',
+    'task.status_changed',
+    'comment.created',
+    'approval.requested',
+    'approval.decided',
+  ];
 
   constructor(
     @Inject(NOTIFICATION_GATEWAY) private readonly gateway: NotificationGateway,
@@ -40,7 +46,12 @@ export class NotifyOnDomainEventHandler extends DomainEventSubscriber {
       ...created.map((n) =>
         createEvent(
           'notification.created',
-          { workspaceId: event.workspaceId, actorId: event.actorId, aggregateId: n.id, occurredAt: event.occurredAt },
+          {
+            workspaceId: event.workspaceId,
+            actorId: event.actorId,
+            aggregateId: n.id,
+            occurredAt: event.occurredAt,
+          },
           { recipientId: n.recipientId, type: n.type, taskId: n.taskId, cause: event.type },
         ),
       ),

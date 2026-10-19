@@ -8,7 +8,9 @@ export function InboxEmpty({ tab, unreadOnly }: { tab: InboxTabDto; unreadOnly: 
     <EmptyState
       icon="check"
       title="You’re all caught up"
-      description={unreadOnly ? 'Nothing unread here. Turn off the Unread filter to see everything.' : EMPTY_COPY[tab]}
+      description={
+        unreadOnly ? 'Nothing unread here. Turn off the Unread filter to see everything.' : EMPTY_COPY[tab]
+      }
       headingLevel={3}
     />
   );

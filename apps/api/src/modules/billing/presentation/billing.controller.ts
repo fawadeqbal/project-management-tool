@@ -46,24 +46,40 @@ export class BillingController {
 
   @Get('export')
   @RequirePermission('workspace.manage')
-  async export(@CurrentActor() actor: Actor, @Res({ passthrough: true }) res: Response): Promise<WorkspaceExportDto> {
+  async export(
+    @CurrentActor() actor: Actor,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<WorkspaceExportDto> {
     const data: WorkspaceExportDto = await this.queries.execute(new ExportWorkspaceQuery(actor));
-    const slug = data.workspace.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'workspace';
-    res.setHeader('Content-Disposition', `attachment; filename="${slug}-export-${data.exportedAt.slice(0, 10)}.json"`);
+    const slug =
+      data.workspace.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || 'workspace';
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${slug}-export-${data.exportedAt.slice(0, 10)}.json"`,
+    );
     return data;
   }
 
   @Post('plan')
   @HttpCode(200)
   @RequirePermission('billing.manage')
-  changePlan(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(ChangePlanSchema)) input: ChangePlanInput): Promise<ChangePlanResultDto> {
+  changePlan(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(ChangePlanSchema)) input: ChangePlanInput,
+  ): Promise<ChangePlanResultDto> {
     return this.commands.execute(new ChangePlanCommand(actor, input));
   }
 
   @Post('pause')
   @HttpCode(200)
   @RequirePermission('billing.manage')
-  pause(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(PauseBillingSchema)) input: PauseBillingInput): Promise<BillingDto> {
+  pause(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(PauseBillingSchema)) input: PauseBillingInput,
+  ): Promise<BillingDto> {
     return this.commands.execute(new PauseBillingCommand(actor, input.months));
   }
 
@@ -77,7 +93,10 @@ export class BillingController {
   @Post('cancel')
   @HttpCode(200)
   @RequirePermission('billing.manage')
-  cancel(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(CancelPlanSchema)) input: CancelPlanInput): Promise<BillingDto> {
+  cancel(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(CancelPlanSchema)) input: CancelPlanInput,
+  ): Promise<BillingDto> {
     return this.commands.execute(new CancelPlanCommand(actor, input.confirm));
   }
 }

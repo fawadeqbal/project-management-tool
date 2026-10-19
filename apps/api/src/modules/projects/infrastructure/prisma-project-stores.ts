@@ -1,7 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import type { FavoriteStore, MilestoneRecord, MilestoneStore, TeamDirectory } from '../application/projects.ports';
+import type {
+  FavoriteStore,
+  MilestoneRecord,
+  MilestoneStore,
+  TeamDirectory,
+} from '../application/projects.ports';
 
 @Injectable()
 export class PrismaFavoriteStore implements FavoriteStore {
@@ -34,7 +39,16 @@ export class PrismaMilestoneStore implements MilestoneStore {
       where: { id, project: { workspaceId, archivedAt: null } },
       include: { dependsOn: { select: { taskId: true } } },
     });
-    return m ? { id: m.id, projectId: m.projectId, name: m.name, date: m.date, doneAt: m.doneAt, dependsOnTaskIds: m.dependsOn.map((d) => d.taskId) } : null;
+    return m
+      ? {
+          id: m.id,
+          projectId: m.projectId,
+          name: m.name,
+          date: m.date,
+          doneAt: m.doneAt,
+          dependsOnTaskIds: m.dependsOn.map((d) => d.taskId),
+        }
+      : null;
   }
 
   async save(m: MilestoneRecord): Promise<void> {
@@ -44,8 +58,13 @@ export class PrismaMilestoneStore implements MilestoneStore {
         create: { id: m.id, projectId: m.projectId, name: m.name, date: m.date, doneAt: m.doneAt },
         update: { name: m.name, date: m.date, doneAt: m.doneAt },
       }),
-      this.prisma.milestoneDependency.deleteMany({ where: { milestoneId: m.id, taskId: { notIn: m.dependsOnTaskIds } } }),
-      this.prisma.milestoneDependency.createMany({ data: m.dependsOnTaskIds.map((taskId) => ({ milestoneId: m.id, taskId })), skipDuplicates: true }),
+      this.prisma.milestoneDependency.deleteMany({
+        where: { milestoneId: m.id, taskId: { notIn: m.dependsOnTaskIds } },
+      }),
+      this.prisma.milestoneDependency.createMany({
+        data: m.dependsOnTaskIds.map((taskId) => ({ milestoneId: m.id, taskId })),
+        skipDuplicates: true,
+      }),
     ]);
   }
 
@@ -55,7 +74,10 @@ export class PrismaMilestoneStore implements MilestoneStore {
 
   async tasksInProject(projectId: string, taskIds: string[]): Promise<string[]> {
     if (!taskIds.length) return [];
-    const rows = await this.prisma.task.findMany({ where: { projectId, id: { in: taskIds } }, select: { id: true } });
+    const rows = await this.prisma.task.findMany({
+      where: { projectId, id: { in: taskIds } },
+      select: { id: true },
+    });
     return rows.map((r) => r.id);
   }
 }

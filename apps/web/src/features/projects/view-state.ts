@@ -14,15 +14,23 @@ export interface ProjectFilters {
   swimlanes: Swimlanes;
 }
 
-export const DEFAULT_FILTERS: ProjectFilters = { statuses: [], priorities: [], assigneeId: null, swimlanes: 'none' };
+export const DEFAULT_FILTERS: ProjectFilters = {
+  statuses: [],
+  priorities: [],
+  assigneeId: null,
+  swimlanes: 'none',
+};
 
 const key = (projectId: string) => `hearth.project.filters.${projectId}`;
 
 const load = (projectId: string): ProjectFilters => {
   try {
-    const raw = JSON.parse(window.localStorage.getItem(key(projectId)) ?? 'null') as Partial<Record<keyof ProjectFilters, unknown>> | null;
+    const raw = JSON.parse(window.localStorage.getItem(key(projectId)) ?? 'null') as Partial<
+      Record<keyof ProjectFilters, unknown>
+    > | null;
     if (!raw || typeof raw !== 'object') return DEFAULT_FILTERS;
-    const strings = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
+    const strings = (v: unknown) =>
+      Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
     return {
       statuses: strings(raw.statuses).filter(isTaskStatus),
       priorities: strings(raw.priorities).filter(isPriority),
@@ -58,7 +66,10 @@ export function useProjectFilters(projectId: string) {
   const stored = useFiltersStore((s) => s.byProject[projectId]);
   const setStore = useFiltersStore((s) => s.set);
   const filters = stored ?? load(projectId);
-  const setFilters = useCallback((patch: Partial<ProjectFilters>) => setStore(projectId, patch), [setStore, projectId]);
+  const setFilters = useCallback(
+    (patch: Partial<ProjectFilters>) => setStore(projectId, patch),
+    [setStore, projectId],
+  );
   const activeCount = filters.statuses.length + filters.priorities.length + (filters.assigneeId ? 1 : 0);
   return { filters, setFilters, activeCount };
 }
@@ -73,7 +84,8 @@ export const matchesProjectFilters = (task: Filterable, f: ProjectFilters): bool
   return true;
 };
 
-export const applyProjectFilters = <T extends Filterable>(tasks: readonly T[], f: ProjectFilters): T[] => tasks.filter((t) => matchesProjectFilters(t, f));
+export const applyProjectFilters = <T extends Filterable>(tasks: readonly T[], f: ProjectFilters): T[] =>
+  tasks.filter((t) => matchesProjectFilters(t, f));
 
 /** Reset (test helper and "Clear filters"). */
 export const resetProjectFilters = () => useFiltersStore.setState({ byProject: {} });

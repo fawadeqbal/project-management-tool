@@ -4,7 +4,15 @@ import { AccessService } from '../../../shared/access/access.service';
 import type { DomainEventPublisher } from '../../../shared/events/domain-event.publisher';
 import type { TaskReadModel } from '../infrastructure/task.read-model';
 import { InMemoryTaskRepository } from '../infrastructure/in-memory-task.repository';
-import type { MemberHandle, MissingReference, ProjectHandle, TaskDirectory, TaskOrdering, TaskReferences, TaskRelations } from '../application/ports';
+import type {
+  MemberHandle,
+  MissingReference,
+  ProjectHandle,
+  TaskDirectory,
+  TaskOrdering,
+  TaskReferences,
+  TaskRelations,
+} from '../application/ports';
 
 /** Test doubles for the tasks handlers (no Nest, no database). */
 
@@ -22,7 +30,12 @@ export const PROJECTS: ProjectHandle[] = [
   { id: 'p-mobile', name: 'Mobile app v2' },
 ];
 
-export const actorOf = (role: Role = 'OWNER', userId = 'u-fawad', projectIds?: string[]): Actor => ({ userId, workspaceId: WS, role, projectIds });
+export const actorOf = (role: Role = 'OWNER', userId = 'u-fawad', projectIds?: string[]): Actor => ({
+  userId,
+  workspaceId: WS,
+  role,
+  projectIds,
+});
 
 /** Captures published events instead of sending them over the EventBus. */
 export class FakePublisher {
@@ -55,9 +68,12 @@ export class InMemoryTaskDirectory implements TaskDirectory {
     return onlyIds ? this.projectList.filter((p) => onlyIds.includes(p.id)) : this.projectList;
   }
   async findMissingReference(_ws: string, refs: TaskReferences): Promise<MissingReference | null> {
-    if (refs.projectId && !this.projectList.some((p) => p.id === refs.projectId)) return { entity: 'Project', id: refs.projectId };
-    if (refs.assigneeId && !this.members.some((m) => m.id === refs.assigneeId)) return { entity: 'Member', id: refs.assigneeId };
-    if (refs.parentId && this.tasks && !(await this.tasks.findById(WS, refs.parentId))) return { entity: 'Task', id: refs.parentId };
+    if (refs.projectId && !this.projectList.some((p) => p.id === refs.projectId))
+      return { entity: 'Project', id: refs.projectId };
+    if (refs.assigneeId && !this.members.some((m) => m.id === refs.assigneeId))
+      return { entity: 'Member', id: refs.assigneeId };
+    if (refs.parentId && this.tasks && !(await this.tasks.findById(WS, refs.parentId)))
+      return { entity: 'Task', id: refs.parentId };
     return null;
   }
   async projectOfTask(ws: string, taskId: string): Promise<string | null | undefined> {
@@ -71,24 +87,46 @@ export class InMemoryTaskRelations implements TaskRelations {
   readonly tags = new Map<string, string[]>();
   readonly followers = new Map<string, Set<string>>();
   readonly edges: DependencyEdge[] = [];
-  readonly comments: Array<{ id: string; taskId: string; authorId: string; body: string; parentId: string | null }> = [];
+  readonly comments: Array<{
+    id: string;
+    taskId: string;
+    authorId: string;
+    body: string;
+    parentId: string | null;
+  }> = [];
   readonly epics = new Map<string, string | null>();
 
   constructor(private readonly tasks: InMemoryTaskRepository) {}
 
-  async lastPositions(_ws: string, scope: { projectId: string | null; status: TaskStatus; parentId: string | null }) {
+  async lastPositions(
+    _ws: string,
+    scope: { projectId: string | null; status: TaskStatus; parentId: string | null },
+  ) {
     const all = this.tasks.all().map((t) => t.toSnapshot());
     const max = (xs: number[]) => (xs.length ? Math.max(...xs) : null);
     return {
-      board: max(all.filter((t) => t.projectId === scope.projectId && t.status === scope.status && !t.parentId).map((t) => this.ordering.get(t.id)?.boardPosition ?? 0)),
-      list: max(all.filter((t) => t.projectId === scope.projectId && t.parentId === scope.parentId).map((t) => this.ordering.get(t.id)?.listPosition ?? 0)),
+      board: max(
+        all
+          .filter((t) => t.projectId === scope.projectId && t.status === scope.status && !t.parentId)
+          .map((t) => this.ordering.get(t.id)?.boardPosition ?? 0),
+      ),
+      list: max(
+        all
+          .filter((t) => t.projectId === scope.projectId && t.parentId === scope.parentId)
+          .map((t) => this.ordering.get(t.id)?.listPosition ?? 0),
+      ),
     };
   }
   async positionsOf(_ws: string, ids: readonly string[]) {
     return new Map(ids.filter((id) => this.ordering.has(id)).map((id) => [id, this.ordering.get(id)!]));
   }
   async setOrdering(taskId: string, ordering: Partial<TaskOrdering>) {
-    this.ordering.set(taskId, { boardPosition: 0, listPosition: 0, ...this.ordering.get(taskId), ...ordering });
+    this.ordering.set(taskId, {
+      boardPosition: 0,
+      listPosition: 0,
+      ...this.ordering.get(taskId),
+      ...ordering,
+    });
   }
   async setEpic(taskId: string, epic: string | null) {
     this.epics.set(taskId, epic);
@@ -115,7 +153,8 @@ export class InMemoryTaskRelations implements TaskRelations {
     return [...this.edges];
   }
   async addDependency(edge: DependencyEdge) {
-    if (!this.edges.some((e) => e.blockerId === edge.blockerId && e.blockedId === edge.blockedId)) this.edges.push(edge);
+    if (!this.edges.some((e) => e.blockerId === edge.blockerId && e.blockedId === edge.blockedId))
+      this.edges.push(edge);
   }
   async removeDependency(edge: DependencyEdge) {
     const i = this.edges.findIndex((e) => e.blockerId === edge.blockerId && e.blockedId === edge.blockedId);
@@ -164,5 +203,13 @@ export type TaskTestKit = ReturnType<typeof createKit>;
 /** Builds the creation service (shared by create and quick add) on the kit's fakes. */
 export const creationServiceOf = async (kit: TaskTestKit) => {
   const { TaskCreationService } = await import('../application/task-creation.service');
-  return new TaskCreationService(kit.tasks, kit.directory, kit.relations, kit.clock, kit.access, kit.publisher.asPublisher(), kit.newId);
+  return new TaskCreationService(
+    kit.tasks,
+    kit.directory,
+    kit.relations,
+    kit.clock,
+    kit.access,
+    kit.publisher.asPublisher(),
+    kit.newId,
+  );
 };

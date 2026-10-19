@@ -34,7 +34,10 @@ export class QuickAddTaskHandler implements ICommandHandler<QuickAddTaskCommand,
     const [members, projects] = await Promise.all([
       parsed.assigneeHandle ? this.directory.activeMembers(actor.workspaceId) : Promise.resolve([]),
       parsed.projectHandle
-        ? this.directory.projects(actor.workspaceId, actor.role === 'GUEST' ? (actor.projectIds ?? []) : undefined)
+        ? this.directory.projects(
+            actor.workspaceId,
+            actor.role === 'GUEST' ? (actor.projectIds ?? []) : undefined,
+          )
         : Promise.resolve([]),
     ]);
     const assignee = parsed.assigneeHandle ? matchMember(parsed.assigneeHandle, members, true) : null;
@@ -56,7 +59,11 @@ export class QuickAddTaskHandler implements ICommandHandler<QuickAddTaskCommand,
 }
 
 /** Rebuilds the title from the raw text, removing only the tokens that were understood. */
-export const titleKeeping = (text: string, parsed: ParsedQuickAdd, unresolved: ReadonlySet<string>): string => {
+export const titleKeeping = (
+  text: string,
+  parsed: ParsedQuickAdd,
+  unresolved: ReadonlySet<string>,
+): string => {
   if (!unresolved.size) return parsed.title;
   const words = text.trim().split(/\s+/).filter(Boolean);
   for (const token of parsed.tokens) {

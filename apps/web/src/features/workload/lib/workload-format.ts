@@ -11,7 +11,11 @@ export const formatAmount = (n: number, unit: WorkloadUnitDto): string => {
   return String(v);
 };
 
-export const UNIT_WORDS: Record<WorkloadUnitDto, [string, string]> = { hours: ['hour', 'hours'], tasks: ['task', 'tasks'], points: ['point', 'points'] };
+export const UNIT_WORDS: Record<WorkloadUnitDto, [string, string]> = {
+  hours: ['hour', 'hours'],
+  tasks: ['task', 'tasks'],
+  points: ['point', 'points'],
+};
 export const unitWord = (n: number, unit: WorkloadUnitDto) => UNIT_WORDS[unit][n === 1 ? 0 : 1];
 
 export const STATE_LABEL: Record<LoadStateDto, string> = {
@@ -57,9 +61,16 @@ export const reassignInWorkload = (w: WorkloadDto, taskId: string, toUserId: str
     const cells = p.cells.map((c) => {
       const amount = moved.get(c.date);
       if (amount === undefined || (sign === 1 && c.state === 'off')) return c;
-      const items = sign === -1 ? c.items.filter((x) => x.taskId !== taskId) : [...c.items, { taskId, amount }];
+      const items =
+        sign === -1 ? c.items.filter((x) => x.taskId !== taskId) : [...c.items, { taskId, amount }];
       const planned = Math.max(0, round1(c.planned + sign * amount));
-      return { ...c, items, planned, taskIds: items.map((x) => x.taskId), state: c.capacity > 0 ? classifyLoad(planned, c.capacity) : c.state };
+      return {
+        ...c,
+        items,
+        planned,
+        taskIds: items.map((x) => x.taskId),
+        state: c.capacity > 0 ? classifyLoad(planned, c.capacity) : c.state,
+      };
     });
     const plannedTotal = round1(cells.reduce((a, c) => a + c.planned, 0));
     return {
@@ -72,7 +83,12 @@ export const reassignInWorkload = (w: WorkloadDto, taskId: string, toUserId: str
   };
   return {
     ...w,
-    people: w.people.map((p, i) => (i === fromIndex ? recompute(p, -1) : i === toIndex ? recompute(p, 1) : p)),
-    tasks: { ...w.tasks, [taskId]: w.tasks[taskId] ? { ...w.tasks[taskId]!, assigneeId: toUserId } : w.tasks[taskId]! },
+    people: w.people.map((p, i) =>
+      i === fromIndex ? recompute(p, -1) : i === toIndex ? recompute(p, 1) : p,
+    ),
+    tasks: {
+      ...w.tasks,
+      [taskId]: w.tasks[taskId] ? { ...w.tasks[taskId]!, assigneeId: toUserId } : w.tasks[taskId]!,
+    },
   };
 };

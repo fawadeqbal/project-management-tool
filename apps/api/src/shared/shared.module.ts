@@ -49,6 +49,16 @@ import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway'
     { provide: APP_GUARD, useClass: FeatureGuard },
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
   ],
-  exports: [PlanService, PrismaService, CLOCK, PASSWORD_HASHER, TokenService, ActorResolver, AccessService, DomainEventPublisher, RealtimeGateway],
+  exports: [
+    PlanService,
+    PrismaService,
+    CLOCK,
+    PASSWORD_HASHER,
+    TokenService,
+    ActorResolver,
+    AccessService,
+    DomainEventPublisher,
+    RealtimeGateway,
+  ],
 })
 export class SharedModule {}

@@ -1,7 +1,15 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { CreateProjectInput } from '@hearth/contracts';
-import { NotFoundError, parseDateOnly, Project, PROJECT_REPOSITORY, type Actor, type Clock, type ProjectRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  parseDateOnly,
+  Project,
+  PROJECT_REPOSITORY,
+  type Actor,
+  type Clock,
+  type ProjectRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -28,7 +36,8 @@ export class CreateProjectHandler implements ICommandHandler<CreateProjectComman
 
   async execute({ actor, input }: CreateProjectCommand): Promise<{ id: string }> {
     this.access.assert(actor, 'projects.create');
-    if (input.teamId && !(await this.teams.exists(actor.workspaceId, input.teamId))) throw new NotFoundError('Team', input.teamId);
+    if (input.teamId && !(await this.teams.exists(actor.workspaceId, input.teamId)))
+      throw new NotFoundError('Team', input.teamId);
     const project = Project.create(
       {
         id: this.projects.nextId(),

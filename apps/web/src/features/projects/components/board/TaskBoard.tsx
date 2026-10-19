@@ -23,7 +23,17 @@ import { useToast } from '@/shared/toast';
 import type { Swimlanes } from '../../view-state';
 import { BoardColumn, ColumnHeader } from './BoardColumn';
 import { MoveToMenu } from './MoveToMenu';
-import { buildColumns, buildLanes, currentPlacement, keyboardPlacement, moveToStatus, placeAt, type BoardColumnModel, type KeyboardMove, type Placement } from './board-model';
+import {
+  buildColumns,
+  buildLanes,
+  currentPlacement,
+  keyboardPlacement,
+  moveToStatus,
+  placeAt,
+  type BoardColumnModel,
+  type KeyboardMove,
+  type Placement,
+} from './board-model';
 import styles from './board.module.css';
 
 export interface TaskBoardProps {
@@ -42,14 +52,25 @@ const parseColId = (id: string) => {
   return { lane, status };
 };
 
-const ARROWS: Record<string, KeyboardMove> = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
+const ARROWS: Record<string, KeyboardMove> = {
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+};
 
 /**
  * Kanban board: columns per status, cards by boardPosition. Drag with the pointer (lifted, tilted
  * card + dashed drop zone) or with the keyboard (M = Move to…, Alt+←/→ between columns,
  * Alt+↑/↓ within one). Moves are optimistic with an Undo toast; over-limit WIP warns, never blocks.
  */
-export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', createDefaults = {} }: TaskBoardProps) {
+export function TaskBoard({
+  tasks,
+  label,
+  wipLimits = {},
+  swimlanes = 'none',
+  createDefaults = {},
+}: TaskBoardProps) {
   const client = useQueryClient();
   const mutations = useTaskMutations();
   const panel = useTaskPanel();
@@ -77,13 +98,17 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
   );
   const byId = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
   const columnOf = useCallback(
-    (laneId: string, status: TaskStatusDto): BoardColumnModel | undefined => lanes.find((l) => l.id === laneId)?.columns.find((c) => c.status === status),
+    (laneId: string, status: TaskStatusDto): BoardColumnModel | undefined =>
+      lanes.find((l) => l.id === laneId)?.columns.find((c) => c.status === status),
     [lanes],
   );
-  const laneOfTask = (task: TaskDto) => (swimlanes === 'none' ? 'all' : swimlanes === 'priority' ? task.priority : (task.assigneeId ?? 'none'));
+  const laneOfTask = (task: TaskDto) =>
+    swimlanes === 'none' ? 'all' : swimlanes === 'priority' ? task.priority : (task.assigneeId ?? 'none');
 
   const focusCard = (id: string) =>
-    requestAnimationFrame(() => boardRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`)?.focus());
+    requestAnimationFrame(() =>
+      boardRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`)?.focus(),
+    );
 
   /** Apply a placement optimistically, with Undo for status changes and a WIP warning. */
   const commit = useCallback(
@@ -91,14 +116,27 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
       const from = currentPlacement(allColumns, task);
       const statusChanged = to.status !== task.status;
       patchTaskInCaches(client, task.id, (t) => ({ ...t, boardPosition: to.position }));
-      void mutations.move(task, { status: statusChanged ? to.status : undefined, beforeId: to.beforeId, afterId: to.afterId, ordering: 'board' }, false);
+      void mutations.move(
+        task,
+        {
+          status: statusChanged ? to.status : undefined,
+          beforeId: to.beforeId,
+          afterId: to.afterId,
+          ordering: 'board',
+        },
+        false,
+      );
       if (statusChanged && opts.undo !== false) {
         show({
           message: `Moved ${task.key} to ${STATUS_META[to.status].label}`,
           action: 'Undo',
           onAction: () => {
             patchTaskInCaches(client, task.id, (t) => ({ ...t, boardPosition: from.position }));
-            void mutations.move({ ...task, status: to.status }, { status: from.status, beforeId: from.beforeId, afterId: from.afterId, ordering: 'board' }, false);
+            void mutations.move(
+              { ...task, status: to.status },
+              { status: from.status, beforeId: from.beforeId, afterId: from.afterId, ordering: 'board' },
+              false,
+            );
           },
         });
         const target = allColumns.find((c) => c.status === to.status);
@@ -130,7 +168,8 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
   const openMoveMenu = useCallback(() => {
     const id = focusedRef.current;
     if (!id || !byId.has(id)) return false;
-    anchorRef.current = boardRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`) ?? null;
+    anchorRef.current =
+      boardRef.current?.querySelector<HTMLElement>(`[data-task-id="${CSS.escape(id)}"]`) ?? null;
     setMoveMenuFor(id);
     return true;
   }, [byId]);
@@ -153,7 +192,10 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
   useRegisterCommands(commands);
 
   // ── Pointer drag ──
-  const targetOf = (overId: string, overColumn?: string): { columnId: string; overTaskId: string | null } | null => {
+  const targetOf = (
+    overId: string,
+    overColumn?: string,
+  ): { columnId: string; overTaskId: string | null } | null => {
     if (overId.includes('::')) return { columnId: overId, overTaskId: null };
     const t = byId.get(overId);
     if (!t) return overColumn ? { columnId: overColumn, overTaskId: null } : null;
@@ -191,7 +233,12 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
       index = oldIndex >= 0 && oldIndex < overIndex ? overPos + 1 : overPos;
     } else if (target.overTaskId === task.id) return;
     const to = placeAt(list, index, status, task.id);
-    if (to.status === task.status && to.beforeId === currentPlacement(allColumns, task).beforeId && to.afterId === currentPlacement(allColumns, task).afterId) return;
+    if (
+      to.status === task.status &&
+      to.beforeId === currentPlacement(allColumns, task).beforeId &&
+      to.afterId === currentPlacement(allColumns, task).afterId
+    )
+      return;
     commit(task, to);
   };
 
@@ -215,7 +262,9 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
               ...createDefaults,
               title,
               status: column.status,
-              ...(swimlanes === 'assignee' && laneId !== 'all' ? { assigneeId: laneId === 'none' ? null : laneId } : {}),
+              ...(swimlanes === 'assignee' && laneId !== 'all'
+                ? { assigneeId: laneId === 'none' ? null : laneId }
+                : {}),
             })
           }
           onOpen={(t) => panel.open(t.key)}
@@ -227,7 +276,14 @@ export function TaskBoard({ tasks, label, wipLimits = {}, swimlanes = 'none', cr
     });
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragOver={onDragOver} onDragEnd={onDragEnd} onDragCancel={() => (setActiveId(null), setDrop(null))}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      onDragCancel={() => (setActiveId(null), setDrop(null))}
+    >
       <div ref={boardRef} className={styles.board} role="region" aria-label={label}>
         {swimlanes === 'none' ? (
           <div className={styles.columns}>{renderColumns('all', allColumns, true)}</div>

@@ -22,9 +22,17 @@ export function CommentsActivity({ task }: { task: TaskDetailDto }) {
       />
       {tab === 'comments' ? (
         <div id="task-comments" role="tabpanel" aria-label="Comments" className={styles.feed}>
-          {task.comments.length === 0 ? <p className={styles.muted}>No comments yet. Ask a question or share an update — @ mentions notify people.</p> : null}
+          {task.comments.length === 0 ? (
+            <p className={styles.muted}>
+              No comments yet. Ask a question or share an update — @ mentions notify people.
+            </p>
+          ) : null}
           {task.comments.map((c) => (
-            <article key={c.id} className={styles.comment} aria-busy={c.id.startsWith('optimistic-') || undefined}>
+            <article
+              key={c.id}
+              className={styles.comment}
+              aria-busy={c.id.startsWith('optimistic-') || undefined}
+            >
               <Avatar initials={c.author.initials} name={c.author.name} color={c.author.avatarColor} />
               <div className={styles.commentBody}>
                 <div className={styles.commentMeta}>

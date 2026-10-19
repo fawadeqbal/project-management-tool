@@ -13,7 +13,10 @@ import { TriageNotificationsCommand } from './triage-notifications.command';
  * (archive ↔ unarchive, read ↔ unread, snooze ↔ unsnooze; snoozed items also return on their own).
  */
 @CommandHandler(TriageNotificationsCommand)
-export class TriageNotificationsHandler implements ICommandHandler<TriageNotificationsCommand, InboxTriageResultDto> {
+export class TriageNotificationsHandler implements ICommandHandler<
+  TriageNotificationsCommand,
+  InboxTriageResultDto
+> {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CLOCK) private readonly clock: Clock,
@@ -42,26 +45,37 @@ export class TriageNotificationsHandler implements ICommandHandler<TriageNotific
         break;
       case 'snooze': {
         snoozedUntil = action.preset ? snoozeUntil(action.preset, now) : new Date(action.until!);
-        if (snoozedUntil.getTime() <= now.getTime()) throw new ValidationError('inbox.snooze_past', 'Pick a time in the future to snooze until.');
+        if (snoozedUntil.getTime() <= now.getTime())
+          throw new ValidationError('inbox.snooze_past', 'Pick a time in the future to snooze until.');
         data = { snoozedUntil };
         break;
       }
     }
-    const where: Prisma.NotificationWhereInput = { id: { in: ids }, workspaceId: actor.workspaceId, recipientId: actor.userId };
+    const where: Prisma.NotificationWhereInput = {
+      id: { in: ids },
+      workspaceId: actor.workspaceId,
+      recipientId: actor.userId,
+    };
     // "read" on an already-read item keeps its original read time.
     if (action.kind === 'read') where.readAt = null;
     const { count } = await this.prisma.notification.updateMany({ where, data });
     if (count === 0 && ids.length === 1 && action.kind !== 'read') {
-      const exists = await this.prisma.notification.count({ where: { id: ids[0], workspaceId: actor.workspaceId, recipientId: actor.userId } });
+      const exists = await this.prisma.notification.count({
+        where: { id: ids[0], workspaceId: actor.workspaceId, recipientId: actor.userId },
+      });
       if (!exists) throw new NotFoundError('Notification', ids[0]!);
     }
     // Lets the user's other tabs and devices refresh their counts.
     this.events.publish(
-      createEvent('notification.updated', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: ids[0]!, occurredAt: now }, {
-        recipientId: actor.userId,
-        ids,
-        action: action.kind,
-      }),
+      createEvent(
+        'notification.updated',
+        { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: ids[0]!, occurredAt: now },
+        {
+          recipientId: actor.userId,
+          ids,
+          action: action.kind,
+        },
+      ),
     );
     return { updated: count, ...(snoozedUntil ? { snoozedUntil: snoozedUntil.toISOString() } : {}) };
   }

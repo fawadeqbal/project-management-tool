@@ -37,10 +37,12 @@ export class DependencyGraph {
 
   /** Throws when adding blocker → blocked would create a cycle (or a self-dependency). */
   assertCanLink(blockerId: string, blockedId: string): void {
-    if (blockerId === blockedId)
-      throw new ConflictError('dependency.self', 'A task can’t block itself.');
+    if (blockerId === blockedId) throw new ConflictError('dependency.self', 'A task can’t block itself.');
     if (this.reaches(blockedId, blockerId))
-      throw new ConflictError('dependency.cycle', 'That would create a loop — these tasks would block each other forever. Remove one of the links first.');
+      throw new ConflictError(
+        'dependency.cycle',
+        'That would create a loop — these tasks would block each other forever. Remove one of the links first.',
+      );
   }
 
   /** Tasks directly blocked by `id`. */

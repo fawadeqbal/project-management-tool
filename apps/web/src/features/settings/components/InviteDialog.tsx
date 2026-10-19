@@ -12,7 +12,14 @@ import { membersApi, membersKeys } from '../api';
 import styles from '../settings.module.css';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-export const splitEmails = (raw: string): string[] => [...new Set(raw.split(/[\s,;]+/).map((e) => e.trim().toLowerCase()).filter(Boolean))];
+export const splitEmails = (raw: string): string[] => [
+  ...new Set(
+    raw
+      .split(/[\s,;]+/)
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean),
+  ),
+];
 
 /** Projects for the guest picker: the projects list when available, otherwise sidebar favorites. */
 function useProjectOptions(enabled: boolean) {
@@ -61,13 +68,22 @@ export function InviteDialog({ open, onClose, assignable }: InviteDialogProps) {
     }
   }, [open]);
 
-  const send = useMutation<{ sent: string[]; failed: { email: string; error: ApiError }[] }, ApiError, string[]>({
+  const send = useMutation<
+    { sent: string[]; failed: { email: string; error: ApiError }[] },
+    ApiError,
+    string[]
+  >({
     mutationFn: async (list) => {
       const sent: string[] = [];
       const failed: { email: string; error: ApiError }[] = [];
       for (const email of list) {
         try {
-          await membersApi.invite({ email, role, teamId: role === 'GUEST' ? null : teamId || null, projectId: role === 'GUEST' ? projectId : null });
+          await membersApi.invite({
+            email,
+            role,
+            teamId: role === 'GUEST' ? null : teamId || null,
+            projectId: role === 'GUEST' ? projectId : null,
+          });
           sent.push(email);
         } catch (e) {
           const err = ApiError.from(e);
@@ -80,7 +96,11 @@ export function InviteDialog({ open, onClose, assignable }: InviteDialogProps) {
     onSuccess: ({ sent, failed }) => {
       void client.invalidateQueries({ queryKey: membersKeys.all });
       void client.invalidateQueries({ queryKey: queryKeys.shell });
-      if (sent.length) show({ message: sent.length === 1 ? `Invite sent to ${sent[0]}` : `${sent.length} invites sent`, icon: 'send' });
+      if (sent.length)
+        show({
+          message: sent.length === 1 ? `Invite sent to ${sent[0]}` : `${sent.length} invites sent`,
+          icon: 'send',
+        });
       const limit = failed.find((f) => f.error.kind === 'limit_reached');
       if (limit) {
         upgrade.handleError(limit.error);
@@ -89,7 +109,10 @@ export function InviteDialog({ open, onClose, assignable }: InviteDialogProps) {
       }
       if (failed.length) {
         setEmails(failed.map((f) => f.email).join('\n'));
-        setError({ field: failed[0]!.error.field('projectId') ? 'projectId' : 'emails', message: failed[0]!.error.message });
+        setError({
+          field: failed[0]!.error.field('projectId') ? 'projectId' : 'emails',
+          message: failed[0]!.error.message,
+        });
         return;
       }
       onClose();
@@ -100,9 +123,15 @@ export function InviteDialog({ open, onClose, assignable }: InviteDialogProps) {
     e.preventDefault();
     const list = splitEmails(emails);
     const bad = list.find((x) => !EMAIL.test(x));
-    if (!list.length) return setError({ field: 'emails', message: 'Add at least one email, like lena@acme.com.' });
-    if (bad) return setError({ field: 'emails', message: `“${bad}” is missing something — try lena@acme.com.` });
-    if (role === 'GUEST' && !projectId) return setError({ field: 'projectId', message: 'Pick the project this guest can see — guests only get one project.' });
+    if (!list.length)
+      return setError({ field: 'emails', message: 'Add at least one email, like lena@acme.com.' });
+    if (bad)
+      return setError({ field: 'emails', message: `“${bad}” is missing something — try lena@acme.com.` });
+    if (role === 'GUEST' && !projectId)
+      return setError({
+        field: 'projectId',
+        message: 'Pick the project this guest can see — guests only get one project.',
+      });
     setError(null);
     send.mutate(list);
   };
@@ -141,8 +170,18 @@ export function InviteDialog({ open, onClose, assignable }: InviteDialogProps) {
           <fieldset className={styles.roleChoices}>
             <legend className={styles.legend}>Role</legend>
             {(['ADMIN', 'MEMBER', 'VIEWER', 'GUEST'] as const).map((r) => (
-              <label key={r} className={`${styles.roleChoice} ${role === r ? styles.roleChoiceOn : ''} ${!assignable.includes(r) ? styles.roleChoiceOff : ''}`}>
-                <input type="radio" name="role" value={r} checked={role === r} disabled={!assignable.includes(r)} onChange={() => setRole(r)} />
+              <label
+                key={r}
+                className={`${styles.roleChoice} ${role === r ? styles.roleChoiceOn : ''} ${!assignable.includes(r) ? styles.roleChoiceOff : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={r}
+                  checked={role === r}
+                  disabled={!assignable.includes(r)}
+                  onChange={() => setRole(r)}
+                />
                 <span>
                   <strong>{ROLE_META[r].label}</strong>
                   <span>{ROLE_META[r].description}</span>

@@ -9,7 +9,10 @@ import { OnboardingReadModel } from '../../infrastructure/onboarding.read-model'
 import { CompleteOnboardingStepCommand } from './complete-onboarding-step.command';
 
 @CommandHandler(CompleteOnboardingStepCommand)
-export class CompleteOnboardingStepHandler implements ICommandHandler<CompleteOnboardingStepCommand, OnboardingDto> {
+export class CompleteOnboardingStepHandler implements ICommandHandler<
+  CompleteOnboardingStepCommand,
+  OnboardingDto
+> {
   constructor(
     private readonly store: OnboardingProgressStore,
     private readonly read: OnboardingReadModel,
@@ -20,7 +23,16 @@ export class CompleteOnboardingStepHandler implements ICommandHandler<CompleteOn
   async execute({ actor, step }: CompleteOnboardingStepCommand): Promise<OnboardingDto> {
     if (await this.store.complete(actor.workspaceId, actor.userId, step))
       this.events.publish(
-        createEvent('onboarding.step_completed', { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: actor.userId, occurredAt: this.clock.now() }, { step }),
+        createEvent(
+          'onboarding.step_completed',
+          {
+            workspaceId: actor.workspaceId,
+            actorId: actor.userId,
+            aggregateId: actor.userId,
+            occurredAt: this.clock.now(),
+          },
+          { step },
+        ),
       );
     return this.read.get(actor);
   }

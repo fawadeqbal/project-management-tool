@@ -3,7 +3,14 @@ import { Avatar, Icon, Priority, StatusPill, Tag, toUiPriority, toUiStatus } fro
 import type { TaskDetailDto, UpdateTaskInput } from '@hearth/contracts';
 import { STATUS_META, humanizeDate, parseDateOnly } from '@hearth/domain';
 import { dueInfo, today } from '@/shared/tasks/dates';
-import { AssigneePicker, DatePicker, PriorityPicker, StatusPicker, TagPicker, type PopoverTriggerProps } from '@/shared/tasks/pickers';
+import {
+  AssigneePicker,
+  DatePicker,
+  PriorityPicker,
+  StatusPicker,
+  TagPicker,
+  type PopoverTriggerProps,
+} from '@/shared/tasks/pickers';
 import { BlockedByEditor } from './BlockedByEditor';
 import { EstimateEditor } from './EstimateEditor';
 import styles from '../task-detail.module.css';
@@ -18,7 +25,17 @@ interface Props {
   readOnly?: boolean;
 }
 
-function Trigger({ props, label, children, disabled }: { props: PopoverTriggerProps; label: string; children: ReactNode; disabled?: boolean }) {
+function Trigger({
+  props,
+  label,
+  children,
+  disabled,
+}: {
+  props: PopoverTriggerProps;
+  label: string;
+  children: ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <button type="button" {...props} className={styles.propTrigger} aria-label={label} disabled={disabled}>
       {children}
@@ -44,9 +61,15 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
           open={picker === 'status'}
           onOpenChange={openChange('status')}
           value={task.status}
-          onChange={(status) => onUpdate({ status }, status === 'DONE' ? `${task.key} marked as done` : undefined)}
+          onChange={(status) =>
+            onUpdate({ status }, status === 'DONE' ? `${task.key} marked as done` : undefined)
+          }
           renderTrigger={(p) => (
-            <Trigger props={p} label={`Status: ${STATUS_META[task.status].label}. Change status`} disabled={readOnly}>
+            <Trigger
+              props={p}
+              label={`Status: ${STATUS_META[task.status].label}. Change status`}
+              disabled={readOnly}
+            >
               <StatusPill status={toUiStatus(task.status)} />
             </Trigger>
           )}
@@ -61,10 +84,22 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
           value={task.assigneeId}
           onChange={(assigneeId) => onUpdate({ assigneeId }, `${task.key} reassigned`)}
           renderTrigger={(p) => (
-            <Trigger props={p} label={task.assignee ? `Assignee: ${task.assignee.name}. Change assignee` : 'Unassigned. Assign someone'} disabled={readOnly}>
+            <Trigger
+              props={p}
+              label={
+                task.assignee
+                  ? `Assignee: ${task.assignee.name}. Change assignee`
+                  : 'Unassigned. Assign someone'
+              }
+              disabled={readOnly}
+            >
               {task.assignee ? (
                 <>
-                  <Avatar initials={task.assignee.initials} name={task.assignee.name} color={task.assignee.avatarColor} />
+                  <Avatar
+                    initials={task.assignee.initials}
+                    name={task.assignee.name}
+                    color={task.assignee.avatarColor}
+                  />
                   {task.assignee.name}
                 </>
               ) : (
@@ -76,7 +111,10 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
       </dd>
 
       <dt>Dates</dt>
-      <dd className={styles.dates} data-tone={due && (due.overdue || due.dueToday) && !done ? 'danger' : undefined}>
+      <dd
+        className={styles.dates}
+        data-tone={due && (due.overdue || due.dueToday) && !done ? 'danger' : undefined}
+      >
         <Icon name="calendar" className={styles.dateIcon} />
         <DatePicker
           open={picker === 'start'}
@@ -85,7 +123,13 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
           label="Start date"
           onChange={(startDate) => onUpdate({ startDate })}
           renderTrigger={(p) => (
-            <button type="button" {...p} className={styles.dateButton} disabled={readOnly} aria-label={task.startDate ? `Start date: ${startLabel}. Change` : 'Set start date'}>
+            <button
+              type="button"
+              {...p}
+              className={styles.dateButton}
+              disabled={readOnly}
+              aria-label={task.startDate ? `Start date: ${startLabel}. Change` : 'Set start date'}
+            >
               {task.startDate ? startLabel : <span className={styles.muted}>Start</span>}
             </button>
           )}
@@ -98,7 +142,13 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
           label="Due date"
           onChange={(dueDate) => onUpdate({ dueDate }, dueDate ? undefined : `${task.key} due date cleared`)}
           renderTrigger={(p) => (
-            <button type="button" {...p} className={styles.dateButton} disabled={readOnly} aria-label={due ? `Due ${due.label}. Change due date` : 'Set due date'}>
+            <button
+              type="button"
+              {...p}
+              className={styles.dateButton}
+              disabled={readOnly}
+              aria-label={due ? `Due ${due.label}. Change due date` : 'Set due date'}
+            >
               {due ? due.label : <span className={styles.muted}>Due date</span>}
             </button>
           )}
@@ -136,7 +186,12 @@ export function PropertyGrid({ task, onUpdate, onAddBlocker, onRemoveBlocker, re
           onChange={(tagIds) => onUpdate({ tagIds })}
           renderTrigger={(p) =>
             readOnly ? null : (
-              <button type="button" {...p} className={styles.iconButton} aria-label={task.tags.length ? 'Edit tags' : 'Add tags'}>
+              <button
+                type="button"
+                {...p}
+                className={styles.iconButton}
+                aria-label={task.tags.length ? 'Edit tags' : 'Add tags'}
+              >
                 <Icon name="plus" />
                 {task.tags.length ? null : <span className={styles.muted}>Add tags</span>}
               </button>

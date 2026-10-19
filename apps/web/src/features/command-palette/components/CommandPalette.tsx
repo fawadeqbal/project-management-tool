@@ -84,7 +84,11 @@ export function CommandPalette() {
       return [
         { id: 'open', label: 'Open task', run: () => panel.open(t.key) },
         { id: 'page', label: 'Open full page', run: () => void navigate(`/tasks/${t.key}`) },
-        { id: 'complete', label: t.status === 'DONE' ? 'Reopen' : 'Mark as done', run: () => void mutations.toggleDone(t) },
+        {
+          id: 'complete',
+          label: t.status === 'DONE' ? 'Reopen' : 'Mark as done',
+          run: () => void mutations.toggleDone(t),
+        },
         {
           id: 'copy',
           label: 'Copy link',
@@ -98,7 +102,13 @@ export function CommandPalette() {
     }
     if (item.kind === 'person' && item.person) {
       const p = item.person;
-      return [{ id: 'tasks', label: `See ${p.name.split(' ')[0]}’s tasks`, run: () => void navigate(`/my-tasks?assignee=${p.id}`) }];
+      return [
+        {
+          id: 'tasks',
+          label: `See ${p.name.split(' ')[0]}’s tasks`,
+          run: () => void navigate(`/my-tasks?assignee=${p.id}`),
+        },
+      ];
     }
     return [];
   };
@@ -167,10 +177,24 @@ export function CommandPalette() {
 
   return (
     <Portal>
-      <div className={styles.overlay} data-ht-layer="" onMouseDown={(e) => e.target === e.currentTarget && dismiss()}>
-        <div role="dialog" aria-modal="true" aria-label="Command palette" className={styles.dialog} onKeyDown={onKeyDown}>
+      <div
+        className={styles.overlay}
+        data-ht-layer=""
+        onMouseDown={(e) => e.target === e.currentTarget && dismiss()}
+      >
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Command palette"
+          className={styles.dialog}
+          onKeyDown={onKeyDown}
+        >
           <div className={styles.inputRow}>
-            <Icon name={palette.mode === 'ai' ? 'sparkles' : 'search'} size={20} className={styles.searchIcon} />
+            <Icon
+              name={palette.mode === 'ai' ? 'sparkles' : 'search'}
+              size={20}
+              className={styles.searchIcon}
+            />
             <input
               ref={inputRef}
               className={styles.input}
@@ -179,7 +203,11 @@ export function CommandPalette() {
                 setQuery(e.target.value);
                 setActionsFor(null);
               }}
-              placeholder={palette.mode === 'ai' ? 'Ask Hearth, e.g. “overdue design tasks” or “urgent tasks for Sara”' : 'Search or run a command…'}
+              placeholder={
+                palette.mode === 'ai'
+                  ? 'Ask Hearth, e.g. “overdue design tasks” or “urgent tasks for Sara”'
+                  : 'Search or run a command…'
+              }
               aria-label="Search or run a command"
               role="combobox"
               aria-expanded="true"
@@ -192,9 +220,18 @@ export function CommandPalette() {
             <DropdownMenu
               label="Search scope"
               align="end"
-              items={SCOPES.map((s) => ({ id: s.id, label: s.label, icon: s.id === scope ? ('check' as const) : undefined, onSelect: () => setScope(s.id) }))}
+              items={SCOPES.map((s) => ({
+                id: s.id,
+                label: s.label,
+                icon: s.id === scope ? ('check' as const) : undefined,
+                onSelect: () => setScope(s.id),
+              }))}
               trigger={
-                <button type="button" className={styles.scope} aria-label={`Scope: ${SCOPES.find((s) => s.id === scope)?.label}. Change scope`}>
+                <button
+                  type="button"
+                  className={styles.scope}
+                  aria-label={`Scope: ${SCOPES.find((s) => s.id === scope)?.label}. Change scope`}
+                >
                   {SCOPES.find((s) => s.id === scope)?.label}
                   <Icon name="chevron-down" />
                 </button>
@@ -203,7 +240,11 @@ export function CommandPalette() {
           </div>
 
           {actionsFor ? (
-            <div role="listbox" aria-label={`Actions for ${actionsFor.prefix ?? ''} ${actionsFor.label}`} className={styles.list}>
+            <div
+              role="listbox"
+              aria-label={`Actions for ${actionsFor.prefix ?? ''} ${actionsFor.label}`}
+              className={styles.list}
+            >
               <MenuHeading>
                 {actionsFor.prefix ? `${actionsFor.prefix} · ` : ''}
                 {actionsFor.label}
@@ -224,7 +265,9 @@ export function CommandPalette() {
           ) : (
             <div id={listId} role="listbox" aria-label="Results" className={styles.list}>
               {groups.length === 0 ? (
-                <p className={styles.empty}>Nothing matches “{query.trim()}”. Try fewer words, or press Esc.</p>
+                <p className={styles.empty}>
+                  Nothing matches “{query.trim()}”. Try fewer words, or press Esc.
+                </p>
               ) : (
                 groups.map((g) => (
                   <div key={g.id} role="group" aria-label={g.label}>

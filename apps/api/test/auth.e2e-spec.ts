@@ -19,20 +19,33 @@ describe('Identity & workspace (e2e)', () => {
   it('registers a person with their own workspace', async () => {
     const res = await request(app.getHttpServer())
       .post(api('/auth/register'))
-      .send({ name: 'Lena Park', email: 'lena@example.com', password: 'longenough', workspaceName: 'Northwind Labs' })
+      .send({
+        name: 'Lena Park',
+        email: 'lena@example.com',
+        password: 'longenough',
+        workspaceName: 'Northwind Labs',
+      })
       .expect(201);
     expect(res.body.me.workspace).toMatchObject({ name: 'Northwind Labs', keyPrefix: 'NL', role: 'OWNER' });
     expect(res.body.me.permissions).toContain('billing.manage');
   });
 
   it('returns a validation envelope with field errors', async () => {
-    const res = await request(app.getHttpServer()).post(api('/auth/register')).send({ name: '', email: 'nope', password: 'x' }).expect(400);
+    const res = await request(app.getHttpServer())
+      .post(api('/auth/register'))
+      .send({ name: '', email: 'nope', password: 'x' })
+      .expect(400);
     expect(res.body.error.kind).toBe('validation');
-    expect(Object.keys(res.body.error.fieldErrors)).toEqual(expect.arrayContaining(['name', 'email', 'password']));
+    expect(Object.keys(res.body.error.fieldErrors)).toEqual(
+      expect.arrayContaining(['name', 'email', 'password']),
+    );
   });
 
   it('does not reveal whether an email exists', async () => {
-    const res = await request(app.getHttpServer()).post(api('/auth/login')).send({ email: 'fawad@acme.com', password: 'wrong' }).expect(401);
+    const res = await request(app.getHttpServer())
+      .post(api('/auth/login'))
+      .send({ email: 'fawad@acme.com', password: 'wrong' })
+      .expect(401);
     expect(res.body.error.message).toMatch(/don’t match/);
   });
 
@@ -42,7 +55,9 @@ describe('Identity & workspace (e2e)', () => {
     expect(me.body.workspace).toMatchObject({ name: 'Acme Studio', keyPrefix: 'HRT', role: 'OWNER' });
 
     const members = await fawad.get('/members').expect(200);
-    expect(members.body.map((m: { name: string }) => m.name)).toEqual(expect.arrayContaining(['Sara Ahmed', 'Mo Khan']));
+    expect(members.body.map((m: { name: string }) => m.name)).toEqual(
+      expect.arrayContaining(['Sara Ahmed', 'Mo Khan']),
+    );
 
     const shell = await fawad.get('/shell').expect(200);
     expect(shell.body.favorites.map((p: { name: string }) => p.name)).toContain('Website relaunch');
@@ -50,6 +65,9 @@ describe('Identity & workspace (e2e)', () => {
   });
 
   it('keeps deactivated members out', async () => {
-    await request(app.getHttpServer()).post(api('/auth/login')).send({ email: 'priya@acme.com', password: 'hearth123' }).expect(401);
+    await request(app.getHttpServer())
+      .post(api('/auth/login'))
+      .send({ email: 'priya@acme.com', password: 'hearth123' })
+      .expect(401);
   });
 });

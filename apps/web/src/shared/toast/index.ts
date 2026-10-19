@@ -1,6 +1,13 @@
 import { useToastStore } from './toast-store';
 
-export { toast, useToastStore, DEFAULT_TOAST_MS, type ToastOptions, type ToastItem, type ToastTone } from './toast-store';
+export {
+  toast,
+  useToastStore,
+  DEFAULT_TOAST_MS,
+  type ToastOptions,
+  type ToastItem,
+  type ToastTone,
+} from './toast-store';
 export { ToastRegion } from './ToastRegion';
 
 /**

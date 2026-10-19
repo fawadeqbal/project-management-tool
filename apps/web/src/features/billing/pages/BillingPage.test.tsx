@@ -31,17 +31,79 @@ const plan = (over: Partial<PlanCardDto> & Pick<PlanCardDto, 'id' | 'name'>): Pl
 });
 
 const billing: BillingDto = {
-  current: { plan: 'PRO', planName: 'Pro', interval: 'MONTHLY', status: 'ACTIVE', seats: 10, renewsAt: '2026-11-01T00:00:00Z', renewsLabel: 'Nov 1', pausedUntil: null },
+  current: {
+    plan: 'PRO',
+    planName: 'Pro',
+    interval: 'MONTHLY',
+    status: 'ACTIVE',
+    seats: 10,
+    renewsAt: '2026-11-01T00:00:00Z',
+    renewsLabel: 'Nov 1',
+    pausedUntil: null,
+  },
   usage: [
-    { meter: 'seats', label: 'Seats', icon: 'users', used: 9, limit: 10, usedLabel: '9', limitLabel: '10', pct: 90, note: '1 seat left · next seat is prorated', warning: false },
-    { meter: 'automation_runs', label: 'Automation runs', icon: 'settings', used: 940, limit: 1000, usedLabel: '940', limitLabel: '1,000', pct: 94, note: 'Resets Nov 1 · on pace to hit the limit Oct 22', warning: true },
+    {
+      meter: 'seats',
+      label: 'Seats',
+      icon: 'users',
+      used: 9,
+      limit: 10,
+      usedLabel: '9',
+      limitLabel: '10',
+      pct: 90,
+      note: '1 seat left · next seat is prorated',
+      warning: false,
+    },
+    {
+      meter: 'automation_runs',
+      label: 'Automation runs',
+      icon: 'settings',
+      used: 940,
+      limit: 1000,
+      usedLabel: '940',
+      limitLabel: '1,000',
+      pct: 94,
+      note: 'Resets Nov 1 · on pace to hit the limit Oct 22',
+      warning: true,
+    },
   ],
-  alert: { meter: 'automation_runs', title: 'You’ve used 940 of 1,000 automation runs this month', body: 'Automation runs pause until Nov 1 — nothing is deleted.' },
+  alert: {
+    meter: 'automation_runs',
+    title: 'You’ve used 940 of 1,000 automation runs this month',
+    body: 'Automation runs pause until Nov 1 — nothing is deleted.',
+  },
   plans: [
-    plan({ id: 'FREE', name: 'Free', priceLabel: { MONTHLY: '$0', ANNUAL: '$0' }, action: 'downgrade', lostFeatures: [{ id: 'timeline', name: 'Timeline' }, { id: 'workload', name: 'Workload' }, { id: 'guests', name: 'Guests' }] }),
-    plan({ id: 'PRO', name: 'Pro', isCurrent: true, action: 'current', annualSavings: { perYearCents: 21_600, pct: 20, label: 'Save $216 a year' } }),
-    plan({ id: 'BUSINESS', name: 'Business', priceLabel: { MONTHLY: '$20', ANNUAL: '$16' }, isRecommended: true, annualSavings: { perYearCents: 43_200, pct: 20, label: 'Save $432 a year' } }),
-    plan({ id: 'ENTERPRISE', name: 'Enterprise', priceLabel: { MONTHLY: 'Custom', ANNUAL: 'Custom' }, action: 'contact' }),
+    plan({
+      id: 'FREE',
+      name: 'Free',
+      priceLabel: { MONTHLY: '$0', ANNUAL: '$0' },
+      action: 'downgrade',
+      lostFeatures: [
+        { id: 'timeline', name: 'Timeline' },
+        { id: 'workload', name: 'Workload' },
+        { id: 'guests', name: 'Guests' },
+      ],
+    }),
+    plan({
+      id: 'PRO',
+      name: 'Pro',
+      isCurrent: true,
+      action: 'current',
+      annualSavings: { perYearCents: 21_600, pct: 20, label: 'Save $216 a year' },
+    }),
+    plan({
+      id: 'BUSINESS',
+      name: 'Business',
+      priceLabel: { MONTHLY: '$20', ANNUAL: '$16' },
+      isRecommended: true,
+      annualSavings: { perYearCents: 43_200, pct: 20, label: 'Save $432 a year' },
+    }),
+    plan({
+      id: 'ENTERPRISE',
+      name: 'Enterprise',
+      priceLabel: { MONTHLY: 'Custom', ANNUAL: 'Custom' },
+      action: 'contact',
+    }),
   ],
   recommendedPlan: 'BUSINESS',
   canManage: true,
@@ -49,7 +111,11 @@ const billing: BillingDto = {
 
 describe('BillingPage', () => {
   beforeEach(() => {
-    signIn({ ...testMe, workspace: { ...testMe.workspace, role: 'OWNER' }, permissions: [...ROLE_PERMISSIONS.OWNER] });
+    signIn({
+      ...testMe,
+      workspace: { ...testMe.workspace, role: 'OWNER' },
+      permissions: [...ROLE_PERMISSIONS.OWNER],
+    });
     mocked.get.mockResolvedValue(billing as never);
   });
   afterEach(() => vi.clearAllMocks());
@@ -61,8 +127,14 @@ describe('BillingPage', () => {
     const business = screen.getByRole('article', { name: 'Business' });
     expect(business).toHaveAttribute('data-recommended', 'true');
     expect(within(business).getByText('Recommended for you')).toBeInTheDocument();
-    expect(within(screen.getByRole('article', { name: 'Pro' })).getByRole('button', { name: 'Current plan' })).toBeDisabled();
-    expect(within(screen.getByRole('article', { name: 'Enterprise' })).getByRole('link', { name: 'Talk to sales' })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('article', { name: 'Pro' })).getByRole('button', { name: 'Current plan' }),
+    ).toBeDisabled();
+    expect(
+      within(screen.getByRole('article', { name: 'Enterprise' })).getByRole('link', {
+        name: 'Talk to sales',
+      }),
+    ).toBeInTheDocument();
     unmount();
   });
 
@@ -82,19 +154,33 @@ describe('BillingPage', () => {
   it('lists the features you would lose before downgrading, then confirms', async () => {
     mocked.post.mockResolvedValue({ billing, lostFeatures: ['timeline', 'workload', 'guests'] } as never);
     const { unmount } = renderApp(<BillingPage />, { route: '/settings/billing' });
-    fireEvent.click(within(await screen.findByRole('article', { name: 'Free' })).getByRole('button', { name: 'Downgrade' }));
+    fireEvent.click(
+      within(await screen.findByRole('article', { name: 'Free' })).getByRole('button', { name: 'Downgrade' }),
+    );
     const dialog = await screen.findByRole('alertdialog', { name: 'Move from Pro to Free?' });
     const lost = within(dialog).getByRole('list', { name: 'Features you’d lose' });
-    expect(within(lost).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Timeline', 'Workload', 'Guests']);
+    expect(
+      within(lost)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['Timeline', 'Workload', 'Guests']);
     expect(mocked.post).not.toHaveBeenCalled();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Downgrade to Free' }));
-    await waitFor(() => expect(mocked.post).toHaveBeenCalledWith('/billing/plan', { plan: 'FREE', interval: 'MONTHLY', confirm: true }));
+    await waitFor(() =>
+      expect(mocked.post).toHaveBeenCalledWith('/billing/plan', {
+        plan: 'FREE',
+        interval: 'MONTHLY',
+        confirm: true,
+      }),
+    );
     unmount();
   });
 
   it('keeps pause, export and cancel reachable', async () => {
     const { unmount } = renderApp(<BillingPage />, { route: '/settings/billing' });
-    expect(await screen.findByRole('button', { name: 'Pause billing for up to 3 months' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Pause billing for up to 3 months' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Export all data' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Cancel plan' }));
     const dialog = await screen.findByRole('alertdialog', { name: 'Cancel Pro?' });

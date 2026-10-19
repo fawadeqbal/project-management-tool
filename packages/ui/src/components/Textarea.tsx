@@ -19,7 +19,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
   );
   const control = (
     <div
-      className={cx('ht-input', 'ht-input-multiline', error ? 'ht-input-error' : null, disabled && 'ht-input-disabled', className)}
+      className={cx(
+        'ht-input',
+        'ht-input-multiline',
+        error ? 'ht-input-error' : null,
+        disabled && 'ht-input-disabled',
+        className,
+      )}
       style={style}
     >
       <textarea
@@ -35,7 +41,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
   );
   if (!hasLabel && !error && !hint) return control;
   return (
-    <Field ids={ids} label={label} hideLabel={hideLabel} hint={hint} error={error} className={wrapperClassName}>
+    <Field
+      ids={ids}
+      label={label}
+      hideLabel={hideLabel}
+      hint={hint}
+      error={error}
+      className={wrapperClassName}
+    >
       {control}
     </Field>
   );

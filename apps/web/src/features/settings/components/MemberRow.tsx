@@ -15,11 +15,23 @@ export interface MemberRowProps {
 }
 
 /** One person: avatar, name/email, team tags, role picker, last active, row menu. */
-export function MemberRow({ member: m, canManage, assignable, onRoleChange, onDeactivate, onReactivate, onRemove }: MemberRowProps) {
+export function MemberRow({
+  member: m,
+  canManage,
+  assignable,
+  onRoleChange,
+  onDeactivate,
+  onReactivate,
+  onRemove,
+}: MemberRowProps) {
   const deactivated = m.status === 'DEACTIVATED';
   const outranked = !assignable.includes(m.role);
   const locked = !canManage || m.isYou || outranked || deactivated;
-  const lockReason = m.isYou ? 'You can’t change your own role' : outranked ? `Only an ${ROLE_META[m.role].label.toLowerCase()} can change this` : undefined;
+  const lockReason = m.isYou
+    ? 'You can’t change your own role'
+    : outranked
+      ? `Only an ${ROLE_META[m.role].label.toLowerCase()} can change this`
+      : undefined;
   return (
     <div role="row" className={`${styles.row} ${deactivated ? styles.rowMuted : ''}`} aria-label={m.name}>
       <span role="cell" className={styles.person}>
@@ -54,7 +66,14 @@ export function MemberRow({ member: m, canManage, assignable, onRoleChange, onDe
             Deactivated
           </Badge>
         ) : (
-          <RoleMenu name={m.name} role={m.role} assignable={assignable} disabled={locked} disabledReason={lockReason} onChange={(r) => onRoleChange(m, r)} />
+          <RoleMenu
+            name={m.name}
+            role={m.role}
+            assignable={assignable}
+            disabled={locked}
+            disabledReason={lockReason}
+            onChange={(r) => onRoleChange(m, r)}
+          />
         )}
       </span>
       <span role="cell" className={styles.lastActive}>
@@ -65,12 +84,32 @@ export function MemberRow({ member: m, canManage, assignable, onRoleChange, onDe
           <DropdownMenu
             label={`Actions for ${m.name}`}
             align="end"
-            trigger={<Button variant="ghost" size="sm" icon="more" aria-label={`More actions for ${m.name}`} />}
+            trigger={
+              <Button variant="ghost" size="sm" icon="more" aria-label={`More actions for ${m.name}`} />
+            }
             items={[
               deactivated
-                ? { id: 'reactivate', label: 'Reactivate', icon: 'undo' as const, hint: 'Gives access back', onSelect: () => onReactivate(m) }
-                : { id: 'deactivate', label: 'Deactivate', icon: 'lock' as const, hint: 'Reversible · keeps their work', onSelect: () => onDeactivate(m) },
-              { id: 'remove', label: 'Remove from workspace', icon: 'trash' as const, danger: true, onSelect: () => onRemove(m) },
+                ? {
+                    id: 'reactivate',
+                    label: 'Reactivate',
+                    icon: 'undo' as const,
+                    hint: 'Gives access back',
+                    onSelect: () => onReactivate(m),
+                  }
+                : {
+                    id: 'deactivate',
+                    label: 'Deactivate',
+                    icon: 'lock' as const,
+                    hint: 'Reversible · keeps their work',
+                    onSelect: () => onDeactivate(m),
+                  },
+              {
+                id: 'remove',
+                label: 'Remove from workspace',
+                icon: 'trash' as const,
+                danger: true,
+                onSelect: () => onRemove(m),
+              },
             ]}
           />
         ) : null}

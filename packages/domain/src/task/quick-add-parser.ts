@@ -14,10 +14,23 @@ export interface ParsedQuickAdd {
 }
 
 const PRIORITY_WORDS: Record<string, Priority> = {
-  urgent: 'URGENT', u: 'URGENT', '1': 'URGENT', p1: 'URGENT',
-  high: 'HIGH', h: 'HIGH', '2': 'HIGH', p2: 'HIGH',
-  medium: 'MEDIUM', med: 'MEDIUM', m: 'MEDIUM', '3': 'MEDIUM', p3: 'MEDIUM',
-  low: 'LOW', l: 'LOW', '4': 'LOW', p4: 'LOW',
+  urgent: 'URGENT',
+  u: 'URGENT',
+  '1': 'URGENT',
+  p1: 'URGENT',
+  high: 'HIGH',
+  h: 'HIGH',
+  '2': 'HIGH',
+  p2: 'HIGH',
+  medium: 'MEDIUM',
+  med: 'MEDIUM',
+  m: 'MEDIUM',
+  '3': 'MEDIUM',
+  p3: 'MEDIUM',
+  low: 'LOW',
+  l: 'LOW',
+  '4': 'LOW',
+  p4: 'LOW',
 };
 
 /** Index = JS weekday (0 = Sunday). */
@@ -43,7 +56,7 @@ export const parseDateWord = (word: string, today: Date): Date | null => {
     const delta = (wd - t.getUTCDay() + 7) % 7 || 7;
     return addDays(t, delta);
   }
-  if (w === 'nextweek') return addDays(t, ((1 - t.getUTCDay() + 7) % 7) || 7);
+  if (w === 'nextweek') return addDays(t, (1 - t.getUTCDay() + 7) % 7 || 7);
   return null;
 };
 
@@ -54,7 +67,14 @@ export const parseDateWord = (word: string, today: Date): Date | null => {
  * Unknown tokens stay in the title, so typing is never "wrong".
  */
 export const parseQuickAdd = (input: string, today: Date): ParsedQuickAdd => {
-  const result: ParsedQuickAdd = { title: '', assigneeHandle: null, projectHandle: null, priority: null, dueDate: null, tokens: [] };
+  const result: ParsedQuickAdd = {
+    title: '',
+    assigneeHandle: null,
+    projectHandle: null,
+    priority: null,
+    dueDate: null,
+    tokens: [],
+  };
   const words = input.trim().split(/\s+/).filter(Boolean);
   const kept: string[] = [];
 

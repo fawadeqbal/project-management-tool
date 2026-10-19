@@ -56,7 +56,11 @@ export {
   type DropdownMenuSection,
 } from './components/DropdownMenu';
 export { Tooltip, type TooltipProps } from './components/Tooltip';
-export { SegmentedControl, type SegmentedControlProps, type SegmentedOption } from './components/SegmentedControl';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type SegmentedOption,
+} from './components/SegmentedControl';
 export { Switch, type SwitchProps } from './components/Switch';
 export { Select, type SelectOption, type SelectProps } from './components/Select';
 export { Skeleton, Spinner, type SkeletonProps, type SpinnerProps } from './components/Skeleton';
@@ -64,4 +68,9 @@ export { EmptyState, type EmptyStateProps } from './components/EmptyState';
 export { Badge, type BadgeProps, type BadgeTone } from './components/Badge';
 export { KpiTile, type KpiTileProps, type KpiTone } from './components/KpiTile';
 export { Card, type CardPadding, type CardProps } from './components/Card';
-export { SkipLink, VisuallyHidden, type SkipLinkProps, type VisuallyHiddenProps } from './components/VisuallyHidden';
+export {
+  SkipLink,
+  VisuallyHidden,
+  type SkipLinkProps,
+  type VisuallyHiddenProps,
+} from './components/VisuallyHidden';

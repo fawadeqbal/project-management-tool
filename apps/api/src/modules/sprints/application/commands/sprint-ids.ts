@@ -11,7 +11,14 @@ export const nextWorkingDay = (d: Date): Date => {
 };
 
 /** Default cadence: two weeks, starting the working day after the previous sprint ends. */
-export const defaultSprintDates = (previous: Sprint | null, today: Date): { startDate: Date; endDate: Date } => {
-  const startDate = previous ? nextWorkingDay(previous.endDate) : isWeekend(today) ? nextWorkingDay(today) : today;
+export const defaultSprintDates = (
+  previous: Sprint | null,
+  today: Date,
+): { startDate: Date; endDate: Date } => {
+  const startDate = previous
+    ? nextWorkingDay(previous.endDate)
+    : isWeekend(today)
+      ? nextWorkingDay(today)
+      : today;
   return { startDate, endDate: addDays(startDate, 13) };
 };

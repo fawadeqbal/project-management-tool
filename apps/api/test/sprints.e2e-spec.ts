@@ -44,7 +44,16 @@ describe('Sprints (e2e)', () => {
     const d = (await fawad.get(`/sprints/${byNumber(24).id}`).expect(200)).body as SprintDetailDto;
     expect(d.sprint.goal).toBe('Ship swipe actions and offline edits for beta');
     expect(d.header.statusLabel).toMatch(/^Active · \d+ working days? left$/);
-    expect(d.tasks.map((t) => t.key)).toEqual(['HRT-301', 'HRT-302', 'HRT-305', 'HRT-306', 'HRT-308', 'HRT-309', 'HRT-310', 'HRT-311']);
+    expect(d.tasks.map((t) => t.key)).toEqual([
+      'HRT-301',
+      'HRT-302',
+      'HRT-305',
+      'HRT-306',
+      'HRT-308',
+      'HRT-309',
+      'HRT-310',
+      'HRT-311',
+    ]);
     expect(d.progress).toEqual({ donePoints: 18, totalPoints: 42, donePct: 43 });
     const actual = d.burndown.actual.map((a) => a.remaining);
     expect(actual[0]).toBe(38);
@@ -61,7 +70,12 @@ describe('Sprints (e2e)', () => {
       ['S24', 42, true],
     ]);
     expect(d.velocity.average).toBe(38);
-    expect(d.capacity).toMatchObject({ committed: 42, velocity: 38, level: 'over', deferTask: { key: 'HRT-311' } });
+    expect(d.capacity).toMatchObject({
+      committed: 42,
+      velocity: 38,
+      level: 'over',
+      deferTask: { key: 'HRT-311' },
+    });
     expect(d.capacity.message).toContain('HRT-311');
   });
 
@@ -86,8 +100,13 @@ describe('Sprints (e2e)', () => {
   });
 
   it('completing a sprint on Pro is refused with limit_reached', async () => {
-    const res = await fawad.post(`/sprints/${byNumber(24).id}/complete`, { moveUnfinishedTo: 'backlog' }).expect(402);
-    expect(res.body.error).toMatchObject({ kind: 'limit_reached', details: { feature: 'sprints', requiredPlan: 'BUSINESS' } });
+    const res = await fawad
+      .post(`/sprints/${byNumber(24).id}/complete`, { moveUnfinishedTo: 'backlog' })
+      .expect(402);
+    expect(res.body.error).toMatchObject({
+      kind: 'limit_reached',
+      details: { feature: 'sprints', requiredPlan: 'BUSINESS' },
+    });
     expect(res.body.error.message).toMatch(/Sprints is part of Business/);
   });
 
@@ -101,7 +120,8 @@ describe('Sprints (e2e)', () => {
 
     const backlog = (await fawad.get(`/projects/${projectId}/backlog`).expect(200)).body as SprintTaskDto[];
     const added = backlog.find((t) => t.key === 'HRT-324')!;
-    const summary = (await fawad.post(`/sprints/${s24}/tasks`, { taskId: added.id }).expect(201)).body as SprintSummaryDto;
+    const summary = (await fawad.post(`/sprints/${s24}/tasks`, { taskId: added.id }).expect(201))
+      .body as SprintSummaryDto;
     expect(summary.scopePoints).toBe(45);
     // The snapshot subscriber runs after the response; give it a beat.
     await new Promise((r) => setTimeout(r, 300));
@@ -111,19 +131,26 @@ describe('Sprints (e2e)', () => {
 
     await fawad.patch(`/sprints/${s25}`, { goal: 'Widgets and share sheet' }).expect(200);
 
-    const retro = (await fawad.post(`/sprints/${s24}/complete`, { moveUnfinishedTo: 'backlog' }).expect(201)).body as RetrospectiveDto;
+    const retro = (await fawad.post(`/sprints/${s24}/complete`, { moveUnfinishedTo: 'backlog' }).expect(201))
+      .body as RetrospectiveDto;
     expect(retro.sprint.status).toBe('COMPLETED');
     expect(retro.completed.map((t) => t.key).sort()).toEqual(['HRT-301', 'HRT-302', 'HRT-305', 'HRT-309']);
     expect(retro.unfinished.map((t) => t.key)).toEqual(['HRT-308', 'HRT-306', 'HRT-311', 'HRT-310']);
-    expect(retro).toMatchObject({ completedPoints: 18, unfinishedPoints: 24, movedTo: { kind: 'backlog', sprint: null } });
+    expect(retro).toMatchObject({
+      completedPoints: 18,
+      unfinishedPoints: 24,
+      movedTo: { kind: 'backlog', sprint: null },
+    });
 
-    const nowBacklog = (await fawad.get(`/projects/${projectId}/backlog`).expect(200)).body as SprintTaskDto[];
+    const nowBacklog = (await fawad.get(`/projects/${projectId}/backlog`).expect(200))
+      .body as SprintTaskDto[];
     expect(nowBacklog.slice(0, 4).map((t) => t.key)).toEqual(['HRT-308', 'HRT-306', 'HRT-311', 'HRT-310']);
 
     const started = (await fawad.post(`/sprints/${s25}/start`).expect(201)).body as SprintSummaryDto;
     expect(started.status).toBe('ACTIVE');
 
-    const planned = (await fawad.post(`/projects/${projectId}/sprints`, {}).expect(201)).body as SprintSummaryDto;
+    const planned = (await fawad.post(`/projects/${projectId}/sprints`, {}).expect(201))
+      .body as SprintSummaryDto;
     expect(planned).toMatchObject({ number: 26, status: 'PLANNED', name: 'Sprint 26' });
   });
 
@@ -132,7 +159,8 @@ describe('Sprints (e2e)', () => {
     const s25 = list.find((s) => s.number === 25)!;
     const backlog = (await fawad.get(`/projects/${projectId}/backlog`).expect(200)).body as SprintTaskDto[];
     await fawad.post(`/sprints/${s25.id}/tasks`, { taskId: backlog[0]!.id }).expect(201);
-    const retro = (await fawad.post(`/sprints/${s25.id}/complete`, { moveUnfinishedTo: 'next' }).expect(201)).body as RetrospectiveDto;
+    const retro = (await fawad.post(`/sprints/${s25.id}/complete`, { moveUnfinishedTo: 'next' }).expect(201))
+      .body as RetrospectiveDto;
     expect(retro.movedTo).toMatchObject({ kind: 'next', sprint: { number: 26, taskCount: 1 } });
   });
 });

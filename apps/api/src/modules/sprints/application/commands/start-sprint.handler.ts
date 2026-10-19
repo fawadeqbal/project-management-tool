@@ -1,11 +1,23 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
 import type { SprintSummaryDto } from '@hearth/contracts';
-import { NotFoundError, SPRINT_REPOSITORY, sprintSnapshotOf, type Clock, type SprintRepository } from '@hearth/domain';
+import {
+  NotFoundError,
+  SPRINT_REPOSITORY,
+  sprintSnapshotOf,
+  type Clock,
+  type SprintRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
-import { SPRINT_SNAPSHOT_STORE, SPRINT_TASK_STORE, toSprintSummary, type SprintSnapshotStore, type SprintTaskStore } from '../sprints.ports';
+import {
+  SPRINT_SNAPSHOT_STORE,
+  SPRINT_TASK_STORE,
+  toSprintSummary,
+  type SprintSnapshotStore,
+  type SprintTaskStore,
+} from '../sprints.ports';
 import { StartSprintCommand } from './start-sprint.command';
 
 /** Starts a planned sprint: commits to the points in it now. One active sprint per project. */

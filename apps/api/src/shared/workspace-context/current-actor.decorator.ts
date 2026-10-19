@@ -10,7 +10,10 @@ export interface AuthenticatedRequest extends Request {
 /** Injects the resolved `Actor` (user + workspace + role) into a controller method. */
 export const CurrentActor = createParamDecorator((_: unknown, ctx: ExecutionContext): Actor => {
   const req = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
-  if (!req.actor) throw new InternalServerErrorException('No workspace context for this route. Did you mark it @NoWorkspace()?');
+  if (!req.actor)
+    throw new InternalServerErrorException(
+      'No workspace context for this route. Did you mark it @NoWorkspace()?',
+    );
   return req.actor;
 });
 

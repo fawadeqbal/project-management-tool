@@ -9,7 +9,10 @@ export class PrismaTaskRepository implements TaskRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(workspaceId: string, id: string): Promise<Task | null> {
-    const row = await this.prisma.task.findFirst({ where: { id, workspaceId }, include: { workspace: { select: { keyPrefix: true } } } });
+    const row = await this.prisma.task.findFirst({
+      where: { id, workspaceId },
+      include: { workspace: { select: { keyPrefix: true } } },
+    });
     return row ? toAggregate(row, row.workspace.keyPrefix) : null;
   }
 

@@ -45,7 +45,10 @@ export class IdentityController {
   }
 
   @Patch('me')
-  updateProfile(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(UpdateProfileSchema)) input: UpdateProfileInput): Promise<MeDto> {
+  updateProfile(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(UpdateProfileSchema)) input: UpdateProfileInput,
+  ): Promise<MeDto> {
     return this.commands.execute(new UpdateProfileCommand(actor, input));
   }
 }

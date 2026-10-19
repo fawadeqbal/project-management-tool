@@ -25,7 +25,11 @@ const niceMax = (v: number) => {
 };
 
 /** "Are we finishing what we start?" — created vs completed per week, series labeled directly. */
-export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput' | 'throughputVerdict' | 'rangeLabel'> }) {
+export function ThroughputChart({
+  data,
+}: {
+  data: Pick<DashboardDto, 'throughput' | 'throughputVerdict' | 'rangeLabel'>;
+}) {
   const titleId = useId();
   const descId = useId();
   const [hover, setHover] = useState<number | null>(null);
@@ -37,7 +41,10 @@ export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput
   const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(max * f));
   const showValues = weeks.length <= 8;
   const last = weeks.length - 1;
-  const desc = `${data.throughputVerdict.text}, ${data.rangeLabel}. ` + weeks.map((w) => `Week of ${w.label}: ${w.created} created, ${w.completed} completed`).join('; ') + '.';
+  const desc =
+    `${data.throughputVerdict.text}, ${data.rangeLabel}. ` +
+    weeks.map((w) => `Week of ${w.label}: ${w.created} created, ${w.completed} completed`).join('; ') +
+    '.';
 
   return (
     <section aria-labelledby={`${titleId}-h`} className={`${styles.card} ${styles.throughput}`}>
@@ -45,15 +52,30 @@ export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput
         <h2 id={`${titleId}-h`} className={styles.cardTitle}>
           Are we finishing what we start?
         </h2>
-        <span className={data.throughputVerdict.tone === 'good' ? styles.verdictGood : styles.verdictBad}>{data.throughputVerdict.text}</span>
+        <span className={data.throughputVerdict.tone === 'good' ? styles.verdictGood : styles.verdictBad}>
+          {data.throughputVerdict.text}
+        </span>
       </div>
       <div className={styles.chartWrap}>
-        <svg role="img" aria-labelledby={`${titleId} ${descId}`} viewBox={`0 0 ${W} ${H}`} width="100%" className={styles.chart} onMouseLeave={() => setHover(null)}>
+        <svg
+          role="img"
+          aria-labelledby={`${titleId} ${descId}`}
+          viewBox={`0 0 ${W} ${H}`}
+          width="100%"
+          className={styles.chart}
+          onMouseLeave={() => setHover(null)}
+        >
           <title id={titleId}>Tasks created versus completed per week</title>
           <desc id={descId}>{desc}</desc>
           {grid.map((v) => (
             <g key={v} aria-hidden="true">
-              <line x1={LEFT} x2={W - RIGHT} y1={Y(v)} y2={Y(v)} className={v === 0 ? styles.baseline : styles.gridline} />
+              <line
+                x1={LEFT}
+                x2={W - RIGHT}
+                y1={Y(v)}
+                y2={Y(v)}
+                className={v === 0 ? styles.baseline : styles.gridline}
+              />
               <text x={LEFT - 8} y={Y(v) + 3} textAnchor="end" className={styles.axisText}>
                 {v}
               </text>
@@ -65,16 +87,37 @@ export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput
             const x2 = xc + 1;
             const active = hover === i;
             return (
-              <g key={w.weekStart} aria-hidden="true" onMouseEnter={() => setHover(i)} className={hover !== null && !active ? styles.dimmed : undefined}>
+              <g
+                key={w.weekStart}
+                aria-hidden="true"
+                onMouseEnter={() => setHover(i)}
+                className={hover !== null && !active ? styles.dimmed : undefined}
+              >
                 <rect x={xc - slot / 2} y={TOP} width={slot} height={BASE - TOP} className={styles.hit} />
-                <path d={barPath(x1, Y(w.created), barW, BASE - Y(w.created))} className={styles.barCreated} />
-                <path d={barPath(x2, Y(w.completed), barW, BASE - Y(w.completed))} className={styles.barCompleted} />
+                <path
+                  d={barPath(x1, Y(w.created), barW, BASE - Y(w.created))}
+                  className={styles.barCreated}
+                />
+                <path
+                  d={barPath(x2, Y(w.completed), barW, BASE - Y(w.completed))}
+                  className={styles.barCompleted}
+                />
                 {showValues || active ? (
                   <>
-                    <text x={x1 + barW / 2} y={Y(w.created) - 4} textAnchor="middle" className={styles.valueTextMuted}>
+                    <text
+                      x={x1 + barW / 2}
+                      y={Y(w.created) - 4}
+                      textAnchor="middle"
+                      className={styles.valueTextMuted}
+                    >
                       {w.created}
                     </text>
-                    <text x={x2 + barW / 2} y={Y(w.completed) - 4} textAnchor="middle" className={styles.valueText}>
+                    <text
+                      x={x2 + barW / 2}
+                      y={Y(w.completed) - 4}
+                      textAnchor="middle"
+                      className={styles.valueText}
+                    >
                       {w.completed}
                     </text>
                   </>
@@ -84,10 +127,20 @@ export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput
                 </text>
                 {i === last ? (
                   <>
-                    <text x={x1 + barW / 2} y={Math.min(Y(w.created), Y(w.completed)) - 18} textAnchor="end" className={styles.seriesLabelMuted}>
+                    <text
+                      x={x1 + barW / 2}
+                      y={Math.min(Y(w.created), Y(w.completed)) - 18}
+                      textAnchor="end"
+                      className={styles.seriesLabelMuted}
+                    >
                       Created
                     </text>
-                    <text x={x2 + barW / 2} y={Math.min(Y(w.created), Y(w.completed)) - 18} textAnchor="start" className={styles.seriesLabel}>
+                    <text
+                      x={x2 + barW / 2}
+                      y={Math.min(Y(w.created), Y(w.completed)) - 18}
+                      textAnchor="start"
+                      className={styles.seriesLabel}
+                    >
                       Completed
                     </text>
                   </>
@@ -97,7 +150,11 @@ export function ThroughputChart({ data }: { data: Pick<DashboardDto, 'throughput
           })}
         </svg>
         {hover !== null && weeks[hover] ? (
-          <div className={styles.tooltip} role="presentation" style={{ left: `${((LEFT + slot * hover + slot / 2) / W) * 100}%` }}>
+          <div
+            className={styles.tooltip}
+            role="presentation"
+            style={{ left: `${((LEFT + slot * hover + slot / 2) / W) * 100}%` }}
+          >
             <strong>Week of {weeks[hover].label}</strong>
             <span>
               <i className={styles.swatchCreated} /> Created {weeks[hover].created}

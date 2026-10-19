@@ -24,7 +24,11 @@ export function ConversationDetail({ item, ...handlers }: { item: InboxItemDto }
 
   const comment = task?.comments
     .filter((c) => c.author.id === item.actor?.id)
-    .sort((a, b) => Math.abs(Date.parse(a.createdAt) - Date.parse(item.createdAt)) - Math.abs(Date.parse(b.createdAt) - Date.parse(item.createdAt)))[0];
+    .sort(
+      (a, b) =>
+        Math.abs(Date.parse(a.createdAt) - Date.parse(item.createdAt)) -
+        Math.abs(Date.parse(b.createdAt) - Date.parse(item.createdAt)),
+    )[0];
   const authorFirst = item.actor?.name.split(' ')[0] ?? '';
 
   const send = async () => {
@@ -34,7 +38,12 @@ export function ConversationDetail({ item, ...handlers }: { item: InboxItemDto }
     try {
       await api.tasks.addComment(item.taskId, { body, parentId: comment?.parentId ?? comment?.id ?? null });
       setReply('');
-      show({ message: `Reply sent to ${item.taskKey ?? 'the task'}`, icon: 'send', action: 'Open task', onAction: handlers.onOpenTask });
+      show({
+        message: `Reply sent to ${item.taskKey ?? 'the task'}`,
+        icon: 'send',
+        action: 'Open task',
+        onAction: handlers.onOpenTask,
+      });
       void client.invalidateQueries({ queryKey: queryKeys.taskRoot });
     } catch (e) {
       show({ message: `Your reply wasn’t sent. ${ApiError.from(e).message}`, tone: 'danger' });
@@ -55,13 +64,22 @@ export function ConversationDetail({ item, ...handlers }: { item: InboxItemDto }
       <DetailActions {...handlers} />
       <div className={styles.detailHead}>
         <span className={styles.detailContext}>{item.context}</span>
-        {isLoading ? <Skeleton width="70%" height={28} /> : <h2 className={styles.detailTitle}>{task?.title ?? item.title}</h2>}
+        {isLoading ? (
+          <Skeleton width="70%" height={28} />
+        ) : (
+          <h2 className={styles.detailTitle}>{task?.title ?? item.title}</h2>
+        )}
         {task ? (
           <div className={styles.detailBy}>
             <StatusPill status={toUiStatus(task.status)} />
             {task.assignee ? (
               <span className={styles.inline}>
-                <Avatar initials={task.assignee.initials} name={task.assignee.name} color={task.assignee.avatarColor} size={20} />
+                <Avatar
+                  initials={task.assignee.initials}
+                  name={task.assignee.name}
+                  color={task.assignee.avatarColor}
+                  size={20}
+                />
                 {task.assignee.name}
               </span>
             ) : null}
@@ -69,10 +87,15 @@ export function ConversationDetail({ item, ...handlers }: { item: InboxItemDto }
         ) : null}
       </div>
       <article className={styles.comment} aria-label={`${item.actor?.name ?? 'Someone'}’s comment`}>
-        <Avatar initials={item.actor?.initials ?? '·'} name={item.actor?.name} color={item.actor?.avatarColor ?? 'slate'} />
+        <Avatar
+          initials={item.actor?.initials ?? '·'}
+          name={item.actor?.name}
+          color={item.actor?.avatarColor ?? 'slate'}
+        />
         <div className={styles.commentBody}>
           <div className={styles.commentMeta}>
-            <strong>{item.actor?.name ?? 'Someone'}</strong> <span className={styles.muted}>{timeAgo(comment?.createdAt ?? item.createdAt)}</span>
+            <strong>{item.actor?.name ?? 'Someone'}</strong>{' '}
+            <span className={styles.muted}>{timeAgo(comment?.createdAt ?? item.createdAt)}</span>
           </div>
           <p className={styles.commentText}>
             <QuotedText text={comment?.body ?? item.excerpt ?? ''} />

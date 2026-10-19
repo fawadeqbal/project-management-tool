@@ -35,7 +35,11 @@ export function Field({ ids, label, hideLabel, hint, error, className, children 
   return (
     <div className={cx('ht-field', className)}>
       {label !== undefined && label !== null ? (
-        <label id={ids.labelId} htmlFor={ids.controlId} className={cx('ht-field-label', hideLabel && 'ht-sr-only')}>
+        <label
+          id={ids.labelId}
+          htmlFor={ids.controlId}
+          className={cx('ht-field-label', hideLabel && 'ht-sr-only')}
+        >
           {label}
         </label>
       ) : null}

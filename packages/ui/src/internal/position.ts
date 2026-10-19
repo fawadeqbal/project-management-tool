@@ -41,7 +41,13 @@ export function computePosition(
 }
 
 /** Measures `anchor` and `floating` and writes the result to the floating element's style. */
-export function applyPosition(anchor: HTMLElement, floating: HTMLElement, placement: Placement, align: Align, offset: number): void {
+export function applyPosition(
+  anchor: HTMLElement,
+  floating: HTMLElement,
+  placement: Placement,
+  align: Align,
+  offset: number,
+): void {
   const rect = floating.getBoundingClientRect();
   const pos = computePosition(
     anchor.getBoundingClientRect(),

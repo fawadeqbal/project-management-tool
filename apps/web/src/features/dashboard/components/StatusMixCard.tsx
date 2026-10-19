@@ -10,7 +10,13 @@ const COLOR: Record<string, string> = {
 };
 
 /** "Where is work right now?" — open work by status as a labeled stacked bar. */
-export function StatusMixCard({ mix, blockedNote }: { mix: DashboardDto['statusMix']; blockedNote: string | null }) {
+export function StatusMixCard({
+  mix,
+  blockedNote,
+}: {
+  mix: DashboardDto['statusMix'];
+  blockedNote: string | null;
+}) {
   const total = mix.reduce((a, s) => a + s.count, 0);
   const label = `Open work by status: ${mix.map((s) => `${s.label} ${s.count}`).join(', ')}`;
   return (
@@ -26,7 +32,11 @@ export function StatusMixCard({ mix, blockedNote }: { mix: DashboardDto['statusM
             {mix
               .filter((s) => s.count > 0)
               .map((s) => (
-                <div key={s.status} style={{ flex: `${s.count} 1 0`, background: COLOR[s.status] }} title={`${s.label}: ${s.count}`} />
+                <div
+                  key={s.status}
+                  style={{ flex: `${s.count} 1 0`, background: COLOR[s.status] }}
+                  title={`${s.label}: ${s.count}`}
+                />
               ))}
           </div>
           <ul className={styles.mixList}>

@@ -58,7 +58,10 @@ export class MembersController {
 
   @Post('admin/invites')
   @RequirePermission('members.manage')
-  invite(@CurrentActor() actor: Actor, @Body(new ZodValidationPipe(CreateInviteSchema)) input: CreateInviteInput): Promise<CreateInviteResultDto> {
+  invite(
+    @CurrentActor() actor: Actor,
+    @Body(new ZodValidationPipe(CreateInviteSchema)) input: CreateInviteInput,
+  ): Promise<CreateInviteResultDto> {
     return this.commands.execute(new CreateInviteCommand(actor, input));
   }
 
@@ -86,7 +89,11 @@ export class MembersController {
 
   @Patch('admin/members/:userId/role')
   @RequirePermission('members.manage')
-  changeRole(@CurrentActor() actor: Actor, @Param('userId') userId: string, @Body(new ZodValidationPipe(ChangeRoleSchema)) input: ChangeRoleInput) {
+  changeRole(
+    @CurrentActor() actor: Actor,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(ChangeRoleSchema)) input: ChangeRoleInput,
+  ) {
     return this.commands.execute(new ChangeMemberRoleCommand(actor, userId, input.role));
   }
 
@@ -106,7 +113,11 @@ export class MembersController {
 
   @Delete('admin/members/:userId')
   @RequirePermission('members.manage')
-  remove(@CurrentActor() actor: Actor, @Param('userId') userId: string, @Body(new ZodValidationPipe(RemoveMemberSchema)) input: RemoveMemberInput) {
+  remove(
+    @CurrentActor() actor: Actor,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(RemoveMemberSchema)) input: RemoveMemberInput,
+  ) {
     return this.commands.execute(new RemoveMemberCommand(actor, userId, input.confirm));
   }
 }

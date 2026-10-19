@@ -15,7 +15,13 @@ vi.mock('@/shared/api/http', async (orig) => {
 vi.mock('@/shared/realtime', () => ({ useRealtimeEvent: () => undefined }));
 vi.mock('@/features/projects', async (orig) => {
   const actual = await orig<typeof ProjectsModule>();
-  return { ...actual, useProjectContext: () => ({ project: { id: 'web', name: 'Website relaunch', members: [], wipLimits: {} }, projectId: 'web' }) };
+  return {
+    ...actual,
+    useProjectContext: () => ({
+      project: { id: 'web', name: 'Website relaunch', members: [], wipLimits: {} },
+      projectId: 'web',
+    }),
+  };
 });
 const mockedHttp = vi.mocked(http, true);
 
@@ -26,10 +32,52 @@ const timeline: TimelineDto = {
   today: '2026-10-19',
   rows: [
     { kind: 'section', id: 's-design', name: 'Design' },
-    { kind: 'task', id: 'pricing', key: 'HRT-188', title: 'Pricing page design', status: 'IN_PROGRESS', sectionId: 's-design', startDate: '2026-10-23', dueDate: '2026-10-30', baselineStart: '2026-10-21', baselineDue: '2026-10-27', progress: 20, assignee: null, critical: true },
+    {
+      kind: 'task',
+      id: 'pricing',
+      key: 'HRT-188',
+      title: 'Pricing page design',
+      status: 'IN_PROGRESS',
+      sectionId: 's-design',
+      startDate: '2026-10-23',
+      dueDate: '2026-10-30',
+      baselineStart: '2026-10-21',
+      baselineDue: '2026-10-27',
+      progress: 20,
+      assignee: null,
+      critical: true,
+    },
     { kind: 'section', id: 's-build', name: 'Build' },
-    { kind: 'task', id: 'nav', key: 'HRT-192', title: 'Responsive navigation', status: 'TODO', sectionId: 's-build', startDate: '2026-10-31', dueDate: '2026-11-07', baselineStart: null, baselineDue: null, progress: 0, assignee: null, critical: true },
-    { kind: 'task', id: 'analytics', key: 'HRT-195', title: 'Analytics events', status: 'TODO', sectionId: 's-build', startDate: '2026-11-04', dueDate: '2026-11-09', baselineStart: null, baselineDue: null, progress: 0, assignee: null, critical: false },
+    {
+      kind: 'task',
+      id: 'nav',
+      key: 'HRT-192',
+      title: 'Responsive navigation',
+      status: 'TODO',
+      sectionId: 's-build',
+      startDate: '2026-10-31',
+      dueDate: '2026-11-07',
+      baselineStart: null,
+      baselineDue: null,
+      progress: 0,
+      assignee: null,
+      critical: true,
+    },
+    {
+      kind: 'task',
+      id: 'analytics',
+      key: 'HRT-195',
+      title: 'Analytics events',
+      status: 'TODO',
+      sectionId: 's-build',
+      startDate: '2026-11-04',
+      dueDate: '2026-11-09',
+      baselineStart: null,
+      baselineDue: null,
+      progress: 0,
+      assignee: null,
+      critical: false,
+    },
     { kind: 'milestone', id: 'launch', name: 'Launch', date: '2026-11-14', done: false, critical: true },
   ],
   links: [
@@ -43,7 +91,9 @@ const timeline: TimelineDto = {
 describe('ProjectTimelinePage', () => {
   beforeEach(() => {
     signIn();
-    mockedHttp.get.mockImplementation(async (path: string) => (path.endsWith('/timeline') ? timeline : []) as never);
+    mockedHttp.get.mockImplementation(
+      async (path: string) => (path.endsWith('/timeline') ? timeline : []) as never,
+    );
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -55,7 +105,9 @@ describe('ProjectTimelinePage', () => {
     const bar = await screen.findByRole('button', { name: /^HRT-188 Pricing page design/ });
     expect(bar).toHaveAttribute('data-tone', 'critical');
     expect(screen.getByRole('button', { name: /^HRT-195 / })).toHaveAttribute('data-tone', 'normal');
-    expect(screen.getByRole('img', { name: /Dependency conflict: starts before HRT-192/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /Dependency conflict: starts before HRT-192/ }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Launch · Nov 14/)).toBeInTheDocument();
     expect(document.querySelectorAll('svg path[data-critical]').length).toBe(1);
     unmount();
@@ -66,11 +118,15 @@ describe('ProjectTimelinePage', () => {
     const bar = await screen.findByRole('button', { name: /^HRT-188 / });
     expect(screen.getByTestId('timeline-chart').firstElementChild).toHaveAttribute('data-px', '19');
     const weekLeft = parseFloat(bar.style.left);
-    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Zoom' })).getByRole('radio', { name: 'Day' }));
+    fireEvent.click(
+      within(screen.getByRole('radiogroup', { name: 'Zoom' })).getByRole('radio', { name: 'Day' }),
+    );
     expect(screen.getByTestId('timeline-chart').firstElementChild).toHaveAttribute('data-px', '44');
     const dayLeft = parseFloat(screen.getByRole('button', { name: /^HRT-188 / }).style.left);
     expect(dayLeft).toBeGreaterThan(weekLeft * 2);
-    fireEvent.click(within(screen.getByRole('radiogroup', { name: 'Zoom' })).getByRole('radio', { name: 'Month' }));
+    fireEvent.click(
+      within(screen.getByRole('radiogroup', { name: 'Zoom' })).getByRole('radio', { name: 'Month' }),
+    );
     expect(screen.getByTestId('timeline-chart').firstElementChild).toHaveAttribute('data-px', '7');
     unmount();
   });
@@ -79,7 +135,14 @@ describe('ProjectTimelinePage', () => {
     mockedHttp.post.mockImplementation(async (path: string) => {
       if (path.includes('/reschedule'))
         return {
-          task: { kind: 'task', id: 'pricing', label: 'HRT-188', days: 1, startDate: '2026-10-24', dueDate: '2026-10-31' },
+          task: {
+            kind: 'task',
+            id: 'pricing',
+            label: 'HRT-188',
+            days: 1,
+            startDate: '2026-10-24',
+            dueDate: '2026-10-31',
+          },
           shifted: [
             { taskId: 'nav', key: 'HRT-192', days: 1, kind: 'task' },
             { taskId: 'analytics', key: 'HRT-195', days: 1, kind: 'task' },
@@ -98,7 +161,11 @@ describe('ProjectTimelinePage', () => {
     fireEvent.keyDown(bar, { key: 'ArrowRight' });
     expect(bar).toHaveAccessibleName(/Oct 24 to Oct 31/);
     await waitFor(() =>
-      expect(mockedHttp.post).toHaveBeenCalledWith('/timeline/tasks/pricing/reschedule', { shiftDependents: true, startDate: '2026-10-24', dueDate: '2026-10-31' }),
+      expect(mockedHttp.post).toHaveBeenCalledWith('/timeline/tasks/pricing/reschedule', {
+        shiftDependents: true,
+        startDate: '2026-10-24',
+        dueDate: '2026-10-31',
+      }),
     );
     const toast = await screen.findByText('Rescheduled HRT-188 · 2 dependents shifted');
     fireEvent.click(within(toast.closest('.ht-toast') as HTMLElement).getByRole('button', { name: 'Undo' }));
@@ -120,7 +187,12 @@ describe('ProjectTimelinePage', () => {
     const bar = await screen.findByRole('button', { name: /^HRT-188 / });
     act(() => bar.focus());
     fireEvent.keyDown(bar, { key: 'ArrowLeft', shiftKey: true });
-    await waitFor(() => expect(mockedHttp.post).toHaveBeenCalledWith('/timeline/tasks/pricing/reschedule', expect.objectContaining({ startDate: '2026-10-23', dueDate: '2026-10-29' })));
+    await waitFor(() =>
+      expect(mockedHttp.post).toHaveBeenCalledWith(
+        '/timeline/tasks/pricing/reschedule',
+        expect.objectContaining({ startDate: '2026-10-23', dueDate: '2026-10-29' }),
+      ),
+    );
     unmount();
   });
 });

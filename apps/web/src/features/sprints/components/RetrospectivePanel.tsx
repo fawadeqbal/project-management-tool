@@ -27,15 +27,21 @@ function RetroList({ title, tasks }: { title: string; tasks: SprintTaskDto[] }) 
 
 /** The retrospective summary right after completing: what shipped, what moved, pre-sorted. */
 export function RetrospectivePanel({ retro, onDismiss }: { retro: RetrospectiveDto; onDismiss: () => void }) {
-  const where = retro.movedTo.kind === 'next' ? (retro.movedTo.sprint?.name ?? 'the next sprint') : 'the top of the backlog';
+  const where =
+    retro.movedTo.kind === 'next'
+      ? (retro.movedTo.sprint?.name ?? 'the next sprint')
+      : 'the top of the backlog';
   return (
     <section aria-label="Retrospective" className={styles.retro}>
       <div className={styles.retroHead}>
         <div>
           <h2 className={styles.retroTitleMain}>{retro.sprint.name} is complete</h2>
           <p className={styles.muted}>
-            {retro.completedPoints} of {retro.completedPoints + retro.unfinishedPoints} points done ({retro.completionPct}%).
-            {retro.unfinished.length ? ` ${retro.unfinished.length} unfinished ${retro.unfinished.length === 1 ? 'task' : 'tasks'} moved to ${where}, furthest along first.` : ''}
+            {retro.completedPoints} of {retro.completedPoints + retro.unfinishedPoints} points done (
+            {retro.completionPct}%).
+            {retro.unfinished.length
+              ? ` ${retro.unfinished.length} unfinished ${retro.unfinished.length === 1 ? 'task' : 'tasks'} moved to ${where}, furthest along first.`
+              : ''}
           </p>
         </div>
         <Button variant="secondary" size="sm" onClick={onDismiss}>

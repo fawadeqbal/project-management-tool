@@ -8,7 +8,13 @@ import { HealthBadge } from './HealthBadge';
 import styles from '../projects.module.css';
 
 /** Projects with health, owner, progress, due date and a favorite star. */
-export function ProjectsTable({ projects, label }: { projects: readonly ProjectSummaryDto[]; label: string }) {
+export function ProjectsTable({
+  projects,
+  label,
+}: {
+  projects: readonly ProjectSummaryDto[];
+  label: string;
+}) {
   const toggleFavorite = useToggleFavorite();
   return (
     <div className={styles.tableWrap}>
@@ -45,7 +51,13 @@ export function ProjectsTable({ projects, label }: { projects: readonly ProjectS
               </td>
               <td>
                 <Link to={`/projects/${p.id}/board`} className={styles.projectLink}>
-                  <span className={styles.projectIconSm} style={{ background: `var(--accent-${p.color}-avatar)`, color: `var(--accent-${p.color}-fg)` }}>
+                  <span
+                    className={styles.projectIconSm}
+                    style={{
+                      background: `var(--accent-${p.color}-avatar)`,
+                      color: `var(--accent-${p.color}-fg)`,
+                    }}
+                  >
                     <Icon name={asIcon(p.icon, 'folder')} size={14} />
                   </span>
                   <span>
@@ -62,17 +74,28 @@ export function ProjectsTable({ projects, label }: { projects: readonly ProjectS
               </td>
               <td className={styles.hideNarrow}>
                 <span className={styles.owner}>
-                  <Avatar initials={p.owner.initials} name={p.owner.name} color={p.owner.avatarColor} size={20} />
+                  <Avatar
+                    initials={p.owner.initials}
+                    name={p.owner.name}
+                    color={p.owner.avatarColor}
+                    size={20}
+                  />
                   {p.owner.name}
                 </span>
               </td>
               <td>
                 <span className={styles.progressCell}>
-                  <ProgressBar value={p.progress} label={`${p.name} progress`} tone={p.progress === 100 ? 'success' : 'brand'} />
+                  <ProgressBar
+                    value={p.progress}
+                    label={`${p.name} progress`}
+                    tone={p.progress === 100 ? 'success' : 'brand'}
+                  />
                   <span className={styles.muted}>{p.progress}%</span>
                 </span>
               </td>
-              <td className={styles.hideNarrow}>{p.dueDate ? formatShortDate(parseDateOnly(p.dueDate)) : '—'}</td>
+              <td className={styles.hideNarrow}>
+                {p.dueDate ? formatShortDate(parseDateOnly(p.dueDate)) : '—'}
+              </td>
             </tr>
           ))}
         </tbody>

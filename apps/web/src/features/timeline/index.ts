@@ -9,4 +9,5 @@ import type { Command } from '@/shared/commands/command';
 export const routes: RouteObject[] = [];
 export const commands: Command[] = [];
 
-export const loadProjectTimelinePage = async (): Promise<ComponentType> => (await import('./pages/ProjectTimelinePage')).ProjectTimelinePage;
+export const loadProjectTimelinePage = async (): Promise<ComponentType> =>
+  (await import('./pages/ProjectTimelinePage')).ProjectTimelinePage;

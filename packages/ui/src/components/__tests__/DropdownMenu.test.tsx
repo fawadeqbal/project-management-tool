@@ -18,7 +18,10 @@ function setup() {
         { id: 'archive', label: 'Archive', icon: 'archive', onSelect: onArchive },
       ],
     },
-    { id: 'danger', items: [{ id: 'delete', label: 'Delete task', icon: 'trash', danger: true, onSelect: onDelete }] },
+    {
+      id: 'danger',
+      items: [{ id: 'delete', label: 'Delete task', icon: 'trash', danger: true, onSelect: onDelete }],
+    },
   ];
   render(
     <DropdownMenu

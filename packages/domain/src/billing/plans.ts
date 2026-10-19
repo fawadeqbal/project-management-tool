@@ -42,7 +42,15 @@ export interface Plan {
 const GB = 1024 ** 3;
 const base: Feature[] = ['list_board_calendar'];
 const pro: Feature[] = [...base, 'timeline', 'workload', 'guests'];
-const business: Feature[] = [...pro, 'sprints', 'dashboards', 'goals', 'time_tracking', 'saml_sso', 'advanced_permissions'];
+const business: Feature[] = [
+  ...pro,
+  'sprints',
+  'dashboards',
+  'goals',
+  'time_tracking',
+  'saml_sso',
+  'advanced_permissions',
+];
 
 /**
  * Plan catalog. Prices are configuration, not code paths: changing a price never touches a
@@ -58,7 +66,12 @@ export const PLANS: Record<PlanId, Plan> = {
     priceNote: 'up to 5 people',
     features: new Set(base),
     limits: { seats: 5, storage_bytes: 1 * GB, automation_runs: 100, ai_credits: 50 },
-    highlights: ['Unlimited tasks & projects', 'List, Board, Calendar', '100 automation runs / month', '1 GB storage'],
+    highlights: [
+      'Unlimited tasks & projects',
+      'List, Board, Calendar',
+      '100 automation runs / month',
+      '1 GB storage',
+    ],
   },
   PRO: {
     id: 'PRO',
@@ -69,7 +82,12 @@ export const PLANS: Record<PlanId, Plan> = {
     priceNote: 'per seat / month',
     features: new Set(pro),
     limits: { seats: 10, storage_bytes: 100 * GB, automation_runs: 1000, ai_credits: 500 },
-    highlights: ['Timeline & Workload', 'Unlimited guests', '1,000 automation runs / month', '100 GB storage'],
+    highlights: [
+      'Timeline & Workload',
+      'Unlimited guests',
+      '1,000 automation runs / month',
+      '100 GB storage',
+    ],
   },
   BUSINESS: {
     id: 'BUSINESS',
@@ -80,7 +98,12 @@ export const PLANS: Record<PlanId, Plan> = {
     priceNote: 'per seat / month',
     features: new Set(business),
     limits: { seats: 500, storage_bytes: 1024 * GB, automation_runs: 10_000, ai_credits: 5000 },
-    highlights: ['Portfolios, goals & dashboards', 'Sprints & time tracking', '10,000 automation runs / month', 'SAML SSO & advanced permissions'],
+    highlights: [
+      'Portfolios, goals & dashboards',
+      'Sprints & time tracking',
+      '10,000 automation runs / month',
+      'SAML SSO & advanced permissions',
+    ],
     recommended: true,
   },
   ENTERPRISE: {
@@ -92,7 +115,12 @@ export const PLANS: Record<PlanId, Plan> = {
     priceNote: 'annual contract',
     features: new Set(FEATURES),
     limits: { seats: null, storage_bytes: null, automation_runs: null, ai_credits: null },
-    highlights: ['SCIM, audit log, data retention', 'IP allowlist & domain verification', 'Unlimited automations', 'Dedicated success manager'],
+    highlights: [
+      'SCIM, audit log, data retention',
+      'IP allowlist & domain verification',
+      'Unlimited automations',
+      'Dedicated success manager',
+    ],
   },
 };
 
@@ -141,11 +169,15 @@ export class PlanLimitPolicy {
     const limit = this.plan.limits[meter];
     if (limit === null || used + amount <= limit) return;
     const label = METER_LABELS[meter];
-    throw new LimitReachedError(`plan.limit.${meter}`, `You’ve used all ${formatMeter(meter, limit)} ${label.plural} on ${this.plan.name}. Upgrade or wait for the reset.`, {
-      meter,
-      limit,
-      used,
-    });
+    throw new LimitReachedError(
+      `plan.limit.${meter}`,
+      `You’ve used all ${formatMeter(meter, limit)} ${label.plural} on ${this.plan.name}. Upgrade or wait for the reset.`,
+      {
+        meter,
+        limit,
+        used,
+      },
+    );
   }
 }
 

@@ -2,7 +2,17 @@ import type { ReactNode } from 'react';
 import styles from '../auth.module.css';
 
 /** Centered card used by login and register. */
-export function AuthCard({ title, subtitle, children, footer }: { title: string; subtitle: string; children: ReactNode; footer: ReactNode }) {
+export function AuthCard({
+  title,
+  subtitle,
+  children,
+  footer,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+  footer: ReactNode;
+}) {
   return (
     <main className={styles.page} id="main">
       <div className={styles.card}>

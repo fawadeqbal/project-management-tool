@@ -14,9 +14,13 @@ describe('Members & roles (e2e)', () => {
     sara = await asUser(app, 'sara@acme.com');
     await fawad.post('/billing/plan', { plan: 'PRO', interval: 'MONTHLY', confirm: true });
     const { body } = await fawad.get('/admin/members').expect(200);
-    ids = Object.fromEntries(body.members.map((m: { email: string; id: string }) => [m.email.split('@')[0], m.id]));
+    ids = Object.fromEntries(
+      body.members.map((m: { email: string; id: string }) => [m.email.split('@')[0], m.id]),
+    );
     const dash = await fawad.get('/dashboard').expect(200);
-    webProjectId = dash.body.projects.find((p: { project: { name: string } }) => p.project.name === 'Website relaunch').project.id;
+    webProjectId = dash.body.projects.find(
+      (p: { project: { name: string } }) => p.project.name === 'Website relaunch',
+    ).project.id;
   });
   afterAll(async () => {
     await app.close();
@@ -25,13 +29,24 @@ describe('Members & roles (e2e)', () => {
   it('lists members with roles, teams, last active, guests and the SSO/SCIM status', async () => {
     const { body } = await fawad.get('/admin/members').expect(200);
     const byEmail = Object.fromEntries(body.members.map((m: { email: string }) => [m.email, m]));
-    expect(byEmail['fawad@acme.com']).toMatchObject({ role: 'OWNER', lastActiveLabel: 'Now', isYou: true, teams: [{ name: 'Product' }] });
+    expect(byEmail['fawad@acme.com']).toMatchObject({
+      role: 'OWNER',
+      lastActiveLabel: 'Now',
+      isYou: true,
+      teams: [{ name: 'Product' }],
+    });
     expect(byEmail['sara@acme.com']).toMatchObject({ role: 'ADMIN', teams: [{ name: 'Design' }] });
     expect(byEmail['tom@northwind.co']).toMatchObject({ role: 'GUEST', isGuest: true, guestProjectCount: 1 });
     expect(byEmail['priya@acme.com']).toMatchObject({ status: 'DEACTIVATED' });
     // Guests after members, deactivated last.
     expect(body.members.at(-1).email).toBe('priya@acme.com');
-    expect(body.counts).toMatchObject({ members: 6, guests: 1, deactivated: 1, pendingInvites: 3, seatLimit: 10 });
+    expect(body.counts).toMatchObject({
+      members: 6,
+      guests: 1,
+      deactivated: 1,
+      pendingInvites: 3,
+      seatLimit: 10,
+    });
     expect(body.identity.summary).toBe('SSO: not configured · SCIM: available on Enterprise');
   });
 
@@ -47,14 +62,24 @@ describe('Members & roles (e2e)', () => {
 
   it('returns role descriptions and the permission matrix', async () => {
     const { body } = await fawad.get('/admin/roles').expect(200);
-    expect(body.roles.map((r: { label: string }) => r.label)).toEqual(['Owner', 'Admin', 'Member', 'Viewer', 'Guest']);
-    expect(body.matrix.find((r: { permission: string }) => r.permission === 'billing.manage').roles).toEqual(['OWNER']);
+    expect(body.roles.map((r: { label: string }) => r.label)).toEqual([
+      'Owner',
+      'Admin',
+      'Member',
+      'Viewer',
+      'Guest',
+    ]);
+    expect(body.matrix.find((r: { permission: string }) => r.permission === 'billing.manage').roles).toEqual([
+      'OWNER',
+    ]);
   });
 
   it('requires a project for guest invites', async () => {
     const res = await sara.post('/admin/invites', { email: 'client@example.com', role: 'GUEST' }).expect(400);
     expect(res.body.error.fieldErrors.projectId).toBeDefined();
-    await sara.post('/admin/invites', { email: 'client@example.com', role: 'GUEST', projectId: webProjectId }).expect(201);
+    await sara
+      .post('/admin/invites', { email: 'client@example.com', role: 'GUEST', projectId: webProjectId })
+      .expect(201);
   });
 
   it('enforces the seat limit with 402 once Pro’s 10 seats are committed', async () => {
@@ -62,9 +87,15 @@ describe('Members & roles (e2e)', () => {
     await sara.post('/admin/invites', { email: 'nine@acme.com', role: 'MEMBER' }).expect(201);
     await sara.post('/admin/invites', { email: 'ten@acme.com', role: 'VIEWER' }).expect(201);
     const res = await sara.post('/admin/invites', { email: 'eleven@acme.com', role: 'MEMBER' }).expect(402);
-    expect(res.body.error).toMatchObject({ kind: 'limit_reached', code: 'plan.limit.seats', details: { limit: 10 } });
+    expect(res.body.error).toMatchObject({
+      kind: 'limit_reached',
+      code: 'plan.limit.seats',
+      details: { limit: 10 },
+    });
     // Guests don't take seats.
-    await sara.post('/admin/invites', { email: 'guest2@example.com', role: 'GUEST', projectId: webProjectId }).expect(201);
+    await sara
+      .post('/admin/invites', { email: 'guest2@example.com', role: 'GUEST', projectId: webProjectId })
+      .expect(201);
   });
 
   it('resends and revokes invites, which frees the seat', async () => {
@@ -77,17 +108,28 @@ describe('Members & roles (e2e)', () => {
   });
 
   it('lets a new person accept an invite and join with the invited role', async () => {
-    const invited = await sara.post('/admin/invites', { email: 'gina@example.com', role: 'GUEST', projectId: webProjectId }).expect(201);
+    const invited = await sara
+      .post('/admin/invites', { email: 'gina@example.com', role: 'GUEST', projectId: webProjectId })
+      .expect(201);
     const reg = await request(app.getHttpServer())
       .post(api('/auth/register'))
       .send({ name: 'Gina Park', email: 'gina@example.com', password: 'longenough' })
       .expect(201);
     const token = reg.body.accessToken as string;
-    const accept = await request(app.getHttpServer()).post(api(`/invites/${invited.body.token}/accept`)).set('Authorization', `Bearer ${token}`).expect(200);
+    const accept = await request(app.getHttpServer())
+      .post(api(`/invites/${invited.body.token}/accept`))
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
     expect(accept.body).toMatchObject({ role: 'GUEST', projectId: webProjectId });
-    await request(app.getHttpServer()).post(api(`/invites/${invited.body.token}/accept`)).set('Authorization', `Bearer ${token}`).expect(409);
+    await request(app.getHttpServer())
+      .post(api(`/invites/${invited.body.token}/accept`))
+      .set('Authorization', `Bearer ${token}`)
+      .expect(409);
     const { body } = await fawad.get('/admin/members').expect(200);
-    expect(body.members.find((m: { email: string }) => m.email === 'gina@example.com')).toMatchObject({ role: 'GUEST', guestProjectCount: 1 });
+    expect(body.members.find((m: { email: string }) => m.email === 'gina@example.com')).toMatchObject({
+      role: 'GUEST',
+      guestProjectCount: 1,
+    });
   });
 
   it('blocks role escalation (403) and protects the last owner (409)', async () => {
@@ -105,7 +147,10 @@ describe('Members & roles (e2e)', () => {
     await sara.post(`/admin/members/${ids.sara}/deactivate`).expect(403);
     await sara.post(`/admin/members/${ids.fawad}/deactivate`).expect(409);
     await sara.post(`/admin/members/${ids.ravi}/deactivate`).expect(200);
-    await request(app.getHttpServer()).post(api('/auth/login')).send({ email: 'ravi@acme.com', password: 'hearth123' }).expect(401);
+    await request(app.getHttpServer())
+      .post(api('/auth/login'))
+      .send({ email: 'ravi@acme.com', password: 'hearth123' })
+      .expect(401);
     const back = await sara.post(`/admin/members/${ids.ravi}/reactivate`).expect(200);
     expect(back.body.status).toBe('ACTIVE');
     await asUser(app, 'ravi@acme.com');

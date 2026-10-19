@@ -6,7 +6,15 @@ import { PlateIllustration } from './PlateIllustration';
 import styles from '../home.module.css';
 
 /** My tasks on Home: the empty state from the design, or the next few open tasks. */
-export function MyTasksCard({ tasks, onCreate, onImport }: { tasks: TaskDto[] | undefined; onCreate: () => void; onImport: () => void }) {
+export function MyTasksCard({
+  tasks,
+  onCreate,
+  onImport,
+}: {
+  tasks: TaskDto[] | undefined;
+  onCreate: () => void;
+  onImport: () => void;
+}) {
   const panel = useTaskPanel();
   const open = (tasks ?? []).filter((t) => t.status !== 'DONE').slice(0, 5);
   if (open.length)
@@ -29,7 +37,9 @@ export function MyTasksCard({ tasks, onCreate, onImport }: { tasks: TaskDto[] | 
                   <StatusIcon status={toUiStatus(t.status)} />
                   <span className={styles.taskKey}>{t.key}</span>
                   <span className={styles.taskTitle}>{t.title}</span>
-                  {due ? <span className={due.tone === 'danger' ? styles.dueDanger : styles.due}>{due.label}</span> : null}
+                  {due ? (
+                    <span className={due.tone === 'danger' ? styles.dueDanger : styles.due}>{due.label}</span>
+                  ) : null}
                 </button>
               </li>
             );
@@ -41,12 +51,18 @@ export function MyTasksCard({ tasks, onCreate, onImport }: { tasks: TaskDto[] | 
       </section>
     );
   return (
-    <section aria-labelledby="home-my-tasks" className={`${styles.card} ${styles.myTasks} ${styles.emptyCard}`}>
+    <section
+      aria-labelledby="home-my-tasks"
+      className={`${styles.card} ${styles.myTasks} ${styles.emptyCard}`}
+    >
       <PlateIllustration />
       <h2 id="home-my-tasks" className={styles.h2}>
         Nothing on your plate yet
       </h2>
-      <p className={styles.emptyText}>Tasks assigned to you land here, grouped by when they’re due. Create one now, or press C from anywhere.</p>
+      <p className={styles.emptyText}>
+        Tasks assigned to you land here, grouped by when they’re due. Create one now, or press C from
+        anywhere.
+      </p>
       <div className={styles.emptyActions}>
         <Button icon="plus" onClick={onCreate}>
           Create task

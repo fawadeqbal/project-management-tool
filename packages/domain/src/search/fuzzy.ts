@@ -4,7 +4,8 @@ export interface FuzzyMatch {
   indices: number[];
 }
 
-const isBoundary = (text: string, i: number) => i === 0 || /[\s\-_/·.]/.test(text[i - 1]!) || (/[a-z]/.test(text[i - 1]!) && /[A-Z]/.test(text[i]!));
+const isBoundary = (text: string, i: number) =>
+  i === 0 || /[\s\-_/·.]/.test(text[i - 1]!) || (/[a-z]/.test(text[i - 1]!) && /[A-Z]/.test(text[i]!));
 
 /**
  * Subsequence fuzzy matcher tuned for ⌘K: rewards consecutive runs, word starts and prefix
@@ -45,7 +46,10 @@ export const fuzzyMatch = (query: string, text: string): FuzzyMatch | null => {
 };
 
 /** Matches a query against several fields (title, key, keywords) and keeps the best. */
-export const fuzzyBest = (query: string, fields: readonly string[]): FuzzyMatch & { field: number } | null => {
+export const fuzzyBest = (
+  query: string,
+  fields: readonly string[],
+): (FuzzyMatch & { field: number }) | null => {
   let best: (FuzzyMatch & { field: number }) | null = null;
   fields.forEach((f, field) => {
     const m = fuzzyMatch(query, f);
@@ -55,7 +59,12 @@ export const fuzzyBest = (query: string, fields: readonly string[]): FuzzyMatch 
 };
 
 /** Ranks items by fuzzy score; stable for ties. */
-export const fuzzyRank = <T>(query: string, items: readonly T[], fieldsOf: (item: T) => string[], limit = 50) =>
+export const fuzzyRank = <T>(
+  query: string,
+  items: readonly T[],
+  fieldsOf: (item: T) => string[],
+  limit = 50,
+) =>
   items
     .map((item, i) => ({ item, i, match: fuzzyBest(query, fieldsOf(item)) }))
     .filter((x): x is { item: T; i: number; match: FuzzyMatch & { field: number } } => x.match !== null)
@@ -79,16 +88,34 @@ const SECONDARY_ALSO_BONUS = 5;
  * Ranks by primary fields first so a title hit beats a tag hit: "pric" puts "Design pricing
  * page" (title + Pricing tag) above "Final plan names" (tag only). Stable for ties.
  */
-export const fuzzyRankWeighted = <T>(query: string, items: readonly T[], fields: WeightedFields<T>, limit = 50) =>
+export const fuzzyRankWeighted = <T>(
+  query: string,
+  items: readonly T[],
+  fields: WeightedFields<T>,
+  limit = 50,
+) =>
   items
     .map((item, i) => {
       const primary = fuzzyBest(query, fields.primary(item));
       const secondary = fields.secondary ? fuzzyBest(query, fields.secondary(item)) : null;
       if (!primary && !secondary) return null;
-      const base = primary ? primary.score + (secondary ? SECONDARY_ALSO_BONUS : 0) : secondary!.score - SECONDARY_ONLY_PENALTY;
-      const match: FuzzyMatch & { field: number; primary: boolean } = primary ? { ...primary, primary: true } : { ...secondary!, primary: false };
+      const base = primary
+        ? primary.score + (secondary ? SECONDARY_ALSO_BONUS : 0)
+        : secondary!.score - SECONDARY_ONLY_PENALTY;
+      const match: FuzzyMatch & { field: number; primary: boolean } = primary
+        ? { ...primary, primary: true }
+        : { ...secondary!, primary: false };
       return { item, i, score: base + (fields.boost?.(item) ?? 0), match };
     })
-    .filter((x): x is { item: T; i: number; score: number; match: FuzzyMatch & { field: number; primary: boolean } } => x !== null)
+    .filter(
+      (
+        x,
+      ): x is {
+        item: T;
+        i: number;
+        score: number;
+        match: FuzzyMatch & { field: number; primary: boolean };
+      } => x !== null,
+    )
     .sort((a, b) => b.score - a.score || a.i - b.i)
     .slice(0, limit);

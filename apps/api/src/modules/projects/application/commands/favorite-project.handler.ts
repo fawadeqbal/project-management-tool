@@ -1,6 +1,12 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, type ICommandHandler } from '@nestjs/cqrs';
-import { createEvent, PROJECT_REPOSITORY, type Actor, type Clock, type ProjectRepository } from '@hearth/domain';
+import {
+  createEvent,
+  PROJECT_REPOSITORY,
+  type Actor,
+  type Clock,
+  type ProjectRepository,
+} from '@hearth/domain';
 import { AccessService } from '../../../../shared/access/access.service';
 import { CLOCK } from '../../../../shared/clock/clock';
 import { DomainEventPublisher } from '../../../../shared/events/domain-event.publisher';
@@ -34,7 +40,12 @@ export class SetFavoriteHandler implements ICommandHandler<SetFavoriteCommand, {
     this.events.publish(
       createEvent(
         favorite ? 'project.favorited' : 'project.unfavorited',
-        { workspaceId: actor.workspaceId, actorId: actor.userId, aggregateId: project.id, occurredAt: this.clock.now() },
+        {
+          workspaceId: actor.workspaceId,
+          actorId: actor.userId,
+          aggregateId: project.id,
+          occurredAt: this.clock.now(),
+        },
         { name: project.name },
       ),
     );

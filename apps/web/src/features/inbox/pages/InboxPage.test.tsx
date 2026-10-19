@@ -40,14 +40,23 @@ vi.mock('@/shared/api/http', async (importOriginal) => {
 
 vi.mock('@/shared/api/client', () => ({
   api: {
-    tasks: { getByKey: vi.fn(() => new Promise(() => undefined)), get: vi.fn(() => new Promise(() => undefined)), addComment: vi.fn() },
+    tasks: {
+      getByKey: vi.fn(() => new Promise(() => undefined)),
+      get: vi.fn(() => new Promise(() => undefined)),
+      addComment: vi.fn(),
+    },
     workspace: { members: vi.fn(async () => []), shell: vi.fn(async () => undefined) },
   },
 }));
 
 const mocked = routes;
 const now = Date.now();
-const user = (initials: string, name: string) => ({ id: `u-${initials}`, name, initials, avatarColor: 'violet' as const });
+const user = (initials: string, name: string) => ({
+  id: `u-${initials}`,
+  name,
+  initials,
+  avatarColor: 'violet' as const,
+});
 
 const item = (over: Partial<InboxItemDto> & Pick<InboxItemDto, 'id' | 'title'>): InboxItemDto => ({
   type: 'MENTION',
@@ -78,12 +87,29 @@ const approvalItem = item({
   approvalId: 'a1',
   unread: true,
 });
-const mention = item({ id: 'n2', title: 'Sara Ahmed mentioned you', excerpt: '@Fawad the toggle is 3.9:1', unread: true });
-const status = item({ id: 'n3', type: 'STATUS_CHANGED', title: 'Nadia Bashir changed status to Blocked', actor: user('NB', 'Nadia Bashir'), icon: 'status-blocked' });
+const mention = item({
+  id: 'n2',
+  title: 'Sara Ahmed mentioned you',
+  excerpt: '@Fawad the toggle is 3.9:1',
+  unread: true,
+});
+const status = item({
+  id: 'n3',
+  type: 'STATUS_CHANGED',
+  title: 'Nadia Bashir changed status to Blocked',
+  actor: user('NB', 'Nadia Bashir'),
+  icon: 'status-blocked',
+});
 
 const inbox = (items: InboxItemDto[]): InboxDto => ({
   items,
-  counts: { all: items.length, unread: items.filter((i) => i.unread).length, mentions: items.filter((i) => i.type === 'MENTION' && i.unread).length, assigned: 0, approvals: items.filter((i) => i.type === 'APPROVAL_REQUESTED' && i.unread).length },
+  counts: {
+    all: items.length,
+    unread: items.filter((i) => i.unread).length,
+    mentions: items.filter((i) => i.type === 'MENTION' && i.unread).length,
+    assigned: 0,
+    approvals: items.filter((i) => i.type === 'APPROVAL_REQUESTED' && i.unread).length,
+  },
 });
 
 const approval: ApprovalDetailDto = {
@@ -102,10 +128,33 @@ const approval: ApprovalDetailDto = {
   dueDate: '2026-10-20',
   dueLabel: 'Approval due tomorrow',
   dueTone: 'warning',
-  attachments: [{ id: 'f1', name: 'hero-v3.png', kind: 'file', url: 'https://files.acme.com/hero-v3.png', sizeBytes: 1258291, label: 'hero-v3.png · 1.2 MB' }],
+  attachments: [
+    {
+      id: 'f1',
+      name: 'hero-v3.png',
+      kind: 'file',
+      url: 'https://files.acme.com/hero-v3.png',
+      sizeBytes: 1258291,
+      label: 'hero-v3.png · 1.2 MB',
+    },
+  ],
   approvers: [
-    { user: user('SA', 'Sara Ahmed'), decision: 'APPROVED', label: 'Approved', note: null, decidedAt: null, isMe: false },
-    { user: { ...user('FI', 'Fawad Iqbal'), id: 'u1' }, decision: 'PENDING', label: 'Waiting on you', note: null, decidedAt: null, isMe: true },
+    {
+      user: user('SA', 'Sara Ahmed'),
+      decision: 'APPROVED',
+      label: 'Approved',
+      note: null,
+      decidedAt: null,
+      isMe: false,
+    },
+    {
+      user: { ...user('FI', 'Fawad Iqbal'), id: 'u1' },
+      decision: 'PENDING',
+      label: 'Waiting on you',
+      note: null,
+      decidedAt: null,
+      isMe: true,
+    },
   ],
   myDecision: 'PENDING',
   canDecide: true,
@@ -113,19 +162,26 @@ const approval: ApprovalDetailDto = {
   resolvedAt: null,
 };
 
-const key = (k: string, opts: Partial<KeyboardEventInit> = {}) => fireEvent.keyDown(document.body, { key: k, ...opts });
+const key = (k: string, opts: Partial<KeyboardEventInit> = {}) =>
+  fireEvent.keyDown(document.body, { key: k, ...opts });
 const ok = { updated: 1 };
 
 describe('InboxPage', () => {
   // A tiny stateful server so refetches after a mutation agree with the optimistic state.
   let server: Map<string, InboxItemDto>;
   const visible = (tab: string) =>
-    [...server.values()].filter((i) => tab === 'all' || (tab === 'mentions' && i.type === 'MENTION') || (tab === 'approvals' && i.type === 'APPROVAL_REQUESTED'));
+    [...server.values()].filter(
+      (i) =>
+        tab === 'all' ||
+        (tab === 'mentions' && i.type === 'MENTION') ||
+        (tab === 'approvals' && i.type === 'APPROVAL_REQUESTED'),
+    );
   beforeEach(() => {
     signIn();
     server = new Map([approvalItem, mention, status].map((i) => [i.id, { ...i }]));
     const hidden = new Map<string, InboxItemDto>();
-    const set = (id: string, patch: Partial<InboxItemDto>) => server.set(id, { ...server.get(id)!, ...patch });
+    const set = (id: string, patch: Partial<InboxItemDto>) =>
+      server.set(id, { ...server.get(id)!, ...patch });
     const hide = (id: string) => {
       hidden.set(id, server.get(id)!);
       server.delete(id);
@@ -141,7 +197,12 @@ describe('InboxPage', () => {
     mocked.snooze.mockImplementation(async (id: string) => (hide(id), ok));
     mocked.unarchive.mockImplementation(async (id: string) => (restore(id), ok));
     mocked.unsnooze.mockImplementation(async (id: string) => (restore(id), ok));
-    mocked.bulk.mockImplementation(async (ids: string[], action: string) => (ids.forEach((id) => (action === 'archive' ? hide(id) : set(id, { unread: action === 'unread' }))), ok));
+    mocked.bulk.mockImplementation(
+      async (ids: string[], action: string) => (
+        ids.forEach((id) => (action === 'archive' ? hide(id) : set(id, { unread: action === 'unread' }))),
+        ok
+      ),
+    );
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -158,7 +219,9 @@ describe('InboxPage', () => {
     expect(within(options[0]!).getByText('Unread:', { exact: false })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Mentions 1' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Approvals 1' })).toBeInTheDocument();
-    expect(await screen.findByText('Jia Li asked you and Sara Ahmed to approve · 1 of 2 approvals')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Jia Li asked you and Sara Ahmed to approve · 1 of 2 approvals'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Approval due tomorrow')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /hero-v3\.png · 1\.2 MB/ })).toBeInTheDocument();
     expect(screen.getByText('Waiting on you')).toBeInTheDocument();
@@ -169,7 +232,9 @@ describe('InboxPage', () => {
     const { unmount } = renderApp(<InboxPage />, { route: '/inbox' });
     await screen.findByRole('listbox', { name: 'Inbox items' });
     expect(mocked.read).not.toHaveBeenCalled();
-    await waitFor(() => expect(mocked.read).toHaveBeenCalledWith('n1'), { timeout: MARK_READ_DELAY_MS + 1000 });
+    await waitFor(() => expect(mocked.read).toHaveBeenCalledWith('n1'), {
+      timeout: MARK_READ_DELAY_MS + 1000,
+    });
     unmount();
   });
 
@@ -177,12 +242,17 @@ describe('InboxPage', () => {
     const { unmount } = renderApp(<InboxPage />, { route: '/inbox' });
     await screen.findByText('Jia Li requested your approval');
     act(() => void key('j'));
-    expect(screen.getByRole('option', { name: /Sara Ahmed mentioned you/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('option', { name: /Sara Ahmed mentioned you/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     act(() => void key('k'));
     act(() => void key('j'));
     act(() => void key('e'));
     // Optimistic: gone right away, next item selected.
-    await waitFor(() => expect(screen.queryByRole('option', { name: /Sara Ahmed mentioned you/ })).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.queryByRole('option', { name: /Sara Ahmed mentioned you/ })).not.toBeInTheDocument(),
+    );
     expect(screen.getByRole('option', { name: /Nadia Bashir/ })).toHaveAttribute('aria-selected', 'true');
     await waitFor(() => expect(mocked.archive).toHaveBeenCalledWith('n2'));
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
@@ -227,7 +297,11 @@ describe('InboxPage', () => {
     act(() => void key('j'));
     act(() => void key('x'));
     expect(screen.getByText('2 selected')).toBeInTheDocument();
-    fireEvent.click(within(screen.getByRole('toolbar', { name: 'Selected items' })).getByRole('button', { name: 'Archive' }));
+    fireEvent.click(
+      within(screen.getByRole('toolbar', { name: 'Selected items' })).getByRole('button', {
+        name: 'Archive',
+      }),
+    );
     await waitFor(() => expect(mocked.bulk).toHaveBeenCalledWith(['n1', 'n2'], 'archive'));
     expect(screen.getByText('Archived 2 items')).toBeInTheDocument();
     unmount();
@@ -237,14 +311,18 @@ describe('InboxPage', () => {
     let resolve!: (v: ApprovalDetailDto) => void;
     mocked.decide.mockImplementation(() => new Promise<ApprovalDetailDto>((r) => (resolve = r)));
     const { unmount } = renderApp(<InboxPage />, { route: '/inbox' });
-    fireEvent.change(await screen.findByRole('textbox', { name: 'Note for Jia (optional)' }), { target: { value: 'Ship it' } });
+    fireEvent.change(await screen.findByRole('textbox', { name: 'Note for Jia (optional)' }), {
+      target: { value: 'Ship it' },
+    });
     act(() => void key('A', { shiftKey: true }));
     // Before the server answers: my row already says Approved and the buttons are gone.
     await waitFor(() => expect(screen.getAllByText('Approved').length).toBeGreaterThanOrEqual(2));
     expect(screen.getByText(/2 of 2 approvals/)).toBeInTheDocument();
     expect(mocked.decide).toHaveBeenCalledWith('a1', 'APPROVED', 'Ship it');
     expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument();
-    await act(async () => resolve({ ...approval, status: 'APPROVED', canDecide: false, myDecision: 'APPROVED' }));
+    await act(async () =>
+      resolve({ ...approval, status: 'APPROVED', canDecide: false, myDecision: 'APPROVED' }),
+    );
     expect(await screen.findByText(/Approved · Jia will be notified/)).toBeInTheDocument();
     unmount();
   });

@@ -1,7 +1,14 @@
 import { useMemo, type ReactNode } from 'react';
 import { Button, DropdownMenu, type DropdownMenuSection } from '@hearth/ui';
 import type { ProjectMemberDto } from '@hearth/contracts';
-import { PRIORITIES, PRIORITY_META, STATUS_META, TASK_STATUSES, type Priority, type TaskStatus } from '@hearth/domain';
+import {
+  PRIORITIES,
+  PRIORITY_META,
+  STATUS_META,
+  TASK_STATUSES,
+  type Priority,
+  type TaskStatus,
+} from '@hearth/domain';
 import { STATUS_ICON } from '@/shared/tasks/meta';
 import { useProjectFilters, type Swimlanes } from '../view-state';
 import styles from '../projects.module.css';
@@ -49,18 +56,44 @@ export function ProjectFilterBar({ projectId, members, swimlanes = false, childr
         })),
       },
       ...(activeCount
-        ? [{ id: 'clear', items: [{ id: 'clear', label: 'Clear filters', icon: 'x' as const, onSelect: () => setFilters({ statuses: [], priorities: [], assigneeId: null }) }] }]
+        ? [
+            {
+              id: 'clear',
+              items: [
+                {
+                  id: 'clear',
+                  label: 'Clear filters',
+                  icon: 'x' as const,
+                  onSelect: () => setFilters({ statuses: [], priorities: [], assigneeId: null }),
+                },
+              ],
+            },
+          ]
         : []),
     ],
     [filters, setFilters, activeCount],
   );
 
   const assigneeLabel =
-    filters.assigneeId === null ? 'Anyone' : filters.assigneeId === 'none' ? 'No one' : (members.find((m) => m.id === filters.assigneeId)?.name.split(' ')[0] ?? 'Someone');
+    filters.assigneeId === null
+      ? 'Anyone'
+      : filters.assigneeId === 'none'
+        ? 'No one'
+        : (members.find((m) => m.id === filters.assigneeId)?.name.split(' ')[0] ?? 'Someone');
   const assigneeItems = useMemo(
     () => [
-      { id: 'anyone', label: 'Anyone', icon: filters.assigneeId === null ? ('check' as const) : ('users' as const), onSelect: () => setFilters({ assigneeId: null }) },
-      { id: 'none', label: 'No one', icon: filters.assigneeId === 'none' ? ('check' as const) : ('user-plus' as const), onSelect: () => setFilters({ assigneeId: 'none' }) },
+      {
+        id: 'anyone',
+        label: 'Anyone',
+        icon: filters.assigneeId === null ? ('check' as const) : ('users' as const),
+        onSelect: () => setFilters({ assigneeId: null }),
+      },
+      {
+        id: 'none',
+        label: 'No one',
+        icon: filters.assigneeId === 'none' ? ('check' as const) : ('user-plus' as const),
+        onSelect: () => setFilters({ assigneeId: 'none' }),
+      },
       ...members.map((m) => ({
         id: m.id,
         label: m.name,
@@ -100,7 +133,12 @@ export function ProjectFilterBar({ projectId, members, swimlanes = false, childr
         <DropdownMenu
           label="Swimlanes"
           align="end"
-          items={SWIMLANES.map((s) => ({ id: s.id, label: s.label, icon: filters.swimlanes === s.id ? 'check' : 'list', onSelect: () => setFilters({ swimlanes: s.id }) }))}
+          items={SWIMLANES.map((s) => ({
+            id: s.id,
+            label: s.label,
+            icon: filters.swimlanes === s.id ? 'check' : 'list',
+            onSelect: () => setFilters({ swimlanes: s.id }),
+          }))}
           trigger={
             <Button variant="secondary" size="sm" icon="list">
               Swimlanes: {SWIMLANES.find((s) => s.id === filters.swimlanes)?.label}

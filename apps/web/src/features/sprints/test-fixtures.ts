@@ -1,6 +1,11 @@
 import type { SprintDetailDto, SprintSummaryDto, SprintTaskDto } from '@hearth/contracts';
 
-const u = (id: string, name: string, initials: string) => ({ id, name, initials, avatarColor: 'sky' as const });
+const u = (id: string, name: string, initials: string) => ({
+  id,
+  name,
+  initials,
+  avatarColor: 'sky' as const,
+});
 
 export const sprintTask = (n: number, over: Partial<SprintTaskDto> = {}): SprintTaskDto => ({
   id: `t${n}`,
@@ -32,17 +37,42 @@ const summary = (n: number, status: SprintSummaryDto['status'], completed: numbe
   completedAt: null,
 });
 
-export const sprintList = (): SprintSummaryDto[] => [summary(23, 'COMPLETED', 39), summary(24, 'ACTIVE', 18), summary(25, 'PLANNED', 0)];
+export const sprintList = (): SprintSummaryDto[] => [
+  summary(23, 'COMPLETED', 39),
+  summary(24, 'ACTIVE', 18),
+  summary(25, 'PLANNED', 0),
+];
 
-const days = ['2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16', '2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-26'];
+const days = [
+  '2026-10-13',
+  '2026-10-14',
+  '2026-10-15',
+  '2026-10-16',
+  '2026-10-19',
+  '2026-10-20',
+  '2026-10-21',
+  '2026-10-22',
+  '2026-10-23',
+  '2026-10-26',
+];
 const actual = [38, 38, 33, 33, 37, 29, 24];
 
 export const sprintDetail = (): SprintDetailDto => ({
   sprint: summary(24, 'ACTIVE', 18),
-  header: { dateLabel: 'Oct 13 – Oct 26', daysLeft: 3, statusLabel: 'Active · 3 working days left', people: [u('mo', 'Mo Khan', 'MK')] },
+  header: {
+    dateLabel: 'Oct 13 – Oct 26',
+    daysLeft: 3,
+    statusLabel: 'Active · 3 working days left',
+    people: [u('mo', 'Mo Khan', 'MK')],
+  },
   tasks: [
     sprintTask(301, { title: 'Swipe right to complete a task', status: 'DONE', points: 5, priority: 'HIGH' }),
-    sprintTask(306, { title: 'Offline queue for task edits', status: 'IN_PROGRESS', points: 8, priority: 'URGENT' }),
+    sprintTask(306, {
+      title: 'Offline queue for task edits',
+      status: 'IN_PROGRESS',
+      points: 8,
+      priority: 'URGENT',
+    }),
     sprintTask(311, { title: 'Background refresh for Inbox', points: 8 }),
   ],
   progress: { donePoints: 18, totalPoints: 42, donePct: 43 },
@@ -81,7 +111,28 @@ export const sprintDetail = (): SprintDetailDto => ({
 });
 
 export const backlogFixture = (): SprintTaskDto[] => [
-  sprintTask(320, { title: 'Widget for today’s tasks (iOS)', sprintId: null, backlogRank: 1, points: 8, epic: 'Widgets', assignee: null }),
-  sprintTask(322, { title: 'Quick add from share sheet', sprintId: null, backlogRank: 2, points: 5, epic: 'Capture', assignee: null }),
-  sprintTask(324, { title: 'Push notification grouping', sprintId: null, backlogRank: 3, points: 3, epic: 'Notifications', assignee: null }),
+  sprintTask(320, {
+    title: 'Widget for today’s tasks (iOS)',
+    sprintId: null,
+    backlogRank: 1,
+    points: 8,
+    epic: 'Widgets',
+    assignee: null,
+  }),
+  sprintTask(322, {
+    title: 'Quick add from share sheet',
+    sprintId: null,
+    backlogRank: 2,
+    points: 5,
+    epic: 'Capture',
+    assignee: null,
+  }),
+  sprintTask(324, {
+    title: 'Push notification grouping',
+    sprintId: null,
+    backlogRank: 3,
+    points: 3,
+    epic: 'Notifications',
+    assignee: null,
+  }),
 ];

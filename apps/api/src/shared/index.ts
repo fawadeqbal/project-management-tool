@@ -13,3 +13,4 @@ export { DomainEventEnvelope } from './events/domain-event.envelope';
 export { DomainEventPublisher } from './events/domain-event.publisher';
 export { DomainEventSubscriber } from './events/domain-event.subscriber';
 export * from './mappers/refs';
+export { RequireFeature, PlanService } from './billing/require-feature';

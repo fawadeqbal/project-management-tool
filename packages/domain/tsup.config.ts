@@ -5,6 +5,6 @@ export default defineConfig({
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,
-  clean: true,
+  clean: false, // parallel rebuilds must never leave dist empty
   target: 'es2022',
 });

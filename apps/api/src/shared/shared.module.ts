@@ -11,6 +11,7 @@ import { ActorResolver } from './workspace-context/actor-resolver.service';
 import { AccessService } from './access/access.service';
 import { PermissionGuard } from './access/require-permission';
 import { DomainExceptionFilter } from './http/domain-exception.filter';
+import { FeatureGuard, PlanService } from './billing/require-feature';
 import { DomainEventPublisher } from './events/domain-event.publisher';
 import { ActivityRecorder } from './events/activity-recorder';
 import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway';
@@ -44,8 +45,10 @@ import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway'
     RealtimeBroadcaster,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
+    PlanService,
+    { provide: APP_GUARD, useClass: FeatureGuard },
     { provide: APP_FILTER, useClass: DomainExceptionFilter },
   ],
-  exports: [PrismaService, CLOCK, PASSWORD_HASHER, TokenService, ActorResolver, AccessService, DomainEventPublisher, RealtimeGateway],
+  exports: [PlanService, PrismaService, CLOCK, PASSWORD_HASHER, TokenService, ActorResolver, AccessService, DomainEventPublisher, RealtimeGateway],
 })
 export class SharedModule {}

@@ -16,3 +16,4 @@ export * from './billing';
 export * from './search';
 export * from './ai';
 export * from './onboarding';
+export * from './members';

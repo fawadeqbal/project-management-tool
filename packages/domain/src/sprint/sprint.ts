@@ -95,6 +95,32 @@ export class Sprint extends AggregateRoot<SprintProps> {
     this.record(createEvent('sprint.completed', this.base(actorId, now), summary));
   }
 
+  get number() {
+    return this.props.number;
+  }
+
+  get endDate() {
+    return this.props.endDate;
+  }
+
+  /**
+   * Adds a task to the sprint. Scope added after the sprint started is a scope change — the event
+   * says so (`afterStart`) so the burndown can mark it.
+   */
+  addTask(task: { id: string; points: number | null }, actorId: string, now: Date): void {
+    if (this.props.status === 'COMPLETED') throw new InvariantViolation('sprint.completed', 'This sprint is complete — add the task to the next sprint instead.');
+    this.record(
+      createEvent('sprint.task_added', this.base(actorId, now), { taskId: task.id, points: task.points ?? 0, afterStart: this.props.status === 'ACTIVE', projectId: this.props.projectId }),
+    );
+  }
+
+  removeTask(task: { id: string; points: number | null }, actorId: string, now: Date): void {
+    if (this.props.status === 'COMPLETED') throw new InvariantViolation('sprint.completed', 'This sprint is complete — its tasks are part of the record now.');
+    this.record(
+      createEvent('sprint.task_removed', this.base(actorId, now), { taskId: task.id, points: task.points ?? 0, afterStart: this.props.status === 'ACTIVE', projectId: this.props.projectId }),
+    );
+  }
+
   private base(actorId: string, now: Date) {
     return { workspaceId: this.props.workspaceId, actorId, aggregateId: this.id, occurredAt: now };
   }
@@ -104,6 +130,8 @@ export interface SprintRepository {
   findById(workspaceId: string, id: string): Promise<Sprint | null>;
   findActive(projectId: string): Promise<Sprint | null>;
   nextNumber(projectId: string): Promise<number>;
+  /** The earliest planned sprint after `afterNumber` (where unfinished work goes on completion). */
+  findNextPlanned(projectId: string, afterNumber: number): Promise<Sprint | null>;
   save(sprint: Sprint): Promise<void>;
 }
 

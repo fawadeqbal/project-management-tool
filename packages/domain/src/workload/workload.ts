@@ -31,6 +31,8 @@ export interface WorkloadCell {
   capacity: number;
   state: LoadState;
   taskIds: string[];
+  /** Each task's share of this day, in the requested unit (popover: "HRT-192 · 3.2h"). */
+  items: { taskId: string; amount: number }[];
 }
 
 export interface WorkloadRow {
@@ -76,7 +78,7 @@ export const computeWorkload = (
   return people.map((p) => {
     const cells: WorkloadCell[] = days.map((d) => {
       const off = isOff(p.userId, d);
-      return { date: toDateOnly(d), planned: 0, capacity: off ? 0 : capacityIn(unit, p.capacityHoursPerDay), state: off ? 'off' : 'free', taskIds: [] };
+      return { date: toDateOnly(d), planned: 0, capacity: off ? 0 : capacityIn(unit, p.capacityHoursPerDay), state: off ? 'off' : 'free', taskIds: [], items: [] };
     });
     const index = new Map(cells.map((c, i) => [c.date, i]));
 
@@ -95,6 +97,7 @@ export const computeWorkload = (
         if (i === undefined) continue;
         cells[i]!.planned = round1(cells[i]!.planned + perDay);
         cells[i]!.taskIds.push(t.id);
+        cells[i]!.items.push({ taskId: t.id, amount: round1(perDay) });
       }
     }
 
@@ -152,6 +155,15 @@ export interface RebalanceSuggestion {
   toUserId: string;
   /** Hours freed on the overloaded person's worst day. */
   hoursMoved: number;
+  /** Days in the range the task covers (where the hours move). */
+  days: string[];
+  /** Hours moved across those days. */
+  totalHours: number;
+  fromLoadPct: number;
+  toLoadPct: number;
+  /** Projected load over the range once the task moves. */
+  fromLoadPctAfter: number;
+  toLoadPctAfter: number;
   reason: string;
 }
 
@@ -174,8 +186,9 @@ export const suggestRebalance = (
       .filter((t): t is WorkloadTask => !!t)
       .sort((a, b) => (a.estimateHours ?? 0) - (b.estimateHours ?? 0));
     for (const task of candidates) {
-      const taskDays = new Set(row.cells.filter((c) => c.taskIds.includes(task.id)).map((c) => c.date));
-      const perDay = (task.estimateHours ?? 0) / Math.max(1, taskDays.size);
+      const shares = row.cells.flatMap((c) => c.items.filter((x) => x.taskId === task.id).map((x) => ({ date: c.date, amount: x.amount })));
+      const taskDays = new Set(shares.map((x) => x.date));
+      const perDay = Math.max(0, ...shares.map((x) => x.amount));
       const target = [...byUser.values()]
         .filter((r) => r.userId !== row.userId)
         .map((r) => ({ r, fits: r.cells.filter((c) => taskDays.has(c.date)).every((c) => c.capacity > 0 && c.planned + perDay <= c.capacity) }))
@@ -183,11 +196,19 @@ export const suggestRebalance = (
         .sort((a, b) => a.r.loadPct - b.r.loadPct)[0];
       if (target) {
         const name = (id: string) => names[id] ?? 'a teammate';
+        const totalHours = round1(shares.reduce((a, x) => a + x.amount, 0));
+        const pct = (planned: number, capacity: number) => (capacity ? Math.round((planned / capacity) * 100) : 0);
         suggestions.push({
           taskId: task.id,
           fromUserId: row.userId,
           toUserId: target.r.userId,
           hoursMoved: round1(perDay),
+          days: [...taskDays].sort(),
+          totalHours,
+          fromLoadPct: row.loadPct,
+          toLoadPct: target.r.loadPct,
+          fromLoadPctAfter: pct(row.plannedTotal - totalHours, row.capacityTotal),
+          toLoadPctAfter: pct(target.r.plannedTotal + totalHours, target.r.capacityTotal),
           reason: `${name(row.userId)} is over capacity on ${worst.date}; ${name(target.r.userId)} has room on those days.`,
         });
         break;

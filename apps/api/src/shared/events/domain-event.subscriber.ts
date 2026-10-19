@@ -12,7 +12,8 @@ import type { DomainEventEnvelope } from './domain-event.envelope';
  *     protected async on(event: DomainEvent) { ... }
  *   }
  *
- * `types` entries ending in '.' match a prefix ('task.' = every task event). Failures are
+ * `types` entries ending in '.' match a prefix ('task.' = every task event) and '*' matches
+ * every event. Failures are
  * logged and swallowed: a reaction must never break the write that caused it.
  */
 export abstract class DomainEventSubscriber implements IEventHandler<DomainEventEnvelope> {
@@ -21,8 +22,13 @@ export abstract class DomainEventSubscriber implements IEventHandler<DomainEvent
 
   protected abstract on(event: DomainEvent): Promise<void> | void;
 
+  /** Whether this subscriber cares about an event type. */
+  matches(type: string): boolean {
+    return this.types.some((t) => t === '*' || (t.endsWith('.') ? type.startsWith(t) : type === t));
+  }
+
   async handle({ event }: DomainEventEnvelope): Promise<void> {
-    if (!this.types.some((t) => (t.endsWith('.') ? event.type.startsWith(t) : event.type === t))) return;
+    if (!this.matches(event.type)) return;
     try {
       await this.on(event);
     } catch (e) {

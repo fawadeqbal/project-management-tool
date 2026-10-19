@@ -3,7 +3,17 @@ import { z } from 'zod';
 export const API_PREFIX = '/api/v1';
 
 /** "YYYY-MM-DD" calendar date. All due/start dates cross the wire in this shape. */
-export const DateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a date like 2026-10-26.');
+const isRealCalendarDate = (v: string): boolean => {
+  const [y, m, d] = v.split('-').map(Number) as [number, number, number];
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+};
+
+/** "YYYY-MM-DD" that exists on the calendar (rejects 2026-02-31 instead of rolling it over). */
+export const DateOnlySchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Use a date like 2026-10-26.')
+  .refine(isRealCalendarDate, 'That date doesn’t exist — check the day and month.');
 export const IdSchema = z.string().min(1).max(64);
 
 export const TaskStatusSchema = z.enum(['TODO', 'IN_PROGRESS', 'IN_REVIEW', 'BLOCKED', 'DONE']);

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PlanLimitPolicy, PLANS, type Feature, type PlanId } from '@hearth/domain';
 import { PrismaService } from '../prisma/prisma.service';
@@ -43,7 +43,8 @@ export class FeatureGuard implements CanActivate {
     ]);
     if (!feature) return true;
     const { actor } = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (actor) (await this.plans.policyFor(actor.workspaceId)).assertFeature(feature);
+    if (!actor) throw new ForbiddenException('This action needs a workspace.'); // fail closed
+    (await this.plans.policyFor(actor.workspaceId)).assertFeature(feature);
     return true;
   }
 }

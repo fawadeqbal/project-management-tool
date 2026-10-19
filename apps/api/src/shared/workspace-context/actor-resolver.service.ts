@@ -1,5 +1,6 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import type { Actor, Role } from '@hearth/domain';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import type { Actor, Clock, Role } from '@hearth/domain';
+import { CLOCK } from '../clock/clock';
 import { PrismaService } from '../prisma/prisma.service';
 
 const ACTIVITY_THROTTLE_MS = 60_000;
@@ -10,7 +11,10 @@ const ACTIVITY_THROTTLE_MS = 60_000;
  */
 @Injectable()
 export class ActorResolver {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
 
   async resolve(userId: string, requestedWorkspaceId?: string | null): Promise<Actor> {
     const membership = await this.prisma.membership.findFirst({
@@ -24,10 +28,11 @@ export class ActorResolver {
         'Your access to this workspace was turned off. Contact a workspace admin.',
       );
 
-    if (Date.now() - membership.lastActiveAt.getTime() > ACTIVITY_THROTTLE_MS) {
+    const now = this.clock.now();
+    if (now.getTime() - membership.lastActiveAt.getTime() > ACTIVITY_THROTTLE_MS) {
       // Fire-and-forget: "last active" is a hint, never worth failing a request over.
       void this.prisma.membership
-        .update({ where: { id: membership.id }, data: { lastActiveAt: new Date() } })
+        .update({ where: { id: membership.id }, data: { lastActiveAt: now } })
         .catch(() => undefined);
     }
 

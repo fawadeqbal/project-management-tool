@@ -10,7 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { WS_EVENT, WS_PRESENCE, type RealtimeEventDto, type UserRefDto } from '@hearth/contracts';
-import type { DomainEvent } from '@hearth/domain';
+import type { Actor, DomainEvent } from '@hearth/domain';
 import type { Server, Socket } from 'socket.io';
 import { TokenService } from '../auth/token.service';
 import { ActorResolver } from '../workspace-context/actor-resolver.service';
@@ -18,20 +18,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { toUserRef } from '../mappers/refs';
 import { DomainEventEnvelope } from './domain-event.envelope';
 import { DomainEventSubscriber } from './domain-event.subscriber';
+import { audienceFor, canSeeProject, presenceAudience, roomsForActor } from './event-audience';
 
 interface SocketState {
-  userId: string;
-  workspaceId: string;
+  actor: Actor;
   user: UserRefDto;
-  viewingTaskId: string | null;
+  viewing: { taskId: string; projectId: string | null } | null;
 }
-
-const room = (workspaceId: string) => `ws:${workspaceId}`;
 
 /**
  * Websocket adapter: authenticates the handshake (`auth.token`, optional `auth.workspaceId`
- * or query `workspaceId`), joins the workspace room, and tracks presence ("who is viewing
- * this task") so the task panel can show live avatars.
+ * or query `workspaceId`), joins the rooms the actor may hear (see event-audience.ts), and tracks
+ * presence ("who is viewing this task") for people allowed to see that task.
  */
 @WebSocketGateway({ cors: { origin: true, credentials: true } })
 export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -52,13 +50,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       const { sub } = await this.tokens.verify(auth.token);
       const actor = await this.actors.resolve(sub, auth.workspaceId ?? query.workspaceId ?? null);
       const user = await this.prisma.user.findUniqueOrThrow({ where: { id: sub } });
-      this.sockets.set(socket.id, {
-        userId: sub,
-        workspaceId: actor.workspaceId,
-        user: toUserRef(user),
-        viewingTaskId: null,
-      });
-      await socket.join(room(actor.workspaceId));
+      this.sockets.set(socket.id, { actor, user: toUserRef(user), viewing: null });
+      await socket.join(roomsForActor(actor));
     } catch (e) {
       this.logger.debug(`Rejected socket: ${e instanceof Error ? e.message : String(e)}`);
       socket.disconnect(true);
@@ -68,21 +61,27 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   handleDisconnect(socket: Socket): void {
     const state = this.sockets.get(socket.id);
     this.sockets.delete(socket.id);
-    if (state?.viewingTaskId) this.emitPresence(state.workspaceId, state.viewingTaskId);
+    if (state?.viewing) this.emitPresence(state.actor.workspaceId, state.viewing);
   }
 
   /** Client sends `{ taskId }` when opening a task and `{ taskId: null }` when closing it. */
   @SubscribeMessage(WS_PRESENCE)
-  onPresence(@ConnectedSocket() socket: Socket, @MessageBody() body: { taskId?: string | null }): void {
+  async onPresence(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() body: { taskId?: string | null },
+  ): Promise<void> {
     const state = this.sockets.get(socket.id);
     if (!state) return;
-    const previous = state.viewingTaskId;
-    state.viewingTaskId = body?.taskId ?? null;
-    if (previous && previous !== state.viewingTaskId) this.emitPresence(state.workspaceId, previous);
-    if (state.viewingTaskId) this.emitPresence(state.workspaceId, state.viewingTaskId);
+    const previous = state.viewing;
+    state.viewing = body?.taskId ? await this.visibleTask(state.actor, body.taskId) : null;
+    if (previous && previous.taskId !== state.viewing?.taskId)
+      this.emitPresence(state.actor.workspaceId, previous);
+    if (state.viewing) this.emitPresence(state.actor.workspaceId, state.viewing);
   }
 
   broadcast(event: DomainEvent): void {
+    const audience = audienceFor(event);
+    if (!this.server || audience.length === 0) return;
     const dto: RealtimeEventDto = {
       type: event.type,
       aggregateId: event.aggregateId,
@@ -91,21 +90,35 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       occurredAt: event.occurredAt.toISOString(),
       payload: event.payload as Record<string, unknown>,
     };
-    this.server?.to(room(event.workspaceId)).emit(WS_EVENT, dto);
+    this.server.to(audience).emit(WS_EVENT, dto);
   }
 
-  private emitPresence(workspaceId: string, taskId: string): void {
+  /** The task, if it exists in the actor's workspace and the actor may see its project. */
+  private async visibleTask(actor: Actor, taskId: string) {
+    const task = await this.prisma.task.findFirst({
+      where: { id: taskId, workspaceId: actor.workspaceId },
+      select: { id: true, projectId: true },
+    });
+    return task && canSeeProject(actor, task.projectId)
+      ? { taskId: task.id, projectId: task.projectId }
+      : null;
+  }
+
+  private emitPresence(workspaceId: string, viewing: { taskId: string; projectId: string | null }): void {
     const viewers = new Map<string, UserRefDto>();
     for (const s of this.sockets.values())
-      if (s.workspaceId === workspaceId && s.viewingTaskId === taskId) viewers.set(s.userId, s.user);
-    this.server?.to(room(workspaceId)).emit(WS_PRESENCE, { taskId, viewers: [...viewers.values()] });
+      if (s.actor.workspaceId === workspaceId && s.viewing?.taskId === viewing.taskId)
+        viewers.set(s.actor.userId, s.user);
+    this.server
+      ?.to(presenceAudience(workspaceId, viewing.projectId))
+      .emit(WS_PRESENCE, { taskId: viewing.taskId, viewers: [...viewers.values()] });
   }
 }
 
-/** Pushes every domain event to the workspace's sockets; clients turn them into cache refreshes. */
+/** Pushes every domain event to the sockets allowed to hear it; clients turn them into cache refreshes. */
 @EventsHandler(DomainEventEnvelope)
 export class RealtimeBroadcaster extends DomainEventSubscriber {
-  protected readonly types = [''] as const; // '' is a prefix of every type
+  protected readonly types = ['*'] as const;
 
   constructor(private readonly gateway: RealtimeGateway) {
     super();

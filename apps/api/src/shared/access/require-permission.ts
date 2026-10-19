@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, SetMetadata } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, SetMetadata } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Permission } from '@hearth/domain';
 import { AccessService } from './access.service';
@@ -25,7 +25,9 @@ export class PermissionGuard implements CanActivate {
     ]);
     if (!permission) return true;
     const { actor } = ctx.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (actor) this.access.assert(actor, permission);
+    // Fail closed: a permission-guarded route without workspace context is a wiring bug.
+    if (!actor) throw new ForbiddenException('This action needs a workspace.');
+    this.access.assert(actor, permission);
     return true;
   }
 }

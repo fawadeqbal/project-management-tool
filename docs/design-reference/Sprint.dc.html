@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sprint 24 — backlog and burndown</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="projects" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Engineering  /  Mobile app v2  /  Sprints" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1">
+<div style="display: flex; align-items: center; gap: 10px"><h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Sprint 24</h1>
+<span style="display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 9999px; background: var(--status-progress-bg); font-size: 12px; font-weight: 500">Active · 5 working days left</span></div>
+<p style="margin: 0; font-size: 13px; color: var(--text-secondary)"><strong style="font-weight: 600; color: var(--text-primary)">Goal:</strong> Swipe actions and offline mode ready for beta · Oct 13 – Oct 26</p>
+</div>
+<x-import component-from-global-scope="Hearth.AvatarGroup" people="{{people}}" size="{{avatar}}"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="board">Sprint board</x-import>
+<x-import component-from-global-scope="Hearth.Button">Complete sprint</x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section aria-label="Sprint backlog" style="border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface)">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default)">
+<strong style="font-size: 13px; font-weight: 600">In this sprint</strong><span style="font-size: 12px; color: var(--text-tertiary); flex-grow: 1">8 issues · 42 points</span>
+<span style="font-size: 12px; color: var(--text-secondary)">18 / 42 pts done</span><span style="width: 120px"><x-import component-from-global-scope="Hearth.ProgressBar" value="{{donePct}}" tone="success" height="{{six}}" label="Sprint progress"></x-import></span>
+</div>
+<sc-for list="{{sprint}}" as="t" hint-placeholder-count="8">
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid var(--border-default)">
+<x-import component-from-global-scope="Hearth.TaskCheckbox" checked="{{t.done}}" label="{{t.title}}"></x-import>
+<x-import component-from-global-scope="Hearth.PriorityIcon" level="{{t.p}}"></x-import>
+<span style="width: 64px; flex: none; font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary)">{{t.id}}</span>
+<span style="flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; color: {{t.color}}; text-decoration: {{t.deco}}">{{t.title}}</span>
+<span style="width: 112px; flex: none; display: flex"><x-import component-from-global-scope="Hearth.StatusPill" status="{{t.s}}"></x-import></span>
+<span title="Story points" style="min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-subtle); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; color: var(--text-secondary)">{{t.pts}}</span>
+<x-import component-from-global-scope="Hearth.Avatar" initials="{{t.a}}"></x-import>
+</div>
+</sc-for>
+</section>
+<section aria-label="Product backlog" style="border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface)">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default)">
+<strong style="font-size: 13px; font-weight: 600">Backlog</strong><span style="font-size: 12px; color: var(--text-tertiary); flex-grow: 1">Ranked · drag into the sprint or press Shift+S</span>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="sparkles">Estimate with AI</x-import>
+</div>
+<sc-for list="{{backlog}}" as="t" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 16px; border-bottom: 1px solid var(--border-default)">
+<span style="width: 16px; text-align: center; font-size: 12px; color: var(--text-tertiary)">{{t.rank}}</span>
+<x-import component-from-global-scope="Hearth.PriorityIcon" level="{{t.p}}"></x-import>
+<span style="width: 64px; flex: none; font-family: var(--font-mono); font-size: 12px; color: var(--text-tertiary)">{{t.id}}</span>
+<span style="flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px">{{t.title}}</span>
+<x-import component-from-global-scope="Hearth.Tag" color="{{t.c}}">{{t.epic}}</x-import>
+<span style="min-width: 24px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-subtle); border: 1px solid var(--border-default); font-size: 12px; font-weight: 600; color: var(--text-secondary)">{{t.pts}}</span>
+</div>
+</sc-for>
+</section>
+</div>
+<aside style="flex: 1 1 380px; max-width: 460px; display: flex; flex-direction: column; gap: 16px">
+<section aria-label="Burndown" style="padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 8px"><strong style="font-size: 14px; font-weight: 600; flex-grow: 1">Are we on pace?</strong><span style="font-size: 12px; color: var(--warning-text); font-weight: 600">9 pts behind ideal</span></div>
+<svg role="img" aria-label="Burndown: 24 points remaining on day 6 of 10, ideal is 15; 4 points of scope added on day 4" width="100%" viewBox="0 0 400 220">
+<sc-for list="{{grid}}" as="g" hint-placeholder-count="5"><line x1="32" x2="392" y1="{{g.y}}" y2="{{g.y}}" style="stroke: var(--border-default); stroke-width: 1"></line><text x="24" y="{{g.ty}}" text-anchor="end" style="fill: var(--text-tertiary); font-size: 10px; font-family: var(--font-sans)">{{g.v}}</text></sc-for>
+<line x1="{{todayX}}" x2="{{todayX}}" y1="12" y2="192" style="stroke: var(--danger-icon); stroke-width: 1.5"></line>
+<polyline points="{{ideal}}" style="fill: none; stroke: var(--text-tertiary); stroke-width: 2; stroke-dasharray: 5 4"></polyline>
+<polyline points="{{actual}}" style="fill: none; stroke: var(--brand-primary); stroke-width: 2.5; stroke-linejoin: round"></polyline>
+<circle cx="{{scopeX}}" cy="{{scopeY}}" r="4" style="fill: var(--warning-icon)"></circle>
+<text x="{{scopeLabelX}}" y="{{scopeLabelY}}" style="fill: var(--warning-text); font-size: 10px; font-weight: 600; font-family: var(--font-sans)">+4 pts scope</text>
+<sc-for list="{{xlabels}}" as="x" hint-placeholder-count="5"><text x="{{x.x}}" y="210" text-anchor="middle" style="fill: var(--text-tertiary); font-size: 10px; font-family: var(--font-sans)">{{x.l}}</text></sc-for>
+</svg>
+<div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 0; border-top: 2.5px solid var(--brand-primary)"></span>Remaining</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 0; border-top: 2px dashed var(--text-tertiary)"></span>Ideal</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 9999px; background: var(--warning-icon)"></span>Scope change</span>
+</div>
+</section>
+<section aria-label="Capacity" style="padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: baseline; gap: 8px"><strong style="font-size: 14px; font-weight: 600; flex-grow: 1">Commitment vs. velocity</strong><span style="font-size: 12px; color: var(--text-secondary)">42 / 38 pts</span></div>
+<div style="position: relative; height: 10px; border-radius: 9999px; background: var(--bg-hover)"><div style="position: absolute; left: 0; top: 0; bottom: 0; width: 100%; border-radius: 9999px; background: var(--warning-icon)"></div><div style="position: absolute; left: 90%; top: -4px; bottom: -4px; width: 2px; background: var(--text-primary)"></div></div>
+<p style="margin: 0; display: flex; gap: 6px; font-size: 12px; line-height: 16px; color: var(--warning-text)"><x-import component-from-global-scope="Hearth.Icon" name="alert" size="{{fourteen}}" style="color: var(--warning-icon)"></x-import>Committed 4 points above your 3-sprint average. Consider moving HRT-311 back to the backlog.</p>
+<div style="display: flex; align-items: flex-end; gap: 10px; height: 72px; padding-top: 8px">
+<sc-for list="{{velocity}}" as="v" hint-placeholder-count="4">
+<div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px"><span style="font-size: 11px; font-weight: 600; color: var(--text-secondary)">{{v.pts}}</span><div style="width: 100%; height: {{v.h}}px; border-radius: 4px 4px 0 0; background: {{v.bg}}"></div><span style="font-size: 11px; color: var(--text-tertiary)">{{v.l}}</span></div>
+</sc-for>
+</div>
+</section>
+</aside>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const x0 = 32, x1 = 392, y0 = 192, y1 = 12, max = 50, days = 10;
+    const X = (d) => x0 + (d / days) * (x1 - x0), Y = (v) => y0 - (v / max) * (y0 - y1);
+    const actual = [38, 38, 33, 33, 37, 29, 24];
+    const pts = (arr) => arr.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    const done = (s) => s === 'done';
+    const S = [
+      ['HRT-301', 'Swipe right to complete a task', 'high', 'done', 5, 'MK'], ['HRT-302', 'Swipe left to snooze with time picker', 'high', 'done', 5, 'MK'],
+      ['HRT-305', 'Undo toast for swipe actions', 'medium', 'done', 3, 'RT'], ['HRT-306', 'Offline queue for task edits', 'urgent', 'in-progress', 8, 'RT'],
+      ['HRT-308', 'Sync conflict banner', 'high', 'in-review', 5, 'SA'], ['HRT-309', 'Haptics on complete (iOS)', 'low', 'done', 5, 'MK'],
+      ['HRT-310', 'Offline indicator in header', 'medium', 'todo', 3, 'SA'], ['HRT-311', 'Background refresh for Inbox', 'medium', 'todo', 8, 'RT']
+    ];
+    return {
+      theme: this.props.theme ?? 'light', avatar: 28, six: 6, fourteen: 14, donePct: 43,
+      people: [{ initials: 'MK' }, { initials: 'RT' }, { initials: 'SA' }, { initials: 'NB' }],
+      sprint: S.map(([id, title, p, s, pts, a]) => ({ id, title, p, s, pts, a, done: done(s), color: done(s) ? 'var(--text-tertiary)' : 'var(--text-primary)', deco: done(s) ? 'line-through' : 'none' })),
+      backlog: [
+        { rank: 1, id: 'HRT-320', title: 'Widget for today’s tasks (iOS)', p: 'high', c: 'sky', epic: 'Widgets', pts: 8 },
+        { rank: 2, id: 'HRT-322', title: 'Quick add from share sheet', p: 'medium', c: 'violet', epic: 'Capture', pts: 5 },
+        { rank: 3, id: 'HRT-324', title: 'Push notification grouping', p: 'medium', c: 'amber', epic: 'Notifications', pts: 3 },
+        { rank: 4, id: 'HRT-327', title: 'Tablet two-pane layout', p: 'low', c: 'green', epic: 'Tablet', pts: 13 }
+      ],
+      grid: [0, 10, 20, 30, 40, 50].map((v) => ({ v, y: Y(v), ty: Y(v) + 3 })),
+      ideal: `${X(0)},${Y(38)} ${X(10)},${Y(0)}`,
+      actual: pts(actual),
+      todayX: X(6), scopeX: X(4), scopeY: Y(37), scopeLabelX: X(4) + 8, scopeLabelY: Y(37) - 8,
+      xlabels: [0, 2, 4, 6, 8, 10].map((d) => ({ x: X(d), l: ['Oct 13', 'Oct 15', 'Oct 19', 'Oct 21', 'Oct 23', 'Oct 26'][d / 2] })),
+      velocity: [['S21', 34], ['S22', 40], ['S23', 39], ['S24', 42]].map(([l, p], i) => ({ l, pts: p + (i === 3 ? ' (plan)' : ''), h: Math.round(p * 1.2), bg: i === 3 ? 'var(--warning-icon)' : 'var(--accent-blue-avatar)' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

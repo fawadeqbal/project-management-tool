@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dashboard — Q4 portfolio</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="dashboards" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Dashboards  /  Q4 portfolio" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Q4 portfolio</h1><span style="font-size: 13px; color: var(--text-tertiary)">3 projects · last 6 weeks · updated 2 min ago</span></div>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="6w" tabs="{{ranges}}" label="Date range"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="clock">Schedule email</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="link">Share</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" icon="settings">Edit layout</x-import>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+<div style="padding: 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 500; color: var(--text-secondary)">{{k.label}}</span>
+<span style="font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.025em">{{k.value}}</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px"><span style="padding: 1px 6px; border-radius: 6px; font-weight: 600; background: {{k.deltaBg}}; color: {{k.deltaFg}}">{{k.delta}}</span><span style="color: var(--text-tertiary)">{{k.sub}}</span></span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section aria-label="Completed vs created" style="flex: 3 1 480px; min-width: 0; padding: 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: baseline; gap: 8px"><strong style="flex-grow: 1; font-size: 14px; font-weight: 600">Are we finishing what we start?</strong><span style="font-size: 12px; color: var(--success-text); font-weight: 600">Completed ≥ created for 4 of 6 weeks</span></div>
+<svg role="img" aria-label="Tasks completed versus created per week; completed exceeded created in 4 of 6 weeks" width="100%" viewBox="0 0 560 220">
+<sc-for list="{{grid}}" as="g" hint-placeholder-count="5"><line x1="36" x2="552" y1="{{g.y}}" y2="{{g.y}}" style="stroke: var(--border-default)"></line><text x="28" y="{{g.ty}}" text-anchor="end" style="fill: var(--text-tertiary); font-size: 10px; font-family: var(--font-sans)">{{g.v}}</text></sc-for>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="6">
+<rect x="{{b.x1}}" y="{{b.y1}}" width="26" height="{{b.h1}}" rx="4" style="fill: var(--accent-slate-avatar); stroke: var(--border-strong)"></rect>
+<rect x="{{b.x2}}" y="{{b.y2}}" width="26" height="{{b.h2}}" rx="4" style="fill: var(--brand-primary)"></rect>
+<text x="{{b.x2c}}" y="{{b.ly2}}" text-anchor="middle" style="fill: var(--text-primary); font-size: 10px; font-weight: 600; font-family: var(--font-sans)">{{b.done}}</text>
+<text x="{{b.xc}}" y="212" text-anchor="middle" style="fill: var(--text-tertiary); font-size: 10px; font-family: var(--font-sans)">{{b.l}}</text>
+</sc-for>
+</svg>
+<div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: var(--accent-slate-avatar); border: 1px solid var(--border-strong)"></span>Created</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 3px; background: var(--brand-primary)"></span>Completed</span>
+</div>
+</section>
+<section aria-label="Where work is" style="flex: 2 1 340px; min-width: 0; padding: 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 12px">
+<strong style="font-size: 14px; font-weight: 600">Where is work right now?</strong>
+<div role="img" aria-label="Open work by status: To do 38, In progress 24, In review 11, Blocked 6" style="display: flex; height: 14px; border-radius: 9999px; overflow: hidden; gap: 2px">
+<sc-for list="{{statuses}}" as="s" hint-placeholder-count="4"><div style="flex: {{s.n}} 1 0; background: {{s.color}}"></div></sc-for>
+</div>
+<sc-for list="{{statuses}}" as="s" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 13px">
+<x-import component-from-global-scope="Hearth.StatusIcon" status="{{s.id}}"></x-import>
+<span style="flex-grow: 1">{{s.label}}</span>
+<span style="font-weight: 600">{{s.n}}</span><span style="width: 40px; text-align: right; color: var(--text-tertiary)">{{s.pct}}</span>
+</div>
+</sc-for>
+<p style="margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--danger-bg); color: var(--danger-text); font-size: 12px; line-height: 16px">6 tasks blocked for more than 3 days — 4 of them in Mobile app v2.</p>
+</section>
+</div>
+<section aria-label="Project health" style="border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); overflow: auto">
+<div role="table" style="min-width: 760px">
+<div role="row" style="display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr 1fr; gap: 12px; padding: 10px 16px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default); font-size: 12px; font-weight: 600; color: var(--text-secondary)">
+<span role="columnheader">Project</span><span role="columnheader">Health</span><span role="columnheader">Owner</span><span role="columnheader">Progress</span><span role="columnheader">Due</span><span role="columnheader">Budget used</span>
+</div>
+<sc-for list="{{projects}}" as="p" hint-placeholder-count="3">
+<div role="row" style="display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.6fr 1fr 1fr; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-default); font-size: 14px">
+<span role="cell" style="display: flex; align-items: center; gap: 10px"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{p.dot}}"></span><a href="#" style="color: var(--text-primary); text-decoration: none; font-weight: 500">{{p.name}}</a></span>
+<span role="cell"><span style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border-radius: 9999px; background: {{p.hBg}}; color: {{p.hFg}}; font-size: 12px; font-weight: 500"><x-import component-from-global-scope="Hearth.Icon" name="{{p.hIcon}}" size="{{twelve}}"></x-import>{{p.health}}</span></span>
+<span role="cell" style="display: flex; align-items: center; gap: 8px"><x-import component-from-global-scope="Hearth.Avatar" initials="{{p.owner}}" color="{{p.oc}}"></x-import>{{p.ownerName}}</span>
+<span role="cell" style="display: flex; align-items: center; gap: 10px"><span style="flex-grow: 1"><x-import component-from-global-scope="Hearth.ProgressBar" value="{{p.progress}}" label="Progress"></x-import></span><span style="font-size: 12px; color: var(--text-secondary)">{{p.progress}}%</span></span>
+<span role="cell" style="color: var(--text-secondary)">{{p.due}}</span>
+<span role="cell" style="color: {{p.budgetColor}}; font-weight: 500">{{p.budget}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const y0 = 196, y1 = 12, max = 60, Y = (v) => y0 - (v / max) * (y0 - y1);
+    const data = [['Sep 14', 41, 36], ['Sep 21', 38, 40], ['Sep 28', 44, 47], ['Oct 5', 50, 46], ['Oct 12', 39, 45], ['Oct 19', 35, 37]];
+    const bars = data.map(([l, created, done], i) => {
+      const xc = 36 + 43 + i * 86;
+      return { l, done, xc, x1: xc - 28, y1: Y(created), h1: y0 - Y(created), x2: xc + 2, y2: Y(done), h2: y0 - Y(done), x2c: xc + 15, ly2: Y(done) - 4 };
+    });
+    const st = [['todo', 'To do', 38, 'var(--status-todo)'], ['in-progress', 'In progress', 24, 'var(--status-progress)'], ['in-review', 'In review', 11, 'var(--status-review)'], ['blocked', 'Blocked', 6, 'var(--status-blocked)']];
+    const total = st.reduce((a, s) => a + s[2], 0);
+    const H = { on: ['On track', 'status-done', 'var(--success-bg)', 'var(--success-text)'], risk: ['At risk', 'alert', 'var(--warning-bg)', 'var(--warning-text)'], off: ['Off track', 'status-blocked', 'var(--danger-bg)', 'var(--danger-text)'] };
+    const proj = (name, dot, h, owner, ownerName, oc, progress, due, budget, budgetColor) => ({ name, dot, health: H[h][0], hIcon: H[h][1], hBg: H[h][2], hFg: H[h][3], owner, ownerName, oc, progress, due, budget, budgetColor });
+    return {
+      theme: this.props.theme ?? 'light', twelve: 12,
+      ranges: [{ id: '2w', label: '2W' }, { id: '6w', label: '6W' }, { id: 'q', label: 'Quarter' }],
+      kpis: [
+        { label: 'Tasks completed', value: '251', delta: '+8%', deltaBg: 'var(--success-bg)', deltaFg: 'var(--success-text)', sub: 'vs. previous 6 weeks' },
+        { label: 'On-time delivery', value: '87%', delta: '+4 pts', deltaBg: 'var(--success-bg)', deltaFg: 'var(--success-text)', sub: 'target 85%' },
+        { label: 'Avg. cycle time', value: '3.4 days', delta: '−0.6', deltaBg: 'var(--success-bg)', deltaFg: 'var(--success-text)', sub: 'lower is better' },
+        { label: 'Overdue now', value: '9', delta: '+3', deltaBg: 'var(--danger-bg)', deltaFg: 'var(--danger-text)', sub: 'since last week' }
+      ],
+      grid: [0, 15, 30, 45, 60].map((v) => ({ v, y: Y(v), ty: Y(v) + 3 })),
+      bars,
+      statuses: st.map(([id, label, n, color]) => ({ id, label, n, color, pct: Math.round((n / total) * 100) + '%' })),
+      projects: [
+        proj('Website relaunch', 'var(--accent-blue-dot)', 'risk', 'FI', 'Fawad', 'blue', 62, 'Nov 14', '71%', 'var(--text-primary)'),
+        proj('Q4 brand campaign', 'var(--accent-violet-dot)', 'on', 'JL', 'Jia', 'violet', 48, 'Dec 5', '44%', 'var(--text-primary)'),
+        proj('Mobile app v2', 'var(--accent-sky-dot)', 'off', 'MK', 'Mo', 'sky', 35, 'Nov 28', '93%', 'var(--danger-text)')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

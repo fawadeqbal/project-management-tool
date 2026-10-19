@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My tasks</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="position: relative; display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="my-tasks" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="My tasks" hint-size="100%,52px"></dc-import>
+<main style="padding: 28px 40px 96px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.025em">Good morning, Fawad</h1>
+<p style="margin: 0; font-size: 14px; line-height: 20px; color: var(--text-secondary)">Monday, October 19 · 3 tasks due today · 1 overdue</p>
+</div>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="list" tabs="{{tabs}}"></x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="filter">Filter</x-import>
+<a href="#" style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 8px; background: var(--brand-subtle); border: 1px solid var(--border-focus); color: var(--text-link); font-size: 12px; font-weight: 600; text-decoration: none">
+<x-import component-from-global-scope="Hearth.Icon" name="list"></x-import>Group: Due date</a>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon-right="chevron-down">Sort: Priority</x-import>
+<span style="flex-grow: 1"></span>
+<span style="font-size: 12px; color: var(--text-tertiary)">Saved view · “My focus”</span>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="plus">Add task</x-import>
+</div>
+<div class="ht-list" role="table" aria-label="My tasks">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<x-import component-from-global-scope="Hearth.GroupHeader" label="{{g.label}}" count="{{g.count}}" icon="{{g.icon}}" icon-color="{{g.iconColor}}"></x-import>
+<sc-for list="{{g.rows}}" as="t" hint-placeholder-count="3">
+<x-import component-from-global-scope="Hearth.TaskRow" id="{{t.id}}" title="{{t.title}}" priority="{{t.priority}}" status="{{t.status}}" tag="{{t.tag}}" tag-color="{{t.tagColor}}" due="{{t.due}}" due-tone="{{t.dueTone}}" assignee="FI" assignee-color="blue"></x-import>
+</sc-for>
+</sc-for>
+<x-import component-from-global-scope="Hearth.GroupHeader" label="Later" count="{{laterCount}}" icon="clock" collapsed="{{yes}}"></x-import>
+<div style="display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 16px; color: var(--text-tertiary); font-size: 14px">
+<x-import component-from-global-scope="Hearth.Icon" name="plus"></x-import>
+<span style="flex-grow: 1">Add a task… type @ to assign, # for project, ! for priority</span>
+<x-import component-from-global-scope="Hearth.Kbd" keys="C"></x-import>
+</div>
+</div>
+</main>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 24px; display: flex; justify-content: center; padding-left: 256px; pointer-events: none">
+<x-import component-from-global-scope="Hearth.Toast" message="HRT-129 marked as done"></x-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: this.props.theme ?? 'light',
+      yes: true,
+      laterCount: 12,
+      tabs: [{ id: 'list', label: 'List', icon: 'list' }, { id: 'board', label: 'Board', icon: 'board' }, { id: 'calendar', label: 'Calendar', icon: 'calendar-view' }],
+      groups: [
+        { label: 'Overdue', count: 1, icon: 'clock', iconColor: 'var(--danger-icon)', rows: [
+          { id: 'HRT-118', title: 'Review Q3 analytics dashboard with leadership feedback', priority: 'urgent', status: 'in-review', tag: 'Analytics', tagColor: 'sky', due: '2 days ago', dueTone: 'danger' }
+        ] },
+        { label: 'Today', count: 3, icon: 'star', iconColor: 'var(--brand-primary)', rows: [
+          { id: 'HRT-142', title: 'Write onboarding checklist copy for the first-project flow', priority: 'high', status: 'in-progress', tag: 'Content', tagColor: 'violet', due: 'Today' },
+          { id: 'HRT-151', title: 'Fix date picker focus trap in task modal', priority: 'medium', status: 'in-review', tag: 'Engineering', tagColor: 'amber', due: 'Today' },
+          { id: 'HRT-139', title: 'Approve homepage hero illustrations from the agency', priority: 'medium', status: 'todo', tag: 'Design', tagColor: 'blue', due: 'Today' }
+        ] },
+        { label: 'Upcoming', count: 4, icon: 'calendar', iconColor: 'var(--text-secondary)', rows: [
+          { id: 'HRT-160', title: 'Draft sprint 24 retrospective agenda', priority: 'low', status: 'todo', tag: 'Team', tagColor: 'green', due: 'Tomorrow' },
+          { id: 'HRT-163', title: 'Prepare client walkthrough for Northwind', priority: 'high', status: 'todo', tag: 'Client', tagColor: 'rose', due: 'Thu' },
+          { id: 'HRT-170', title: 'Update pricing page comparison table', priority: 'medium', status: 'in-progress', tag: 'Marketing', tagColor: 'violet', due: 'Fri' },
+          { id: 'HRT-171', title: 'QA mobile swipe gestures on Android', priority: 'low', status: 'blocked', tag: 'Mobile', tagColor: 'sky', due: 'Oct 26' }
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

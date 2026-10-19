@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calendar — October</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="my-tasks" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="My tasks  /  Calendar" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">October 2026</h1>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="chevron-right" aria-label="Previous month" style="transform: scaleX(-1)"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="chevron-right" aria-label="Next month"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm">Today</x-import>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="month" tabs="{{range}}" label="Range"></x-import>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="calendar" tabs="{{tabs}}"></x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div role="grid" aria-label="October 2026" style="flex: 999 1 640px; min-width: 0; border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface)">
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: var(--bg-subtle); border-bottom: 1px solid var(--border-default)">
+<sc-for list="{{dow}}" as="d" hint-placeholder-count="7"><div role="columnheader" style="padding: 8px 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary)">{{d}}</div></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr))">
+<sc-for list="{{days}}" as="c" hint-placeholder-count="35">
+<div role="gridcell" style="min-height: 128px; box-sizing: border-box; padding: 6px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); background: {{c.bg}}">
+<span style="align-self: flex-start; min-width: 24px; height: 24px; box-sizing: border-box; padding: 0 6px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: {{c.weight}}; background: {{c.numBg}}; color: {{c.numColor}}">{{c.n}}</span>
+<sc-for list="{{c.items}}" as="t" hint-placeholder-count="1">
+<a href="#" title="{{t.title}}" style="display: flex; align-items: center; gap: 6px; height: 22px; padding: 0 6px; border-radius: 6px; background: var(--bg-subtle); border: 1px solid var(--border-default); color: var(--text-primary); font-size: 12px; text-decoration: none; overflow: hidden">
+<span style="width: 3px; height: 12px; flex: none; border-radius: 2px; background: {{t.dot}}"></span>
+<x-import component-from-global-scope="Hearth.StatusIcon" status="{{t.status}}" size="{{twelve}}"></x-import>
+<span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: {{t.deco}}; color: {{t.color}}">{{t.title}}</span>
+</a>
+</sc-for>
+<sc-if value="{{c.more}}" hint-placeholder-val="{{ false }}"><a href="#" style="padding-left: 6px; font-size: 12px; font-weight: 500; color: var(--text-link); text-decoration: none">{{c.more}}</a></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+<aside aria-label="Unscheduled tasks" style="flex: 1 1 260px; max-width: 300px; display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--bg-surface)">
+<div style="display: flex; align-items: center; gap: 8px"><strong style="flex-grow: 1; font-size: 13px; font-weight: 600">Unscheduled</strong><span style="font-size: 12px; color: var(--text-tertiary)">4</span></div>
+<p style="margin: 0; font-size: 12px; line-height: 16px; color: var(--text-tertiary)">Drag a task onto a day to give it a due date.</p>
+<sc-for list="{{tray}}" as="t" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; border: 1px dashed var(--border-strong); font-size: 13px; cursor: grab">
+<x-import component-from-global-scope="Hearth.PriorityIcon" level="{{t.priority}}"></x-import>
+<span style="flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.title}}</span>
+</div>
+</sc-for>
+<div style="margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px">
+<strong style="font-size: 12px; font-weight: 600; color: var(--text-secondary)">Projects</strong>
+<sc-for list="{{legend}}" as="l" hint-placeholder-count="3"><span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary)"><span style="width: 3px; height: 12px; border-radius: 2px; background: {{l.dot}}"></span>{{l.name}}</span></sc-for>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const W = 'var(--accent-blue-dot)', Q = 'var(--accent-violet-dot)', M = 'var(--accent-sky-dot)';
+    const t = (title, dot, status) => ({ title, dot, status, deco: status === 'done' ? 'line-through' : 'none', color: status === 'done' ? 'var(--text-tertiary)' : 'var(--text-primary)' });
+    const items = {
+      12: [t('Kickoff workshop', W, 'done')], 13: [t('Brand moodboard', Q, 'done')], 14: [t('Define success metrics', W, 'done')],
+      16: [t('Stakeholder interviews', W, 'done'), t('Sprint 23 review', M, 'done')],
+      19: [t('Write onboarding copy', Q, 'in-progress'), t('Fix date picker focus', M, 'in-review'), t('Approve hero art', W, 'todo')],
+      20: [t('Draft retro agenda', M, 'todo')], 21: [t('Plan approved', W, 'todo')], 22: [t('Client walkthrough', Q, 'todo')],
+      23: [t('Update pricing table', W, 'in-progress'), t('Wireframes & IA', W, 'in-progress'), t('Push notification copy', M, 'todo'), t('Social teaser', Q, 'todo'), t('Ad budget review', Q, 'todo')],
+      26: [t('QA swipe gestures', M, 'blocked')], 27: [t('Campaign shoot', Q, 'todo')], 28: [t('Audit IA & redirects', W, 'todo')],
+      30: [t('Pricing page design', W, 'in-progress'), t('Homepage copy', W, 'todo')]
+    };
+    const days = [];
+    for (let i = 0; i < 35; i++) {
+      const inMonth = i >= 4, n = inMonth ? i - 3 : 27 + i, today = inMonth && n === 19, weekend = i % 7 === 0 || i % 7 === 6;
+      const list = inMonth ? (items[n] || []) : [];
+      days.push({
+        n, items: list.slice(0, 3), more: list.length > 3 ? '+' + (list.length - 3) + ' more' : false,
+        bg: !inMonth ? 'var(--bg-subtle)' : weekend ? 'var(--bg-canvas)' : 'transparent',
+        weight: today ? 700 : 500, numBg: today ? 'var(--brand-primary)' : 'transparent',
+        numColor: today ? 'var(--text-on-brand)' : inMonth ? 'var(--text-primary)' : 'var(--text-tertiary)'
+      });
+    }
+    return {
+      theme: this.props.theme ?? 'light', twelve: 12,
+      dow: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], days,
+      range: [{ id: 'day', label: 'Day' }, { id: 'week', label: 'Week' }, { id: 'month', label: 'Month' }],
+      tabs: [{ id: 'list', label: 'List', icon: 'list' }, { id: 'board', label: 'Board', icon: 'board' }, { id: 'calendar', label: 'Calendar', icon: 'calendar-view' }],
+      tray: [{ title: 'Collect customer logos', priority: 'low' }, { title: 'Refresh onboarding emails', priority: 'medium' }, { title: 'Accessibility audit vendor', priority: 'high' }, { title: 'Team offsite agenda', priority: 'none' }],
+      legend: [{ name: 'Website relaunch', dot: W }, { name: 'Q4 brand campaign', dot: Q }, { name: 'Mobile app v2', dot: M }]
+    };
+  }
+}
+</script>
+</body>
+</html>

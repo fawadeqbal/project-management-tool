@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workload — Design &amp; Engineering</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="website" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Projects  /  Website relaunch  /  Workload" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Workload</h1>
+<span style="font-size: 13px; color: var(--text-tertiary)">Oct 19 – Oct 30 · hours planned vs. 8h daily capacity</span>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="hours" tabs="{{units}}" label="Unit"></x-import>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="workload" tabs="{{tabs}}"></x-import>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+<div style="padding: 14px 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 500; color: var(--text-secondary)">{{k.label}}</span>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 22px; line-height: 30px; font-weight: 700; color: {{k.color}}">{{k.value}}</span>
+<span style="font-size: 12px; color: var(--text-tertiary)">{{k.sub}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--brand-subtle); border: 1px dashed var(--border-focus)">
+<x-import component-from-global-scope="Hearth.Icon" name="sparkles" style="color: var(--brand-primary)"></x-import>
+<span style="flex: 1 1 360px; font-size: 13px; line-height: 19px"><strong style="font-weight: 600; color: var(--text-link)">Suggested rebalance:</strong> move <strong style="font-weight: 600">HRT-192 Responsive navigation</strong> (10h) from Mo to Ravi on Wed–Thu. Mo drops to 98%, Ravi rises to 79%.</span>
+<x-import component-from-global-scope="Hearth.Button" size="sm">Apply</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm">Dismiss</x-import>
+</div>
+<div style="border: 1px solid var(--border-default); border-radius: 10px; overflow: auto; background: var(--bg-surface)">
+<div role="table" aria-label="Team workload" style="min-width: 900px">
+<div role="row" style="display: grid; grid-template-columns: 220px repeat(10, minmax(0, 1fr)) 96px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default)">
+<div role="columnheader" style="padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--text-secondary)">Person</div>
+<sc-for list="{{days}}" as="d" hint-placeholder-count="10"><div role="columnheader" style="padding: 8px 6px; text-align: center; font-size: 12px; font-weight: {{d.weight}}; color: {{d.color}}; border-left: 1px solid {{d.sep}}">{{d.label}}</div></sc-for>
+<div role="columnheader" style="padding: 10px 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-align: right">Load</div>
+</div>
+<sc-for list="{{people}}" as="p" hint-placeholder-count="6">
+<div role="row" style="display: grid; grid-template-columns: 220px repeat(10, minmax(0, 1fr)) 96px; border-bottom: 1px solid var(--border-default); align-items: stretch">
+<div role="rowheader" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px">
+<x-import component-from-global-scope="Hearth.Avatar" initials="{{p.i}}" name="{{p.name}}" size="{{avatar}}" color="{{p.color}}"></x-import>
+<span style="display: flex; flex-direction: column; min-width: 0"><span style="font-size: 14px; font-weight: 500">{{p.name}}</span><span style="font-size: 12px; color: var(--text-tertiary)">{{p.role}}</span></span>
+</div>
+<sc-for list="{{p.cells}}" as="c" hint-placeholder-count="10">
+<div role="cell" style="padding: 6px 4px; border-left: 1px solid {{c.sep}}">
+<div title="{{c.title}}" style="height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 3px; background: {{c.bg}}; color: {{c.fg}}; border: 1px solid {{c.border}}; font-size: 12px; font-weight: 600">
+<sc-if value="{{c.over}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Icon" name="alert" size="{{twelve}}"></x-import></sc-if>{{c.text}}</div>
+</div>
+</sc-for>
+<div role="cell" style="display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 4px; padding: 0 12px">
+<span style="font-size: 13px; font-weight: 600; color: {{p.loadColor}}">{{p.load}}%</span>
+<span style="width: 64px"><x-import component-from-global-scope="Hearth.ProgressBar" value="{{p.loadBar}}" height="{{four}}" label="Load"></x-import></span>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 12px; color: var(--text-secondary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 18px; height: 12px; border-radius: 3px; background: var(--bg-subtle); border: 1px solid var(--border-default)"></span>Under 50%</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 18px; height: 12px; border-radius: 3px; background: var(--accent-blue-bg); border: 1px solid var(--accent-blue-avatar)"></span>50–87%</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 18px; height: 12px; border-radius: 3px; background: var(--accent-blue-avatar); border: 1px solid var(--accent-blue-dot)"></span>Full</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 18px; height: 12px; border-radius: 3px; background: var(--warning-bg); border: 1px solid var(--warning-icon)"></span>Over capacity</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 18px; height: 12px; border-radius: 3px; background: repeating-linear-gradient(135deg, var(--bg-hover) 0, var(--bg-hover) 3px, transparent 3px, transparent 6px); border: 1px solid var(--border-default)"></span>Time off</span>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const labels = ['Mon 19', 'Tue 20', 'Wed 21', 'Thu 22', 'Fri 23', 'Mon 26', 'Tue 27', 'Wed 28', 'Thu 29', 'Fri 30'];
+    const sepOf = (i) => (i === 5 ? 'var(--border-strong)' : 'var(--border-default)');
+    const cell = (h, i) => {
+      const sep = sepOf(i);
+      if (h === 'off') return { text: 'Off', title: 'Time off', bg: 'repeating-linear-gradient(135deg, var(--bg-hover) 0, var(--bg-hover) 3px, transparent 3px, transparent 6px)', fg: 'var(--text-tertiary)', border: 'var(--border-default)', over: false, sep };
+      const over = h > 8;
+      return {
+        text: h + 'h', title: h + ' of 8 hours planned', over, sep,
+        bg: over ? 'var(--warning-bg)' : h >= 8 ? 'var(--accent-blue-avatar)' : h >= 4 ? 'var(--accent-blue-bg)' : 'var(--bg-subtle)',
+        fg: over ? 'var(--warning-text)' : h >= 4 ? 'var(--accent-blue-fg)' : 'var(--text-secondary)',
+        border: over ? 'var(--warning-icon)' : h >= 8 ? 'var(--accent-blue-dot)' : h >= 4 ? 'var(--accent-blue-avatar)' : 'var(--border-default)'
+      };
+    };
+    const P = [
+      ['FI', 'Fawad Iqbal', 'Product manager', 'blue', [6, 7, 5, 8, 4, 6, 6, 5, 7, 3]],
+      ['SA', 'Sara Ahmed', 'Product designer', 'green', [8, 8, 9, 10, 8, 7, 8, 8, 6, 6]],
+      ['MK', 'Mo Khan', 'Frontend engineer', 'sky', [8, 9, 11, 12, 8, 8, 8, 9, 8, 7]],
+      ['JL', 'Jia Li', 'Content designer', 'violet', [5, 6, 6, 'off', 'off', 6, 7, 5, 6, 4]],
+      ['RT', 'Ravi Teja', 'Backend engineer', 'amber', [4, 5, 3, 3, 6, 7, 8, 6, 6, 5]],
+      ['NB', 'Nadia Bashir', 'QA engineer', 'rose', [2, 3, 4, 4, 5, 6, 8, 8, 8, 8]]
+    ];
+    const people = P.map(([i, name, role, color, hrs]) => {
+      const work = hrs.filter((h) => h !== 'off'), cap = work.length * 8, sum = work.reduce((a, b) => a + b, 0);
+      const load = Math.round((sum / cap) * 100);
+      return { i, name, role, color, cells: hrs.map(cell), load, loadBar: Math.min(100, load), loadColor: load > 100 ? 'var(--warning-text)' : 'var(--text-primary)' };
+    });
+    return {
+      theme: this.props.theme ?? 'light', avatar: 32, twelve: 12, four: 4,
+      days: labels.map((label, i) => ({ label, weight: i === 0 ? 700 : 500, color: i === 0 ? 'var(--text-link)' : 'var(--text-secondary)', sep: sepOf(i) })),
+      people,
+      units: [{ id: 'hours', label: 'Hours' }, { id: 'tasks', label: 'Tasks' }, { id: 'points', label: 'Points' }],
+      tabs: [{ id: 'list', label: 'List', icon: 'list' }, { id: 'board', label: 'Board', icon: 'board' }, { id: 'timeline', label: 'Timeline', icon: 'timeline' }, { id: 'workload', label: 'Workload', icon: 'workload' }],
+      kpis: [
+        { label: 'Team capacity used', value: '81%', sub: '377 of 464 hours planned', color: 'var(--text-primary)' },
+        { label: 'Over capacity', value: '2 people', sub: 'Mo (Wed–Thu), Sara (Wed–Thu)', color: 'var(--warning-text)' },
+        { label: 'Free capacity', value: '99h', sub: 'Mostly Ravi, Nadia and Fawad', color: 'var(--text-primary)' },
+        { label: 'Time off', value: '1 person', sub: 'Jia · Thu 22 – Fri 23', color: 'var(--text-primary)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

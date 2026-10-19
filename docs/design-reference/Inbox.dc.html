@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inbox</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="inbox" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Inbox" hint-size="100%,52px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; min-width: 0">
+<section aria-label="Notifications" style="flex: 1 1 460px; max-width: 520px; min-width: 0; display: flex; flex-direction: column; border-right: 1px solid var(--border-default); background: var(--bg-surface)">
+<div style="padding: 20px 20px 12px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--border-default)">
+<div style="display: flex; align-items: center; gap: 8px"><h1 style="margin: 0; flex-grow: 1; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Inbox</h1>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="filter">Unread</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="settings" aria-label="Notification settings"></x-import></div>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="all" tabs="{{tabs}}" label="Inbox filters"></x-import>
+</div>
+<div role="listbox" aria-label="Inbox items" style="display: flex; flex-direction: column">
+<sc-for list="{{items}}" as="n" hint-placeholder-count="7">
+<div role="option" aria-selected="{{n.sel}}" style="display: flex; gap: 12px; padding: 14px 20px 14px 12px; border-bottom: 1px solid var(--border-default); background: {{n.bg}}; box-shadow: inset 3px 0 0 {{n.bar}}">
+<span style="width: 8px; flex: none; padding-top: 12px"><sc-if value="{{n.unread}}" hint-placeholder-val="{{ true }}"><span aria-label="Unread" style="display: block; width: 8px; height: 8px; border-radius: 9999px; background: var(--brand-primary)"></span></sc-if></span>
+<x-import component-from-global-scope="Hearth.Avatar" initials="{{n.who}}" size="{{thirtytwo}}" color="{{n.color}}"></x-import>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<div style="display: flex; align-items: baseline; gap: 8px"><span style="flex-grow: 1; min-width: 0; font-size: 14px; line-height: 20px; font-weight: {{n.weight}}">{{n.title}}</span><span style="flex: none; font-size: 12px; color: var(--text-tertiary)">{{n.time}}</span></div>
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-tertiary)"><x-import component-from-global-scope="Hearth.Icon" name="{{n.icon}}" size="{{twelve}}"></x-import>{{n.where}}</span>
+<span style="font-size: 13px; line-height: 18px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{n.quote}}</span>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 20px; border-top: 1px solid var(--border-default); background: var(--bg-subtle); font-size: 12px; color: var(--text-tertiary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="E"></x-import>Archive</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="H"></x-import>Snooze</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="U"></x-import>Unread</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="X"></x-import>Select</span>
+</div>
+</section>
+<section aria-label="Approval request" style="flex: 999 1 420px; min-width: 0; padding: 24px 32px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border-radius: 9999px; background: var(--warning-bg); color: var(--warning-text); font-size: 12px; font-weight: 500"><x-import component-from-global-scope="Hearth.Icon" name="clock" size="{{twelve}}" style="color: var(--warning-icon)"></x-import>Approval due tomorrow</span>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="clock">Snooze</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="inbox">Archive</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="arrow-up-right">Open task</x-import>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: var(--text-tertiary)">Q4 brand campaign · HRT-214</span>
+<h2 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Homepage copy v3 — ready for approval</h2>
+<p style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.Avatar" initials="JL" name="Jia Li" color="violet"></x-import>Jia Li asked you and Sara Ahmed to approve · 1 of 2 approvals</p>
+</div>
+<div style="padding: 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 10px">
+<p style="margin: 0; font-size: 14px; line-height: 22px">“Changes from v2: tightened the hero to one sentence, replaced the feature list with three outcomes, and moved pricing into its own section. Legal has signed off on the claims.”</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-default); background: var(--bg-subtle); color: var(--text-primary); font-size: 13px; text-decoration: none"><x-import component-from-global-scope="Hearth.Icon" name="doc" style="color: var(--text-secondary)"></x-import>Homepage copy v3 · Doc</a>
+<a href="#" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-default); background: var(--bg-subtle); color: var(--text-primary); font-size: 13px; text-decoration: none"><x-import component-from-global-scope="Hearth.Icon" name="paperclip" style="color: var(--text-secondary)"></x-import>hero-v3.png · 1.2 MB</a>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<strong style="font-size: 13px; font-weight: 600">Approvers</strong>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><x-import component-from-global-scope="Hearth.Avatar" initials="SA" name="Sara Ahmed" color="green"></x-import><span style="flex-grow: 1">Sara Ahmed</span><x-import component-from-global-scope="Hearth.StatusPill" status="done" label="Approved"></x-import></div>
+<div style="display: flex; align-items: center; gap: 10px; font-size: 14px"><x-import component-from-global-scope="Hearth.Avatar" initials="FI" name="Fawad Iqbal" color="blue"></x-import><span style="flex-grow: 1">You</span><x-import component-from-global-scope="Hearth.StatusPill" status="todo" label="Waiting on you"></x-import></div>
+</div>
+<x-import component-from-global-scope="Hearth.Input" label="Note for Jia (optional)" placeholder="Add a note with your decision…"></x-import>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<x-import component-from-global-scope="Hearth.Button" icon="check">Approve</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="undo">Request changes</x-import>
+</div>
+</section>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const it = (who, color, title, where, icon, quote, time, unread, sel) => ({ who, color, title, where, icon, quote, time, unread, sel: sel ? 'true' : 'false',
+      weight: unread ? 600 : 400, bg: sel ? 'var(--bg-selected)' : 'transparent', bar: sel ? 'var(--brand-primary)' : 'transparent' });
+    return {
+      theme: this.props.theme ?? 'light', thirtytwo: 32, twelve: 12,
+      tabs: [{ id: 'all', label: 'All' }, { id: 'mentions', label: 'Mentions 3' }, { id: 'assigned', label: 'Assigned 2' }, { id: 'approvals', label: 'Approvals 1' }],
+      items: [
+        it('JL', 'violet', 'Jia Li requested your approval', 'Q4 brand campaign · HRT-214', 'status-done', 'Homepage copy v3 — ready for approval', '9:42', true, true),
+        it('SA', 'green', 'Sara Ahmed mentioned you', 'Website relaunch · HRT-188', 'comment', '@Fawad the annual toggle label is 3.9:1 in dark mode — can we move it…', '9:10', true, false),
+        it('MK', 'sky', 'Mo Khan assigned you a task', 'Mobile app v2 · HRT-312', 'my-tasks', 'Review offline sync copy before beta', '8:55', true, false),
+        it('NB', 'rose', 'Nadia Bashir changed status to Blocked', 'Mobile app v2 · HRT-171', 'status-blocked', 'QA mobile swipe gestures on Android — waiting on test devices', 'Yesterday', false, false),
+        it('RT', 'amber', 'Ravi Teja replied in a thread', 'Website relaunch · HRT-195', 'comment', 'Events are named in snake_case now; dashboard picks them up tomorrow.', 'Yesterday', false, false),
+        it('SA', 'green', 'Sara Ahmed completed a task you follow', 'Website relaunch · HRT-185', 'status-done', 'Accessibility pass on the signup flow', 'Mon', false, false),
+        it('JL', 'violet', 'Jia Li mentioned you', 'Docs · Brand voice guide', 'doc', '@Fawad can you confirm we say “workspace”, not “organization”?', 'Mon', false, false)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

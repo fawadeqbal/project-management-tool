@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Website relaunch — Timeline</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="website" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Projects  /  Website relaunch  /  Timeline" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Website relaunch</h1>
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border-radius: 9999px; background: var(--warning-bg); color: var(--warning-text); font-size: 12px; font-weight: 500"><x-import component-from-global-scope="Hearth.Icon" name="alert" style="color: var(--warning-icon)"></x-import>At risk · pricing slipped 2 days</span>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="timeline" tabs="{{tabs}}"></x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<x-import component-from-global-scope="Hearth.ViewTabs" value="week" tabs="{{zoom}}" label="Zoom"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm">Today</x-import>
+<span style="display: inline-flex; align-items: center; gap: 12px; margin-left: 8px; font-size: 12px; color: var(--text-secondary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 8px; border-radius: 4px; background: var(--brand-primary)"></span>Critical path</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; height: 8px; border-radius: 4px; background: var(--accent-slate-avatar); border: 1px solid var(--border-strong)"></span>Task</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 16px; border-top: 2px dashed var(--text-tertiary)"></span>Baseline</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; transform: rotate(45deg); background: var(--text-primary); border-radius: 2px"></span>Milestone</span>
+</span>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="filter">Filter</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="plus">Add milestone</x-import>
+</div>
+<div style="display: flex; border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface)">
+<div role="rowgroup" aria-label="Tasks" style="flex: 0 0 300px; border-right: 1px solid var(--border-default)">
+<div style="height: 48px; box-sizing: border-box; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--border-default); background: var(--bg-subtle); font-size: 12px; font-weight: 600; color: var(--text-secondary)">Task</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="14">
+<div style="height: 40px; box-sizing: border-box; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 {{r.indent}}; border-bottom: 1px solid var(--border-default); background: {{r.rowBg}}; font-size: {{r.size}}; font-weight: {{r.weight}}">
+<sc-if value="{{r.isSection}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Icon" name="chevron-down" style="color: var(--text-tertiary)"></x-import></sc-if>
+<sc-if value="{{r.isTask}}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="Hearth.StatusIcon" status="{{r.status}}"></x-import></sc-if>
+<sc-if value="{{r.isMilestone}}" hint-placeholder-val="{{ false }}"><span style="width: 10px; height: 10px; margin: 0 3px; transform: rotate(45deg); background: var(--text-primary); border-radius: 2px"></span></sc-if>
+<span style="flex-grow: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+<sc-if value="{{r.who}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Avatar" initials="{{r.who}}" size="{{twenty}}"></x-import></sc-if>
+</div>
+</sc-for>
+</div>
+<div style="flex: 1 1 auto; min-width: 0; overflow-x: auto">
+<div style="position: relative; width: {{chartW}}px">
+<div style="height: 48px; box-sizing: border-box; display: flex; border-bottom: 1px solid var(--border-default); background: var(--bg-subtle)">
+<sc-for list="{{weeks}}" as="w" hint-placeholder-count="6">
+<div style="flex: 0 0 {{weekW}}px; box-sizing: border-box; padding: 6px 8px; border-left: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 600">{{w.label}}</span>
+<span style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 6.8px; color: var(--text-tertiary)">SMTWTFS</span>
+</div>
+</sc-for>
+</div>
+<div style="position: relative; background-image: repeating-linear-gradient(90deg, var(--bg-subtle) 0, var(--bg-subtle) {{px}}px, transparent {{px}}px, transparent {{fiveDays}}px, var(--bg-subtle) {{fiveDays}}px, var(--bg-subtle) {{weekW}}px)">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="14">
+<div style="position: relative; height: 40px; box-sizing: border-box; border-bottom: 1px solid var(--border-default); background: {{r.chartRowBg}}">
+<sc-if value="{{r.isTask}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{r.baseline}}" hint-placeholder-val="{{ false }}"><div style="position: absolute; left: {{r.bLeft}}px; width: {{r.bWidth}}px; top: 32px; border-top: 2px dashed var(--text-tertiary)"></div></sc-if>
+<div title="{{r.name}}" style="position: absolute; left: {{r.left}}px; width: {{r.width}}px; top: 8px; height: 22px; box-sizing: border-box; border-radius: 6px; overflow: hidden; background: {{r.barBg}}; border: 1px solid {{r.barBorder}}; color: {{r.barText}}; font-size: 12px; font-weight: 500; line-height: 20px; white-space: nowrap">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{r.progress}}%; background: {{r.progressBg}}"></div>
+<span style="position: relative; padding: 0 8px">{{r.barLabel}}</span>
+</div>
+<sc-if value="{{r.conflict}}" hint-placeholder-val="{{ false }}"><span title="Starts before its blocker finishes" style="position: absolute; left: {{r.conflictLeft}}px; top: 9px; width: 20px; height: 20px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; background: var(--warning-bg); color: var(--warning-icon); border: 1px solid var(--warning-icon)"><x-import component-from-global-scope="Hearth.Icon" name="alert" size="{{twelve}}" label="Dependency conflict"></x-import></span></sc-if>
+</sc-if>
+<sc-if value="{{r.isMilestone}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: {{r.left}}px; top: 13px; width: 14px; height: 14px; transform: rotate(45deg); border-radius: 3px; background: var(--text-primary)"></div>
+<span style="position: absolute; left: {{r.labelLeft}}px; top: 11px; font-size: 12px; font-weight: 600; white-space: nowrap">{{r.name}} · {{r.date}}</span>
+</sc-if>
+</div>
+</sc-for>
+<svg aria-hidden="true" width="{{chartW}}" height="{{chartH}}" style="position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible">
+<defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L8 4 L0 8 z" style="fill: var(--text-secondary)"></path></marker></defs>
+<sc-for list="{{links}}" as="l" hint-placeholder-count="5">
+<path d="{{l.d}}" marker-end="url(#arrow)" style="fill: none; stroke: {{l.color}}; stroke-width: 1.5"></path>
+</sc-for>
+</svg>
+<div style="position: absolute; left: {{todayX}}px; top: -48px; bottom: 0; width: 2px; background: var(--danger-icon)"></div>
+<span style="position: absolute; left: {{todayLabelX}}px; top: -46px; padding: 1px 6px; border-radius: 4px; background: var(--danger-solid); color: var(--text-on-brand); font-size: 11px; font-weight: 600">Today</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const px = 19, H = 40;
+    const T = (name, status, s, l, opt) => Object.assign({ kind: 'task', name, status, s, l }, opt || {});
+    const raw = [
+      { kind: 'section', name: 'Discovery' },
+      T('Kickoff workshop', 'done', 0, 2, { who: 'FI', progress: 100 }),
+      T('Stakeholder interviews', 'done', 2, 5, { who: 'SA', progress: 100 }),
+      T('Define success metrics', 'done', 3, 4, { who: 'JL', progress: 100 }),
+      { kind: 'milestone', name: 'Plan approved', d: 9, date: 'Oct 21' },
+      { kind: 'section', name: 'Design' },
+      T('Wireframes & IA', 'in-progress', 6, 5, { who: 'SA', progress: 70, critical: true }),
+      T('Pricing page design', 'in-progress', 11, 8, { who: 'FI', progress: 20, critical: true, baseline: [9, 7] }),
+      T('Homepage copy', 'todo', 9, 9, { who: 'JL', progress: 0 }),
+      { kind: 'section', name: 'Build' },
+      T('Responsive navigation', 'todo', 19, 8, { who: 'MK', progress: 0, critical: true }),
+      T('Analytics events', 'todo', 23, 6, { who: 'MK', progress: 0, conflict: true }),
+      T('QA & accessibility pass', 'todo', 27, 6, { who: 'SA', progress: 0, critical: true }),
+      { kind: 'milestone', name: 'Launch', d: 33, date: 'Nov 14' }
+    ];
+    const rows = raw.map((r) => {
+      const isSection = r.kind === 'section', isTask = r.kind === 'task', isMilestone = r.kind === 'milestone';
+      const out = Object.assign({}, r, { isSection, isTask, isMilestone,
+        indent: isSection ? '8px' : '28px', size: isSection ? '13px' : '13px', weight: isSection ? 600 : 400,
+        rowBg: isSection ? 'var(--bg-subtle)' : 'transparent', chartRowBg: isSection ? 'var(--bg-subtle)' : 'transparent', who: r.who || false });
+      if (isTask) {
+        const done = r.status === 'done';
+        Object.assign(out, {
+          left: r.s * px + 1, width: r.l * px - 2,
+          barBg: r.critical ? 'var(--brand-primary)' : done ? 'var(--status-done-bg)' : 'var(--accent-slate-avatar)',
+          barBorder: r.critical ? 'var(--brand-primary)' : done ? 'var(--status-done)' : 'var(--border-strong)',
+          barText: r.critical ? 'var(--text-on-brand)' : done ? 'var(--success-text)' : 'var(--text-primary)',
+          progressBg: r.critical ? 'var(--brand-primary-pressed)' : 'transparent',
+          progress: r.critical ? r.progress : 0,
+          barLabel: r.l >= 5 ? r.name : '',
+          baseline: !!r.baseline, bLeft: r.baseline ? r.baseline[0] * px : 0, bWidth: r.baseline ? r.baseline[1] * px : 0,
+          conflict: !!r.conflict, conflictLeft: r.s * px - 24
+        });
+      }
+      if (isMilestone) Object.assign(out, { left: r.d * px + px / 2 - 7, labelLeft: r.d * px + px / 2 + 14 });
+      return out;
+    });
+    const idx = (n) => rows.findIndex((r) => r.name === n);
+    const link = (a, b, color) => {
+      const A = rows[idx(a)], B = rows[idx(b)];
+      const xe = A.isMilestone ? A.left + 14 : A.left + A.width, ye = idx(a) * H + 20;
+      const xs = B.isMilestone ? B.left : B.left, ys = idx(b) * H + 20;
+      return { d: `M${xe} ${ye} C ${xe + 26} ${ye}, ${xs - 26} ${ys}, ${xs - 2} ${ys}`, color };
+    };
+    const crit = 'var(--brand-primary)', norm = 'var(--text-tertiary)';
+    return {
+      theme: this.props.theme ?? 'light',
+      px, weekW: px * 7, fiveDays: px * 6, twenty: 20, twelve: 12,
+      chartW: px * 42, chartH: rows.length * H,
+      todayX: 7 * px + px / 2 - 1, todayLabelX: 7 * px + px / 2 + 4,
+      tabs: [{ id: 'list', label: 'List', icon: 'list' }, { id: 'board', label: 'Board', icon: 'board' }, { id: 'timeline', label: 'Timeline', icon: 'timeline' }, { id: 'calendar', label: 'Calendar', icon: 'calendar-view' }, { id: 'workload', label: 'Workload', icon: 'workload' }],
+      zoom: [{ id: 'day', label: 'Day' }, { id: 'week', label: 'Week' }, { id: 'month', label: 'Month' }, { id: 'quarter', label: 'Quarter' }],
+      weeks: ['Oct 12', 'Oct 19', 'Oct 26', 'Nov 2', 'Nov 9', 'Nov 16'].map((label) => ({ label })),
+      rows,
+      links: [
+        link('Define success metrics', 'Plan approved', norm),
+        link('Wireframes & IA', 'Pricing page design', crit),
+        link('Pricing page design', 'Responsive navigation', crit),
+        link('Responsive navigation', 'Analytics events', norm),
+        link('Responsive navigation', 'QA & accessibility pass', crit),
+        link('QA & accessibility pass', 'Launch', crit)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Website relaunch — Board</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="position: relative; display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="website" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Projects  /  Website relaunch" hint-size="100%,52px"></dc-import>
+<main style="padding: 24px 0 24px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-right: 32px">
+<span style="width: 32px; height: 32px; border-radius: 8px; background: var(--accent-blue-avatar); color: var(--accent-blue-fg); display: flex; align-items: center; justify-content: center">
+<x-import component-from-global-scope="Hearth.Icon" name="folder"></x-import>
+</span>
+<h1 style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.025em">Website relaunch</h1>
+<span style="display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 10px 0 8px; border-radius: 9999px; background: var(--success-bg); color: var(--success-text); font-size: 12px; font-weight: 500">
+<x-import component-from-global-scope="Hearth.Icon" name="status-done" style="color: var(--success-icon)"></x-import>On track</span>
+<span style="font-size: 13px; color: var(--text-tertiary)">Due Nov 14 · 62% complete</span>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.AvatarGroup" people="{{people}}" size="{{avatarSize}}"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="link">Share</x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 32px 12px 0; border-bottom: 1px solid var(--border-default)">
+<x-import component-from-global-scope="Hearth.ViewTabs" value="board" tabs="{{tabs}}"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="plus">Add view</x-import>
+<span style="flex-grow: 1"></span>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="filter">Filter</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="users">Assignee: Anyone</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="list">Swimlanes: None</x-import>
+</div>
+<div style="position: relative; display: flex; gap: 12px; overflow-x: auto; padding: 0 32px 8px 0; align-items: flex-start">
+<sc-for list="{{columns}}" as="c" hint-placeholder-count="4">
+<section aria-label="{{c.label}}" style="flex: 0 0 288px; box-sizing: border-box; min-height: 680px; padding: 10px 8px 8px; border-radius: 10px; background: var(--bg-subtle); display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px; padding: 0 4px 2px 6px">
+<x-import component-from-global-scope="Hearth.StatusIcon" status="{{c.status}}"></x-import>
+<span style="font-size: 13px; font-weight: 600">{{c.label}}</span>
+<span style="font-size: 12px; font-weight: 500; flex-grow: 1; color: {{c.countColor}}">{{c.count}}</span>
+<x-import component-from-global-scope="Hearth.Icon" name="plus" style="color: var(--text-tertiary)"></x-import>
+<x-import component-from-global-scope="Hearth.Icon" name="more" style="color: var(--text-tertiary)"></x-import>
+</div>
+<sc-for list="{{c.cards}}" as="k" hint-placeholder-count="2">
+<x-import component-from-global-scope="Hearth.BoardCard" id="{{k.id}}" title="{{k.title}}" priority="{{k.priority}}" tags="{{k.tags}}" due="{{k.due}}" due-tone="{{k.dueTone}}" comments="{{k.comments}}" assignee="{{k.assignee}}" muted="{{c.muted}}" style="width: 100%"></x-import>
+</sc-for>
+<sc-if value="{{c.drop}}" hint-placeholder-val="{{ false }}">
+<div class="ht-dropzone">Drop to move to In review</div>
+</sc-if>
+<a href="#" style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; color: var(--text-tertiary); font-size: 13px; font-weight: 500; text-decoration: none">
+<x-import component-from-global-scope="Hearth.Icon" name="plus"></x-import>Add task</a>
+</section>
+</sc-for>
+<div style="position: absolute; left: 618px; top: 214px; pointer-events: none">
+<x-import component-from-global-scope="Hearth.BoardCard" id="HRT-195" title="Set up analytics events for the new funnel" priority="medium" tags="{{dragTags}}" due="Fri" comments="{{one}}" assignee="MK" dragging="{{yes}}"></x-import>
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: this.props.theme ?? 'light',
+      yes: true, one: 1, avatarSize: 28,
+      people: [{ initials: 'SA', name: 'Sara Ahmed' }, { initials: 'MK', name: 'Mo Khan' }, { initials: 'JL', name: 'Jia Li' }, { initials: 'FI', name: 'Fawad Iqbal', color: 'blue' }, { initials: 'RT' }, { initials: 'NB' }, { initials: 'OP' }],
+      tabs: [
+        { id: 'overview', label: 'Overview', icon: 'home' }, { id: 'list', label: 'List', icon: 'list' }, { id: 'board', label: 'Board', icon: 'board' },
+        { id: 'timeline', label: 'Timeline', icon: 'timeline' }, { id: 'calendar', label: 'Calendar', icon: 'calendar-view' }, { id: 'workload', label: 'Workload', icon: 'workload' }
+      ],
+      dragTags: [{ label: 'Analytics', color: 'sky' }],
+      columns: [
+        { label: 'To do', status: 'todo', count: '3', countColor: 'var(--text-tertiary)', cards: [
+          { id: 'HRT-201', title: 'Audit current site IA and map redirects', priority: 'medium', tags: [{ label: 'SEO', color: 'sky' }], due: 'Oct 28', comments: 2, assignee: 'MK' },
+          { id: 'HRT-204', title: 'Write new homepage copy and value props', priority: 'high', tags: [{ label: 'Content', color: 'violet' }], due: 'Oct 30', comments: 5, assignee: 'JL' },
+          { id: 'HRT-207', title: 'Collect customer logos for social proof', priority: 'low', tags: [{ label: 'Design', color: 'blue' }], due: 'Nov 2', comments: 0, assignee: 'SA' }
+        ] },
+        { label: 'In progress', status: 'in-progress', count: '3 / 4 WIP', countColor: 'var(--warning-text)', cards: [
+          { id: 'HRT-188', title: 'Design pricing page in light and dark mode', priority: 'urgent', tags: [{ label: 'Design', color: 'blue' }], due: 'Today', dueTone: 'danger', comments: 8, assignee: 'FI' },
+          { id: 'HRT-192', title: 'Build responsive navigation component', priority: 'high', tags: [{ label: 'Engineering', color: 'amber' }], due: 'Tomorrow', comments: 3, assignee: 'MK' }
+        ] },
+        { label: 'In review', status: 'in-review', count: '1', countColor: 'var(--text-tertiary)', drop: true, cards: [
+          { id: 'HRT-185', title: 'Accessibility pass on the signup flow', priority: 'high', tags: [{ label: 'QA', color: 'green' }], due: 'Thu', comments: 4, assignee: 'SA' }
+        ] },
+        { label: 'Done', status: 'done', count: '8', countColor: 'var(--text-tertiary)', muted: true, cards: [
+          { id: 'HRT-170', title: 'Kickoff workshop with stakeholders', priority: 'none', tags: [{ label: 'Meeting', color: 'slate' }], due: 'Oct 12', comments: 6, assignee: 'FI' },
+          { id: 'HRT-172', title: 'Define success metrics for launch', priority: 'medium', tags: [{ label: 'Strategy', color: 'rose' }], due: 'Oct 14', comments: 2, assignee: 'JL' }
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hearth top bar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<header style="height: 52px; box-sizing: border-box; padding: 0 16px 0 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--bg-canvas); border-bottom: 1px solid var(--border-default); font-family: var(--font-sans); color: var(--text-primary)">
+<nav aria-label="Breadcrumb" style="flex-grow: 1; font-size: 13px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{crumb}}</nav>
+<a href="#" style="display: flex; align-items: center; gap: 8px; width: 300px; max-width: 40%; height: 32px; box-sizing: border-box; padding: 0 6px 0 10px; border-radius: 8px; background: var(--bg-surface); border: 1px solid var(--border-default); color: var(--text-tertiary); text-decoration: none; font-size: 14px">
+<x-import component-from-global-scope="Hearth.Icon" name="search"></x-import>
+<span style="flex-grow: 1">Search or jump to…</span>
+<x-import component-from-global-scope="Hearth.Kbd" keys="⌘K"></x-import>
+</a>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" icon="sparkles">Ask Hearth</x-import>
+<x-import component-from-global-scope="Hearth.Button" icon="plus">New</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" icon="bell" aria-label="Notifications, 3 unread"></x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="ghost" icon="help" aria-label="Help"></x-import>
+<x-import component-from-global-scope="Hearth.Avatar" initials="FI" name="Fawad Iqbal" size="{{avatarSize}}" color="blue"></x-import>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"crumb":{"editor":"text","default":"My tasks"},"$preview":{"width":1184,"height":52}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { crumb: this.props.crumb ?? 'My tasks', avatarSize: 32 };
+  }
+}
+</script>
+</body>
+</html>

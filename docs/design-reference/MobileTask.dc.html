@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile — Task detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-sans)">
+<header style="display: flex; align-items: center; gap: 4px; padding: 8px 8px 8px 4px; border-bottom: 1px solid var(--border-default)">
+<a href="MobileTasks.dc.html" aria-label="Back to My tasks" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-primary); transform: scaleX(-1)"><x-import component-from-global-scope="Hearth.Icon" name="chevron-right" size="{{twentyfour}}"></x-import></a>
+<span style="flex-grow: 1; font-family: var(--font-mono); font-size: 13px; color: var(--text-tertiary)">HRT-142</span>
+<a href="#" aria-label="Copy link" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.Icon" name="link" size="{{twenty}}"></x-import></a>
+<a href="#" aria-label="More actions" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.Icon" name="more" size="{{twenty}}"></x-import></a>
+</header>
+<div style="flex-grow: 1; overflow: hidden; padding: 20px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; gap: 14px; align-items: flex-start">
+<span style="padding-top: 6px"><x-import component-from-global-scope="Hearth.TaskCheckbox" label="Mark complete"></x-import></span>
+<h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Write onboarding checklist copy for the first-project flow</h1>
+</div>
+<dl style="margin: 0; display: flex; flex-direction: column; border: 1px solid var(--border-default); border-radius: 12px; overflow: hidden">
+<sc-for list="{{props}}" as="p" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border-bottom: 1px solid var(--border-default)">
+<dt style="flex: 0 0 92px; font-size: 14px; color: var(--text-tertiary)">{{p.label}}</dt>
+<dd style="margin: 0; flex-grow: 1; display: flex; align-items: center; gap: 8px; font-size: 16px">
+<sc-if value="{{p.status}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.StatusPill" status="in-progress"></x-import></sc-if>
+<sc-if value="{{p.person}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Avatar" initials="FI" color="blue"></x-import></sc-if>
+<sc-if value="{{p.priority}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.PriorityIcon" level="high"></x-import></sc-if>
+<sc-if value="{{p.date}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Icon" name="calendar" style="color: var(--text-tertiary)"></x-import></sc-if>
+<span>{{p.value}}</span>
+</dd>
+<x-import component-from-global-scope="Hearth.Icon" name="chevron-right" style="color: var(--text-tertiary)"></x-import>
+</div>
+</sc-for>
+</dl>
+<section style="display: flex; flex-direction: column; gap: 8px">
+<strong style="font-size: 14px; font-weight: 600">Description</strong>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--text-secondary)">Five steps, each one short sentence. Lead with the benefit, end with a verb. Keep the tone friendly but not cute — this is the first thing new teams read.</p>
+</section>
+<section style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 8px"><strong style="font-size: 14px; font-weight: 600">Subtasks</strong><span style="font-size: 13px; color: var(--text-tertiary)">1 / 3</span></div>
+<sc-for list="{{subs}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 14px; min-height: 44px; font-size: 16px"><x-import component-from-global-scope="Hearth.TaskCheckbox" checked="{{s.done}}" label="{{s.label}}"></x-import><span style="color: {{s.color}}; text-decoration: {{s.deco}}">{{s.label}}</span></div>
+</sc-for>
+</section>
+<section style="display: flex; gap: 10px">
+<x-import component-from-global-scope="Hearth.Avatar" initials="SA" color="green"></x-import>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 13px"><strong style="font-weight: 600">Sara Ahmed</strong> <span style="color: var(--text-tertiary)">· 1h</span></span><span style="font-size: 15px; line-height: 22px">Step 3 is a bit long — can we split invites into its own step?</span></div>
+</section>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px 28px; border-top: 1px solid var(--border-default); background: var(--bg-surface)">
+<span style="flex-grow: 1; height: 44px; box-sizing: border-box; display: flex; align-items: center; padding: 0 14px; border-radius: 22px; background: var(--bg-subtle); border: 1px solid var(--border-default); font-size: 16px; color: var(--text-tertiary)">Comment or @mention…</span>
+<a href="#" aria-label="Attach file" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.Icon" name="paperclip" size="{{twenty}}"></x-import></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = (label, value, kind) => ({ label, value, status: kind === 's', person: kind === 'p', priority: kind === 'r', date: kind === 'd' });
+    return {
+      theme: this.props.theme ?? 'light', twenty: 20, twentyfour: 24,
+      props: [P('Status', '', 's'), P('Assignee', 'Fawad Iqbal', 'p'), P('Due', 'Today', 'd'), P('Priority', 'High', 'r'), P('Project', 'Q4 brand campaign')],
+      subs: [
+        { label: 'First draft', done: true, color: 'var(--text-tertiary)', deco: 'line-through' },
+        { label: 'Review with Sara', done: false, color: 'var(--text-primary)', deco: 'none' },
+        { label: 'Hand off to engineering', done: false, color: 'var(--text-primary)', deco: 'none' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

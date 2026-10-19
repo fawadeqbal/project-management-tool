@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home — first run</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="home" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Home" hint-size="100%,52px"></dc-import>
+<main style="padding: 36px 56px 32px; display: flex; flex-direction: column; gap: 24px; max-width: 1184px; box-sizing: border-box">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 26px; line-height: 32px; font-weight: 600; letter-spacing: -0.025em">Welcome to Hearth, Fawad</h1>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--text-secondary)">Let’s get your team’s first project moving. Most teams finish setup in under 5 minutes.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch">
+<section aria-label="Getting started" style="flex: 3 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 24px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-default)">
+<div style="display: flex; align-items: center; gap: 10px"><h2 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 26px; font-weight: 600">Getting started</h2><span style="font-size: 13px; font-weight: 500; color: var(--text-secondary)">3 of 5 done</span></div>
+<x-import component-from-global-scope="Hearth.ProgressBar" value="{{sixty}}" height="{{eight}}" label="Getting started"></x-import>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: {{s.bg}}">
+<x-import component-from-global-scope="Hearth.TaskCheckbox" checked="{{s.done}}" label="{{s.title}}"></x-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 14px; line-height: 20px; font-weight: 500; color: {{s.color}}; text-decoration: {{s.deco}}">{{s.title}}</span>
+<span style="font-size: 13px; line-height: 18px; color: var(--text-tertiary)">{{s.sub}}</span>
+</div>
+<sc-if value="{{s.primary}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button" icon="users">Invite</x-import></sc-if>
+<sc-if value="{{s.secondary}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button" variant="secondary">Connect</x-import></sc-if>
+</div>
+</sc-for>
+</section>
+<section aria-label="My tasks" style="flex: 2 1 340px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-default); text-align: center">
+<svg aria-hidden="true" width="160" height="120" viewBox="0 0 160 120">
+<circle cx="80" cy="60" r="60" style="fill: var(--brand-subtle)"></circle>
+<rect x="34" y="34" width="96" height="26" rx="8" transform="rotate(5 82 47)" style="fill: var(--bg-surface); stroke: var(--border-strong); stroke-width: 1.5"></rect>
+<rect x="40" y="66" width="96" height="26" rx="8" style="fill: var(--bg-surface); stroke: var(--border-strong); stroke-width: 1.5"></rect>
+<rect x="52" y="74" width="48" height="4" rx="2" style="fill: var(--bg-hover)"></rect>
+<rect x="52" y="82" width="30" height="4" rx="2" style="fill: var(--bg-hover)"></rect>
+<circle cx="132" cy="66" r="14" style="fill: var(--brand-primary); stroke: var(--bg-surface); stroke-width: 3"></circle>
+<path d="M126 66.5l4 4 7.5-8" style="fill: none; stroke: var(--text-on-brand); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round"></path>
+</svg>
+<h2 style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600">Nothing on your plate yet</h2>
+<p style="margin: 0; max-width: 340px; font-size: 14px; line-height: 20px; color: var(--text-secondary)">Tasks assigned to you land here, grouped by when they’re due. Create one now, or press C from anywhere.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px"><x-import component-from-global-scope="Hearth.Button" icon="plus">Create task</x-import><x-import component-from-global-scope="Hearth.Button" variant="ghost">Import from Asana</x-import></div>
+<p style="margin: 0; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-tertiary)">Tip: press <x-import component-from-global-scope="Hearth.Kbd" keys="?"></x-import> to see every shortcut</p>
+</section>
+</div>
+<div style="display: flex; align-items: center; gap: 8px"><h2 style="margin: 0; flex-grow: 1; font-size: 15px; line-height: 22px; font-weight: 600">Start from a template</h2><a href="#" style="font-size: 13px; font-weight: 500; color: var(--text-link); text-decoration: none">Browse all 60 templates →</a></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{templates}}" as="t" hint-placeholder-count="3">
+<a href="#" style="display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-default); color: var(--text-primary); text-decoration: none">
+<span style="width: 40px; height: 40px; flex: none; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: {{t.bg}}; color: {{t.fg}}"><x-import component-from-global-scope="Hearth.Icon" name="{{t.icon}}" size="{{twenty}}"></x-import></span>
+<span style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0"><span style="font-size: 14px; font-weight: 500">{{t.name}}</span><span style="font-size: 13px; color: var(--text-tertiary)">{{t.desc}}</span></span>
+<x-import component-from-global-scope="Hearth.Icon" name="arrow-right" style="color: var(--text-tertiary)"></x-import>
+</a>
+</sc-for>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const done = { color: 'var(--text-tertiary)', deco: 'line-through', bg: 'transparent', done: true };
+    const open = { color: 'var(--text-primary)', deco: 'none', bg: 'transparent', done: false };
+    return {
+      theme: this.props.theme ?? 'light',
+      sixty: 60, eight: 8, twenty: 20,
+      steps: [
+        { ...done, title: 'Create your workspace', sub: 'Done in 20 seconds' },
+        { ...done, title: 'Start from a template', sub: '“Website launch” · 14 tasks added' },
+        { ...done, title: 'Create your first task', sub: 'HRT-1 · Kickoff meeting' },
+        { ...open, bg: 'var(--brand-subtle)', primary: true, title: 'Invite 2 teammates', sub: 'Projects with 3+ people are far more likely to ship on time' },
+        { ...open, secondary: true, title: 'Connect Slack', sub: 'Get updates where your team already talks' }
+      ],
+      templates: [
+        { name: 'Product sprint', desc: 'Backlog, 2-week sprints, burndown', icon: 'board', bg: 'var(--accent-sky-avatar)', fg: 'var(--accent-sky-fg)' },
+        { name: 'Marketing campaign', desc: 'Brief → content calendar → launch', icon: 'calendar-view', bg: 'var(--accent-violet-avatar)', fg: 'var(--accent-violet-fg)' },
+        { name: 'Client project', desc: 'Milestones, approvals, guest portal', icon: 'users', bg: 'var(--accent-green-avatar)', fg: 'var(--accent-green-fg)' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command palette</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="position: relative; min-height: 900px; overflow: hidden; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Main" theme="{{theme}}" hint-size="100%,900px"></dc-import>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(2, 6, 23, 0.45)"></div>
+<div role="dialog" aria-modal="true" aria-label="Command palette" style="position: absolute; top: 112px; left: 50%; transform: translateX(-50%); width: 640px; max-width: calc(100% - 32px); display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; background: var(--bg-surface); border: 1px solid var(--border-default); box-shadow: var(--shadow-4)">
+<label style="display: flex; align-items: center; gap: 10px; padding: 16px 14px 16px 18px; border-bottom: 1px solid var(--border-default)">
+<x-import component-from-global-scope="Hearth.Icon" name="search" size="{{twenty}}" style="color: var(--text-secondary)"></x-import>
+<input value="overdue design" aria-label="Search or run a command" style="flex-grow: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: 400 16px/24px var(--font-sans); color: var(--text-primary); caret-color: var(--brand-primary)">
+<span style="display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 6px; background: var(--bg-subtle); font-size: 12px; font-weight: 500; color: var(--text-secondary)">All<x-import component-from-global-scope="Hearth.Icon" name="chevron-down"></x-import></span>
+</label>
+<div role="listbox" style="display: flex; flex-direction: column; gap: 2px; padding: 8px">
+<div class="ht-menu-heading">Ask Hearth AI</div>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="sparkles" icon-color="var(--brand-primary)" label="Show overdue tasks for the Design team" shortcut="↵" highlighted="{{yes}}"></x-import>
+<div class="ht-menu-heading">Tasks</div>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="status-review" icon-color="var(--status-review)" label="HRT-118  Review Q3 analytics dashboard" hint="overdue 2 days"></x-import>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="status-progress" icon-color="var(--status-progress)" label="HRT-188  Design pricing page in light and dark mode" hint="due today"></x-import>
+<div class="ht-menu-heading">Actions</div>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="filter" label="Filter My tasks by: Overdue" shortcut="{{fo}}"></x-import>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="plus" label="Create task in Design" shortcut="C"></x-import>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="status-todo" label="Change status…" shortcut="S"></x-import>
+<div class="ht-menu-heading">Navigate</div>
+<x-import component-from-global-scope="Hearth.MenuItem" icon="users" label="Go to team: Design" shortcut="{{gt}}"></x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 10px 18px; background: var(--bg-subtle); border-top: 1px solid var(--border-default); font-size: 12px; color: var(--text-tertiary)">
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="↑↓"></x-import>Navigate</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="↵"></x-import>Open</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="Tab"></x-import>Actions on item</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><x-import component-from-global-scope="Hearth.Kbd" keys="Esc"></x-import>Close</span>
+<span style="flex-grow: 1; text-align: right">Matched locally in 12 ms</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { theme: this.props.theme ?? 'light', yes: true, twenty: 20, fo: ['F', 'O'], gt: ['G', 'T'] };
+  }
+}
+</script>
+</body>
+</html>

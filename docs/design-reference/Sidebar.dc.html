@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hearth sidebar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<nav aria-label="Main" style="width: 256px; min-height: 900px; height: 100%; box-sizing: border-box; padding: 12px; display: flex; flex-direction: column; gap: 2px; background: var(--bg-sidebar); border-right: 1px solid var(--border-default); font-family: var(--font-sans); color: var(--text-primary)">
+<a href="#" style="display: flex; align-items: center; gap: 10px; padding: 6px 8px 6px 6px; border-radius: 8px; text-decoration: none; color: var(--text-primary)">
+<span style="width: 26px; height: 26px; border-radius: 8px; background: var(--brand-primary); color: var(--text-on-brand); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">A</span>
+<span style="flex-grow: 1; font-weight: 600; font-size: 14px">Acme Studio</span>
+<x-import component-from-global-scope="Hearth.Icon" name="chevron-down" style="color: var(--text-tertiary)"></x-import>
+</a>
+<div style="height: 10px"></div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7">
+<x-import component-from-global-scope="Hearth.NavItem" icon="{{n.icon}}" label="{{n.label}}" count="{{n.count}}" active="{{n.active}}"></x-import>
+</sc-for>
+<div style="height: 14px"></div>
+<div style="padding: 0 8px 4px; font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary)">Favorites</div>
+<sc-for list="{{favs}}" as="f" hint-placeholder-count="3">
+<x-import component-from-global-scope="Hearth.NavItem" dot="{{f.dot}}" label="{{f.label}}" active="{{f.active}}"></x-import>
+</sc-for>
+<div style="height: 14px"></div>
+<div style="padding: 0 8px 4px; font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary)">Teams</div>
+<sc-for list="{{teams}}" as="f" hint-placeholder-count="3">
+<x-import component-from-global-scope="Hearth.NavItem" dot="{{f.dot}}" label="{{f.label}}"></x-import>
+</sc-for>
+<div style="flex-grow: 1; min-height: 24px"></div>
+<a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); text-decoration: none; color: var(--text-primary)">
+<span style="display: flex; align-items: center; gap: 6px"><span style="flex-grow: 1; font-size: 13px; font-weight: 600">Getting started</span><span style="font-size: 12px; color: var(--text-tertiary)">3 of 5</span></span>
+<x-import component-from-global-scope="Hearth.ProgressBar" value="{{progress}}" label="Getting started"></x-import>
+<span style="font-size: 13px; color: var(--text-link)">Next: invite 2 teammates →</span>
+</a>
+<div style="height: 8px"></div>
+<x-import component-from-global-scope="Hearth.NavItem" icon="settings" label="Settings"></x-import>
+<x-import component-from-global-scope="Hearth.NavItem" icon="help" label="Help &amp; shortcuts"></x-import>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["home","my-tasks","inbox","projects","goals","docs","dashboards","website"],"default":"my-tasks"},"$preview":{"width":256,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const a = this.props.active ?? 'my-tasks';
+    const items = [
+      ['home', 'home', 'Home'], ['my-tasks', 'my-tasks', 'My tasks', 8], ['inbox', 'inbox', 'Inbox', 4],
+      ['projects', 'folder', 'Projects'], ['goals', 'target', 'Goals'], ['docs', 'doc', 'Docs'], ['dashboards', 'dashboard', 'Dashboards']
+    ];
+    return {
+      nav: items.map(([id, icon, label, count]) => ({ icon, label, count, active: a === id || (a === 'website' && id === 'projects') })),
+      favs: [
+        { dot: 'blue', label: 'Website relaunch', active: false },
+        { dot: 'violet', label: 'Q4 brand campaign', active: false },
+        { dot: 'sky', label: 'Mobile app v2', active: false }
+      ],
+      teams: [{ dot: 'green', label: 'Design' }, { dot: 'amber', label: 'Engineering' }, { dot: 'rose', label: 'Marketing' }],
+      progress: 60
+    };
+  }
+}
+</script>
+</body>
+</html>

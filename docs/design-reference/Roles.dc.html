@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings — Members and roles</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="none" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Settings  /  Workspace  /  Members" hint-size="100%,52px"></dc-import>
+<div style="flex-grow: 1; display: flex; flex-wrap: wrap; min-width: 0">
+<nav aria-label="Settings" style="flex: 0 0 220px; box-sizing: border-box; padding: 20px 12px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid var(--border-default)">
+<sc-for list="{{settingsNav}}" as="s" hint-placeholder-count="12">
+<sc-if value="{{s.heading}}" hint-placeholder-val="{{ false }}"><div style="padding: 12px 8px 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary)">{{s.label}}</div></sc-if>
+<sc-if value="{{s.item}}" hint-placeholder-val="{{ true }}"><a href="#" aria-current="{{s.current}}" style="display: block; padding: 6px 10px; border-radius: 8px; font-size: 14px; text-decoration: none; color: {{s.color}}; background: {{s.bg}}; font-weight: {{s.weight}}">{{s.label}}</a></sc-if>
+</sc-for>
+</nav>
+<main style="flex: 999 1 560px; min-width: 0; padding: 28px 40px; display: flex; flex-direction: column; gap: 20px; max-width: 980px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px"><h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Members</h1><p style="margin: 0; font-size: 14px; color: var(--text-secondary)">42 members · 6 guests · 3 pending invites · 50 seats on Business</p></div>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="doc">Permission matrix</x-import>
+<x-import component-from-global-scope="Hearth.Button" icon="plus">Invite people</x-import>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--info-bg); color: var(--info-text); font-size: 13px; line-height: 18px">
+<x-import component-from-global-scope="Hearth.Icon" name="link" style="color: var(--info-icon)"></x-import>
+<span style="flex: 1 1 360px"><strong style="font-weight: 600">SAML SSO is on for acme.com.</strong> New people from Okta join as Members automatically (SCIM). Guests sign in with email.</span>
+<a href="#" style="font-weight: 600; color: var(--info-text)">Manage SSO</a>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<span style="flex: 1 1 280px"><x-import component-from-global-scope="Hearth.Input" icon="search" placeholder="Search by name or email"></x-import></span>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon-right="chevron-down">Role: All</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon-right="chevron-down">Team: All</x-import>
+</div>
+<section aria-label="Members" style="border: 1px solid var(--border-default); border-radius: 10px; overflow: auto; background: var(--bg-surface)">
+<div role="table" style="min-width: 680px">
+<div role="row" style="display: grid; grid-template-columns: 2.4fr 1.2fr 1.4fr 1fr 40px; gap: 12px; padding: 10px 16px; background: var(--bg-subtle); border-bottom: 1px solid var(--border-default); font-size: 12px; font-weight: 600; color: var(--text-secondary)">
+<span role="columnheader">Person</span><span role="columnheader">Teams</span><span role="columnheader">Role</span><span role="columnheader">Last active</span><span role="columnheader"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Actions</span></span>
+</div>
+<sc-for list="{{members}}" as="m" hint-placeholder-count="6">
+<div role="row" style="display: grid; grid-template-columns: 2.4fr 1.2fr 1.4fr 1fr 40px; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border-default); font-size: 14px; opacity: {{m.opacity}}">
+<span role="cell" style="display: flex; align-items: center; gap: 10px; min-width: 0"><x-import component-from-global-scope="Hearth.Avatar" initials="{{m.i}}" size="{{thirtytwo}}" color="{{m.c}}"></x-import><span style="display: flex; flex-direction: column; min-width: 0"><span style="font-weight: 500">{{m.name}}</span><span style="font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{m.email}}</span></span></span>
+<span role="cell" style="display: flex; flex-wrap: wrap; gap: 4px"><x-import component-from-global-scope="Hearth.Tag" color="{{m.tc}}">{{m.team}}</x-import></span>
+<span role="cell"><a href="#" style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 8px 0 10px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg-surface); color: var(--text-primary); font-size: 13px; font-weight: 500; text-decoration: none">{{m.role}}<x-import component-from-global-scope="Hearth.Icon" name="chevron-down" style="color: var(--text-tertiary)"></x-import></a></span>
+<span role="cell" style="font-size: 13px; color: var(--text-secondary)">{{m.active}}</span>
+<span role="cell"><x-import component-from-global-scope="Hearth.Button" variant="ghost" size="sm" icon="more" aria-label="More actions for {{m.name}}"></x-import></span>
+</div>
+</sc-for>
+</div>
+</section>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section aria-label="Pending invites" style="flex: 1 1 360px; padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 14px; font-weight: 600">Pending invites</strong>
+<sc-for list="{{invites}}" as="v" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><x-import component-from-global-scope="Hearth.Icon" name="clock" style="color: var(--text-tertiary)"></x-import><span style="flex-grow: 1; min-width: 0"><span style="display: block">{{v.email}}</span><span style="font-size: 12px; color: var(--text-tertiary)">{{v.meta}}</span></span><a href="#" style="font-weight: 600; color: var(--text-link); text-decoration: none">Resend</a><a href="#" style="color: var(--text-secondary); text-decoration: none">Revoke</a></div>
+</sc-for>
+</section>
+<section aria-label="Roles" style="flex: 1 1 360px; padding: 16px; border: 1px solid var(--border-default); border-radius: 10px; background: var(--bg-surface); display: flex; flex-direction: column; gap: 10px">
+<strong style="font-size: 14px; font-weight: 600">What each role can do</strong>
+<sc-for list="{{roles}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; gap: 10px; font-size: 13px; line-height: 18px"><span style="flex: 0 0 72px; font-weight: 600">{{r.name}}</span><span style="color: var(--text-secondary)">{{r.desc}}</span></div>
+</sc-for>
+<a href="#" style="font-size: 13px; font-weight: 600; color: var(--text-link); text-decoration: none">Create a custom role →</a>
+</section>
+</div>
+</main>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const nav = [['h', 'Account'], ['i', 'Profile'], ['i', 'Notifications'], ['i', 'Appearance'], ['h', 'Workspace'], ['i', 'General'], ['i', 'Members', true], ['i', 'Teams'], ['i', 'Custom fields & statuses'], ['i', 'Integrations'], ['i', 'Import / export'], ['h', 'Admin'], ['i', 'Security & SSO'], ['i', 'Audit log'], ['i', 'Billing']];
+    return {
+      theme: this.props.theme ?? 'light', thirtytwo: 32,
+      settingsNav: nav.map(([k, label, cur]) => ({ heading: k === 'h', item: k === 'i', label, current: cur ? 'page' : 'false', color: cur ? 'var(--text-primary)' : 'var(--text-secondary)', bg: cur ? 'var(--bg-hover)' : 'transparent', weight: cur ? 600 : 400 })),
+      members: [
+        { i: 'FI', c: 'blue', name: 'Fawad Iqbal', email: 'fawad@acme.com', team: 'Product', tc: 'blue', role: 'Owner', active: 'Now', opacity: 1 },
+        { i: 'SA', c: 'green', name: 'Sara Ahmed', email: 'sara@acme.com', team: 'Design', tc: 'green', role: 'Admin', active: '5 min ago', opacity: 1 },
+        { i: 'MK', c: 'sky', name: 'Mo Khan', email: 'mo@acme.com', team: 'Engineering', tc: 'amber', role: 'Member', active: '1 hour ago', opacity: 1 },
+        { i: 'JL', c: 'violet', name: 'Jia Li', email: 'jia@acme.com', team: 'Marketing', tc: 'rose', role: 'Member', active: 'Yesterday', opacity: 1 },
+        { i: 'TW', c: 'amber', name: 'Tom Walsh (Northwind)', email: 'tom@northwind.co', team: 'Guest · 1 project', tc: 'slate', role: 'Guest', active: '3 days ago', opacity: 1 },
+        { i: 'PO', c: 'slate', name: 'Priya Oberoi', email: 'priya@acme.com · deactivated', team: 'Design', tc: 'green', role: 'Deactivated', active: 'Sep 2', opacity: 0.72 }
+      ],
+      invites: [
+        { email: 'lena@acme.com', meta: 'Member · Design · sent 2 days ago' },
+        { email: 'omar@acme.com', meta: 'Member · Engineering · sent 5 days ago' },
+        { email: 'kate@northwind.co', meta: 'Guest · Website relaunch · expires in 2 days' }
+      ],
+      roles: [
+        { name: 'Owner', desc: 'Everything, including billing and deleting the workspace.' },
+        { name: 'Admin', desc: 'Manage members, teams, security and integrations.' },
+        { name: 'Member', desc: 'Create and edit projects, tasks and docs in their teams.' },
+        { name: 'Viewer', desc: 'See and comment; can’t edit. Free on every plan.' },
+        { name: 'Guest', desc: 'Only the projects they’re invited to. Never sees members or other projects.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings — Billing and plan</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 900px; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<dc-import name="Sidebar" active="none" hint-size="256px,900px"></dc-import>
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<dc-import name="TopBar" crumb="Settings  /  Admin  /  Billing" hint-size="100%,52px"></dc-import>
+<main style="padding: 28px 40px; display: flex; flex-direction: column; gap: 20px; max-width: 1184px; box-sizing: border-box">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 4px"><h1 style="margin: 0; font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Billing &amp; plan</h1><p style="margin: 0; font-size: 14px; color: var(--text-secondary)">You’re on <strong style="font-weight: 600; color: var(--text-primary)">Pro, billed monthly</strong> · next invoice Nov 1 · Visa ending 4242</p></div>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" icon="doc">Invoices</x-import>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary">Payment method</x-import>
+</div>
+<div role="alert" style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 10px; background: var(--warning-bg); border: 1px solid var(--warning-icon)">
+<x-import component-from-global-scope="Hearth.Icon" name="alert" size="{{twenty}}" style="color: var(--warning-icon)"></x-import>
+<div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 2px; color: var(--warning-text)"><strong style="font-size: 14px; font-weight: 600">You’ve used 940 of 1,000 automation runs this month</strong><span style="font-size: 13px; line-height: 18px">At your current pace you’ll reach the limit on Oct 22. Automations pause until Nov 1 — nothing is deleted. Business includes 10,000 runs.</span></div>
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="sm" icon="arrow-up-right">Preview Business automations</x-import>
+<x-import component-from-global-scope="Hearth.Button" size="sm">Upgrade to Business</x-import>
+</div>
+<section aria-label="Usage" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{usage}}" as="u" hint-placeholder-count="4">
+<div style="padding: 16px; border-radius: 10px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.Icon" name="{{u.icon}}" style="color: var(--text-tertiary)"></x-import>{{u.label}}</span>
+<span style="font-size: 20px; line-height: 28px; font-weight: 700">{{u.value}} <span style="font-size: 13px; font-weight: 500; color: var(--text-tertiary)">/ {{u.max}}</span></span>
+<div style="height: 6px; border-radius: 9999px; background: var(--bg-hover); overflow: hidden"><div style="height: 100%; width: {{u.pct}}%; border-radius: 9999px; background: {{u.bar}}"></div></div>
+<span style="font-size: 12px; color: {{u.noteColor}}">{{u.note}}</span>
+</div>
+</sc-for>
+</section>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h2 style="margin: 0; flex-grow: 1; font-size: 18px; line-height: 26px; font-weight: 600">Compare plans</h2>
+<x-import component-from-global-scope="Hearth.ViewTabs" value="annual" tabs="{{billing}}" label="Billing period"></x-import>
+<span style="font-size: 12px; font-weight: 600; color: var(--success-text)">Annual saves [AMOUNT] a year</span>
+</div>
+<section aria-label="Plans" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: stretch">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="4">
+<div style="position: relative; padding: 20px; border-radius: 12px; background: var(--bg-surface); border: {{p.border}}; box-shadow: {{p.shadow}}; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{p.recommended}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: -11px; left: 20px; height: 22px; padding: 0 10px; border-radius: 9999px; display: inline-flex; align-items: center; background: var(--brand-primary); color: var(--text-on-brand); font-size: 12px; font-weight: 600">Recommended for you</span></sc-if>
+<div style="display: flex; flex-direction: column; gap: 4px"><strong style="font-size: 16px; font-weight: 600">{{p.name}}</strong><span style="font-size: 13px; line-height: 18px; color: var(--text-secondary)">{{p.who}}</span></div>
+<div style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 24px; line-height: 32px; font-weight: 700">{{p.price}}</span><span style="font-size: 12px; color: var(--text-tertiary)">{{p.unit}}</span></div>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; flex-grow: 1">
+<sc-for list="{{p.features}}" as="f" hint-placeholder-count="4"><li style="display: flex; gap: 8px; font-size: 13px; line-height: 18px"><x-import component-from-global-scope="Hearth.Icon" name="check" style="color: var(--status-done); margin-top: 1px"></x-import>{{f}}</li></sc-for>
+</ul>
+<sc-if value="{{p.current}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button" variant="secondary" disabled="{{yes}}">Current plan</x-import></sc-if>
+<sc-if value="{{p.upgrade}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button">Upgrade to Business</x-import></sc-if>
+<sc-if value="{{p.contact}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button" variant="secondary">Talk to sales</x-import></sc-if>
+<sc-if value="{{p.downgrade}}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Hearth.Button" variant="ghost">Downgrade</x-import></sc-if>
+</div>
+</sc-for>
+</section>
+<p style="margin: 0; font-size: 13px; color: var(--text-tertiary)">Need a break? <a href="#" style="color: var(--text-link); font-weight: 500">Pause billing for up to 3 months</a> · <a href="#" style="color: var(--text-link); font-weight: 500">Export all data</a> · <a href="#" style="color: var(--text-secondary)">Cancel plan</a></p>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const u = (icon, label, value, max, pct, note, warn) => ({ icon, label, value, max, pct, note, bar: warn ? 'var(--warning-icon)' : 'var(--brand-primary)', noteColor: warn ? 'var(--warning-text)' : 'var(--text-tertiary)' });
+    const plan = (name, who, price, unit, features, opts) => Object.assign({ name, who, price, unit, features, border: '1px solid var(--border-default)', shadow: 'none' }, opts);
+    return {
+      theme: this.props.theme ?? 'light', twenty: 20, yes: true,
+      billing: [{ id: 'monthly', label: 'Monthly' }, { id: 'annual', label: 'Annual' }],
+      usage: [
+        u('users', 'Seats', '9', '10', 90, '1 seat left · next seat is prorated', false),
+        u('paperclip', 'Storage', '18 GB', '100 GB', 18, 'Plenty of room', false),
+        u('settings', 'Automation runs', '940', '1,000', 94, 'Resets Nov 1 · on pace to hit the limit Oct 22', true),
+        u('sparkles', 'AI credits', '420', '500', 84, 'Resets Nov 1', false)
+      ],
+      plans: [
+        plan('Free', 'For trying Hearth with a small team.', '$0', 'up to 5 people', ['Unlimited tasks & projects', 'List, Board, Calendar', '100 automation runs / month', '1 GB storage'], { downgrade: true }),
+        plan('Pro', 'For teams getting organized.', '[PRICE]', 'per seat / month', ['Timeline & Workload', 'Unlimited guests', '1,000 automation runs / month', '100 GB storage'], { current: true }),
+        plan('Business', 'For teams running several projects at once.', '[PRICE]', 'per seat / month', ['Portfolios, goals & dashboards', 'Sprints & time tracking', '10,000 automation runs / month', 'SAML SSO & advanced permissions'], { recommended: true, upgrade: true, border: '2px solid var(--brand-primary)', shadow: 'var(--shadow-2)' }),
+        plan('Enterprise', 'For organizations with security and scale needs.', 'Custom', 'annual contract', ['SCIM, audit log, data retention', 'IP allowlist & domain verification', 'Unlimited automations', 'Dedicated success manager'], { contact: true })
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

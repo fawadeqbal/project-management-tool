@@ -1,0 +1,55 @@
+{
+  "name": "@hearth/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hearth API — NestJS modular monolith (CQRS, hexagonal layers per bounded context).",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src test",
+    "test": "vitest run --config vitest.config.ts",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:reset": "prisma migrate reset --force",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@hearth/contracts": "workspace:*",
+    "@hearth/domain": "workspace:*",
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/cqrs": "^11.0.3",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/platform-socket.io": "^11.1.0",
+    "@nestjs/websockets": "^11.1.0",
+    "@prisma/client": "^6.19.0",
+    "bcryptjs": "^3.0.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "socket.io": "^4.8.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/testing": "^11.1.0",
+    "@swc/core": "^1.13.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.15.0",
+    "@types/supertest": "^6.0.3",
+    "prisma": "^6.19.0",
+    "supertest": "^7.1.0",
+    "tsx": "^4.20.0",
+    "unplugin-swc": "^1.5.5",
+    "vitest": "^3.2.4"
+  }
+}

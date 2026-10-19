@@ -1,0 +1,637 @@
+// Hearth persistence model. The domain model lives in @hearth/domain; this schema is an
+// infrastructure detail mapped by repository adapters in each bounded context.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Identity ─────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  initials     String
+  avatarColor  String   @default("blue") // accent color: blue|green|sky|violet|amber|rose|slate
+  jobTitle     String?
+  passwordHash String
+  theme        String   @default("light") // light|dark|system
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships        Membership[]
+  teamMemberships    TeamMember[]
+  ownedProjects      Project[]           @relation("ProjectOwner")
+  assignedTasks      Task[]              @relation("TaskAssignee")
+  createdTasks       Task[]              @relation("TaskCreator")
+  comments           Comment[]
+  activities         Activity[]
+  notifications      Notification[]      @relation("NotificationRecipient")
+  actedNotifications Notification[]      @relation("NotificationActor")
+  favorites          Favorite[]
+  savedViews         SavedView[]
+  timeOff            TimeOff[]
+  approvalRequests   ApprovalRequest[]   @relation("ApprovalRequester")
+  approvalDecisions  ApprovalDecision[]
+  invitesSent        Invite[]            @relation("InviteSender")
+  follows            TaskFollower[]
+  onboarding         OnboardingProgress[]
+  projectAccess      ProjectMember[]
+}
+
+// ───────────────────────────── Workspace ────────────────────────────
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  keyPrefix String   @default("HRT") // task keys: HRT-142
+  taskSeq   Int      @default(0) // last issued task number
+  createdAt DateTime @default(now())
+
+  memberships   Membership[]
+  teams         Team[]
+  invites       Invite[]
+  projects      Project[]
+  tasks         Task[]
+  tags          Tag[]
+  activities    Activity[]
+  notifications Notification[]
+  timeOff       TimeOff[]
+  subscription  Subscription?
+  usage         UsageCounter[]
+  savedViews    SavedView[]
+  onboarding    OnboardingProgress[]
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+  GUEST
+}
+
+enum MembershipStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+model Membership {
+  id                   String           @id @default(cuid())
+  workspaceId          String
+  userId               String
+  role                 Role             @default(MEMBER)
+  status               MembershipStatus @default(ACTIVE)
+  capacityHoursPerDay  Int              @default(8)
+  lastActiveAt         DateTime         @default(now())
+  joinedAt             DateTime         @default(now())
+  deactivatedAt        DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String   @default("slate")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members   TeamMember[]
+  projects  Project[]
+  invites   Invite[]
+
+  @@unique([workspaceId, name])
+}
+
+model TeamMember {
+  teamId String
+  userId String
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+model Invite {
+  id          String       @id @default(cuid())
+  workspaceId String
+  email       String
+  role        Role         @default(MEMBER)
+  teamId      String?
+  projectId   String? // guests are scoped to one project
+  invitedById String
+  token       String       @unique
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime
+  createdAt   DateTime     @default(now())
+  resentAt    DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  team      Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  invitedBy User      @relation("InviteSender", fields: [invitedById], references: [id])
+}
+
+// ───────────────────────────── Projects ─────────────────────────────
+
+enum ProjectHealth {
+  ON_TRACK
+  AT_RISK
+  OFF_TRACK
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  workspaceId String
+  teamId      String?
+  ownerId     String
+  name        String
+  description String?
+  color       String        @default("blue")
+  icon        String        @default("folder")
+  health      ProjectHealth @default(ON_TRACK)
+  startDate   DateTime?
+  dueDate     DateTime?
+  budgetUsedPct Int?
+  wipLimits   Json          @default("{}") // { "IN_PROGRESS": 4 }
+  archivedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  workspace  Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  team       Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  owner      User            @relation("ProjectOwner", fields: [ownerId], references: [id])
+  sections   Section[]
+  milestones Milestone[]
+  tasks      Task[]
+  sprints    Sprint[]
+  favorites  Favorite[]
+  members    ProjectMember[]
+  invites    Invite[]
+
+  @@index([workspaceId])
+}
+
+// Explicit project access — used for guests (who only see projects they are added to).
+model ProjectMember {
+  projectId String
+  userId    String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+}
+
+model Favorite {
+  userId    String
+  projectId String
+  position  Int    @default(0)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+}
+
+model Section {
+  id        String @id @default(cuid())
+  projectId String
+  name      String
+  position  Int    @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+}
+
+model Milestone {
+  id        String    @id @default(cuid())
+  projectId String
+  name      String
+  date      DateTime
+  doneAt    DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Tasks that must finish before this milestone (finish-to-milestone links on the timeline).
+  dependsOn MilestoneDependency[]
+}
+
+model MilestoneDependency {
+  milestoneId String
+  taskId      String
+
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@id([milestoneId, taskId])
+}
+
+// ───────────────────────────── Tasks ────────────────────────────────
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  BLOCKED
+  DONE
+}
+
+enum Priority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+  NONE
+}
+
+model Task {
+  id             String     @id @default(cuid())
+  workspaceId    String
+  projectId      String?
+  sectionId      String?
+  parentId       String? // subtasks
+  sprintId       String?
+  number         Int
+  title          String
+  description    String?
+  status         TaskStatus @default(TODO)
+  priority       Priority   @default(NONE)
+  assigneeId     String?
+  creatorId      String
+  startDate      DateTime?
+  dueDate        DateTime?
+  baselineStart  DateTime?
+  baselineDue    DateTime?
+  estimatePoints Int?
+  estimateHours  Float?
+  progress       Int        @default(0) // 0–100, manual or rolled up from subtasks
+  boardPosition  Float      @default(0) // order within a board column
+  listPosition   Float      @default(0) // order within a list group / subtasks
+  backlogRank    Float? // rank in the project backlog (sprint planning)
+  epic           String?
+  completedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  workspace  Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project    Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  section    Section?        @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  parent     Task?           @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks   Task[]          @relation("Subtasks")
+  sprint     Sprint?         @relation(fields: [sprintId], references: [id], onDelete: SetNull)
+  assignee   User?           @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  creator    User            @relation("TaskCreator", fields: [creatorId], references: [id])
+  tags       TaskTag[]
+  comments   Comment[]
+  activities Activity[]
+  blockedBy  TaskDependency[] @relation("Blocked")
+  blocking   TaskDependency[] @relation("Blocker")
+  followers  TaskFollower[]
+  approvals  ApprovalRequest[]
+  attachments Attachment[]
+  notifications Notification[]
+  aiSuggestions AiSuggestion[]
+  milestoneLinks MilestoneDependency[]
+
+  @@unique([workspaceId, number])
+  @@index([workspaceId, assigneeId])
+  @@index([projectId, status])
+  @@index([sprintId])
+}
+
+model Tag {
+  id          String @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String @default("slate")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks     TaskTag[]
+
+  @@unique([workspaceId, name])
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+}
+
+// Finish-to-start: `blocked` cannot start before `blocker` is done.
+model TaskDependency {
+  blockerId String
+  blockedId String
+
+  blocker Task @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked Task @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+}
+
+model TaskFollower {
+  taskId String
+  userId String
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String
+  body      String
+  parentId  String? // thread replies
+  createdAt DateTime @default(now())
+  editedAt  DateTime?
+
+  task    Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author  User      @relation(fields: [authorId], references: [id])
+  parent  Comment?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("Replies")
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  taskId     String?
+  approvalId String?
+  name       String
+  kind       String   @default("file") // file|doc|link
+  sizeBytes  Int      @default(0)
+  url        String
+  createdAt  DateTime @default(now())
+
+  task     Task?            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  approval ApprovalRequest? @relation(fields: [approvalId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  workspaceId String
+  taskId      String?
+  actorId     String
+  type        String // task.created | task.status_changed | ...
+  payload     Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  task      Task?     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  actor     User      @relation(fields: [actorId], references: [id])
+
+  @@index([workspaceId, createdAt])
+  @@index([taskId, createdAt])
+}
+
+model SavedView {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  name        String
+  scope       String   @default("my-tasks") // my-tasks | project:<id>
+  config      Json // { groupBy, sortBy, filters, view }
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────────── AI ───────────────────────────────────
+
+enum AiSuggestionStatus {
+  PENDING
+  ACCEPTED
+  DISCARDED
+}
+
+// AI output is never written silently: it is stored as a suggestion a person accepts, edits or discards.
+model AiSuggestion {
+  id          String             @id @default(cuid())
+  taskId      String
+  kind        String // summary | breakdown
+  content     Json
+  source      String // "12 comments"
+  status      AiSuggestionStatus @default(PENDING)
+  createdById String
+  createdAt   DateTime           @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────────── Planning ─────────────────────────────
+
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+}
+
+model Sprint {
+  id              String       @id @default(cuid())
+  projectId       String
+  number          Int
+  name            String
+  goal            String?
+  startDate       DateTime
+  endDate         DateTime
+  status          SprintStatus @default(PLANNED)
+  committedPoints Int          @default(0)
+  completedAt     DateTime?
+  retroNotes      String?
+
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks     Task[]
+  snapshots SprintSnapshot[]
+
+  @@unique([projectId, number])
+}
+
+// Daily snapshot of remaining points — the source of the burndown chart.
+model SprintSnapshot {
+  id              String   @id @default(cuid())
+  sprintId        String
+  date            DateTime
+  remainingPoints Int
+  scopePoints     Int
+
+  sprint Sprint @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintId, date])
+}
+
+model TimeOff {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ───────────────────────────── Inbox ────────────────────────────────
+
+enum NotificationType {
+  MENTION
+  ASSIGNED
+  APPROVAL_REQUESTED
+  STATUS_CHANGED
+  COMMENT_REPLY
+  TASK_COMPLETED
+  DUE_SOON
+}
+
+model Notification {
+  id           String           @id @default(cuid())
+  workspaceId  String
+  recipientId  String
+  actorId      String?
+  type         NotificationType
+  taskId       String?
+  approvalId   String?
+  title        String
+  context      String // "Website relaunch · HRT-188"
+  excerpt      String?
+  readAt       DateTime?
+  archivedAt   DateTime?
+  snoozedUntil DateTime?
+  createdAt    DateTime         @default(now())
+
+  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  recipient User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor     User?            @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  task      Task?            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  approval  ApprovalRequest? @relation(fields: [approvalId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, archivedAt, createdAt])
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+enum ApprovalDecisionValue {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+model ApprovalRequest {
+  id          String         @id @default(cuid())
+  taskId      String
+  requesterId String
+  title       String
+  summary     String?
+  dueDate     DateTime?
+  status      ApprovalStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  resolvedAt  DateTime?
+
+  task          Task               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  requester     User               @relation("ApprovalRequester", fields: [requesterId], references: [id])
+  decisions     ApprovalDecision[]
+  attachments   Attachment[]
+  notifications Notification[]
+}
+
+model ApprovalDecision {
+  approvalId String
+  userId     String
+  decision   ApprovalDecisionValue @default(PENDING)
+  note       String?
+  decidedAt  DateTime?
+
+  approval ApprovalRequest @relation(fields: [approvalId], references: [id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([approvalId, userId])
+}
+
+// ───────────────────────────── Billing ──────────────────────────────
+
+enum PlanId {
+  FREE
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum BillingInterval {
+  MONTHLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELED
+}
+
+model Subscription {
+  id          String             @id @default(cuid())
+  workspaceId String             @unique
+  plan        PlanId             @default(FREE)
+  interval    BillingInterval    @default(MONTHLY)
+  status      SubscriptionStatus @default(ACTIVE)
+  seats       Int                @default(5)
+  renewsAt    DateTime
+  pausedUntil DateTime?
+  updatedAt   DateTime           @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+// Metered usage per billing period (YYYY-MM): automation runs, AI credits, storage bytes.
+model UsageCounter {
+  workspaceId String
+  metric      String
+  period      String
+  value       BigInt   @default(0)
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, metric, period])
+}
+
+// ───────────────────────────── Onboarding ───────────────────────────
+
+model OnboardingProgress {
+  workspaceId    String
+  userId         String
+  completedSteps String[] @default([])
+  dismissedAt    DateTime?
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, userId])
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile — Inbox triage</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/hearth/tokens.css">
+<link rel="stylesheet" href="ds/hearth/components/bundle.css">
+<script src="ds/hearth/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="position: relative; width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: var(--bg-canvas); color: var(--text-primary); font-family: var(--font-sans)">
+<header style="padding: 20px 20px 8px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px"><h1 style="margin: 0; flex-grow: 1; font-size: 28px; line-height: 34px; font-weight: 600; letter-spacing: -0.03em">Inbox</h1><a href="#" style="height: 44px; display: flex; align-items: center; padding: 0 8px; font-size: 15px; font-weight: 600; color: var(--text-link); text-decoration: none">List view</a></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="font-size: 14px; color: var(--text-secondary); flex-grow: 1">Triage · 4 left</span><span style="width: 120px"><x-import component-from-global-scope="Hearth.ProgressBar" value="{{fortyfour}}" label="Triage progress"></x-import></span></div>
+</header>
+<div style="position: relative; flex-grow: 1; padding: 16px 20px">
+<div aria-hidden="true" style="position: absolute; left: 36px; right: 36px; top: 40px; height: 420px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-default); opacity: 0.6"></div>
+<div aria-hidden="true" style="position: absolute; left: 28px; right: 28px; top: 28px; height: 440px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-default)"></div>
+<article aria-label="Approval request from Jia Li" style="position: relative; display: flex; flex-direction: column; gap: 14px; padding: 20px; border-radius: 20px; background: var(--bg-surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow-3)">
+<div style="display: flex; align-items: center; gap: 10px">
+<x-import component-from-global-scope="Hearth.Avatar" initials="JL" name="Jia Li" size="{{forty}}" color="violet"></x-import>
+<div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 600">Jia Li</span><span style="font-size: 13px; color: var(--text-tertiary)">requested your approval · 9:42</span></div>
+<span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 9999px; background: var(--warning-bg); color: var(--warning-text); font-size: 12px; font-weight: 600">Due tomorrow</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: var(--text-tertiary)">Q4 brand campaign · HRT-214</span><h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Homepage copy v3 — ready for approval</h2></div>
+<p style="margin: 0; font-size: 16px; line-height: 24px; color: var(--text-secondary)">Tightened the hero to one sentence, replaced the feature list with three outcomes, and moved pricing into its own section. Legal signed off.</p>
+<a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border-radius: 12px; background: var(--bg-subtle); border: 1px solid var(--border-default); color: var(--text-primary); font-size: 15px; text-decoration: none"><x-import component-from-global-scope="Hearth.Icon" name="doc" size="{{twenty}}" style="color: var(--text-secondary)"></x-import><span style="flex-grow: 1">Homepage copy v3</span><x-import component-from-global-scope="Hearth.Icon" name="arrow-up-right" style="color: var(--text-tertiary)"></x-import></a>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-secondary)"><x-import component-from-global-scope="Hearth.StatusIcon" status="done"></x-import>Sara approved · waiting on you</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<x-import component-from-global-scope="Hearth.Button" variant="secondary" size="lg" icon="undo">Request changes</x-import>
+<x-import component-from-global-scope="Hearth.Button" size="lg" icon="check">Approve</x-import>
+</div>
+</article>
+<p style="margin: 18px 0 0; text-align: center; font-size: 13px; color: var(--text-tertiary)">Swipe left to archive · right to keep for later</p>
+</div>
+<nav aria-label="Triage actions" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px 20px 30px; background: var(--bg-surface); border-top: 1px solid var(--border-default)">
+<sc-for list="{{actions}}" as="a" hint-placeholder-count="3">
+<a href="#" style="height: 56px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: var(--bg-subtle); color: var(--text-primary); font-size: 12px; font-weight: 600; text-decoration: none"><x-import component-from-global-scope="Hearth.Icon" name="{{a.icon}}" size="{{twenty}}"></x-import>{{a.label}}</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      theme: this.props.theme ?? 'light', twenty: 20, forty: 40, fortyfour: 43,
+      actions: [{ icon: 'clock', label: 'Snooze' }, { icon: 'inbox', label: 'Archive' }, { icon: 'arrow-up-right', label: 'Open task' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

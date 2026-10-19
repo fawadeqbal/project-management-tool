@@ -171,12 +171,10 @@ export function SprintPage() {
           hideLabel
           value={sprint.id}
           onChange={(e) => selectSprint(e.target.value)}
-          options={[...list]
-            .reverse()
-            .map((s) => ({
-              value: s.id,
-              label: `${s.name} · ${s.status === 'ACTIVE' ? 'Active' : s.status === 'PLANNED' ? 'Planned' : 'Completed'}`,
-            }))}
+          options={[...list].reverse().map((s) => ({
+            value: s.id,
+            label: `${s.name} · ${s.status === 'ACTIVE' ? 'Active' : s.status === 'PLANNED' ? 'Planned' : 'Completed'}`,
+          }))}
           className={styles.switcher}
         />
         {d.header.people.length ? (

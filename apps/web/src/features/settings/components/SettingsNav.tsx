@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Icon } from '@hearth/ui';
 import styles from '../settings.module.css';
 
 export interface SettingsSection {
@@ -40,8 +41,50 @@ export const SETTINGS_NAV: { heading: string; items: SettingsSection[] }[] = [
 
 export const ALL_SETTINGS_SECTIONS = SETTINGS_NAV.flatMap((g) => g.items);
 
-/** Left nav from Roles.dc.html: Account / Workspace / Admin. */
+/** Phones: the sections as a native select (the platform picker is the best list on a phone). */
+function SettingsSelect() {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const current = ALL_SETTINGS_SECTIONS.find((s) => pathname.startsWith(`/settings/${s.path}`))?.path ?? '';
+  return (
+    <div className={styles.navSelect}>
+      <label htmlFor="settings-section" className={styles.navSelectLabel}>
+        Settings
+      </label>
+      <div className={styles.navSelectBox}>
+        <select
+          id="settings-section"
+          value={current}
+          onChange={(e) => void navigate(`/settings/${e.target.value}`)}
+        >
+          {current ? null : <option value="">Choose a section</option>}
+          {SETTINGS_NAV.map((group) => (
+            <optgroup key={group.heading} label={group.heading}>
+              {group.items.map((item) => (
+                <option key={item.path} value={item.path}>
+                  {item.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <Icon name="chevron-down" className={styles.navSelectChevron} />
+      </div>
+    </div>
+  );
+}
+
+/** Left nav from Roles.dc.html: Account / Workspace / Admin. A select on phones. */
 export function SettingsNav() {
+  return (
+    <>
+      <SettingsSelect />
+      <SettingsLinks />
+    </>
+  );
+}
+
+function SettingsLinks() {
   return (
     <nav aria-label="Settings" className={styles.nav}>
       {SETTINGS_NAV.map((group) => (

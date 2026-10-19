@@ -101,7 +101,10 @@ function ProfileMenu() {
   );
 }
 
-/** Top bar per TopBar.dc.html. Below 768px it keeps only menu, search, New and avatar. */
+/**
+ * Top bar per TopBar.dc.html. Below 768px it keeps only menu, search and avatar: the tab bar's
+ * Inbox badge and floating + replace the bell and New.
+ */
 export function TopBar() {
   const navigate = useNavigate();
   const openPalette = useUiStore((s) => s.openPalette);
@@ -143,10 +146,10 @@ export function TopBar() {
       >
         Ask Hearth
       </Button>
-      <Button icon="plus" onClick={() => openCreateTask()} aria-keyshortcuts="C">
+      <Button icon="plus" className={styles.hidePhone} onClick={() => openCreateTask()} aria-keyshortcuts="C">
         <span className={styles.hideCompact}>New</span>
       </Button>
-      <span className={styles.bellWrap}>
+      <span className={`${styles.bellWrap} ${styles.hidePhone}`}>
         <Button
           variant="ghost"
           icon="bell"

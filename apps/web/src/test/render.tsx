@@ -94,3 +94,52 @@ export function renderApp(
     },
   };
 }
+
+/**
+ * Pretend the viewport is a phone (390px wide): `(max-width: 767px)` and narrower-than-desktop
+ * queries match, everything else (reduced motion, dark scheme) doesn't. Returns a restore function.
+ */
+export function mockPhoneViewport(): () => void {
+  const original = window.matchMedia;
+  window.matchMedia = (query: string) =>
+    ({
+      matches: /max-width:\s*(767|1023)px/.test(query),
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+  return () => {
+    window.matchMedia = original;
+  };
+}
+
+/**
+ * jsdom has no PointerEvent: alias it to MouseEvent (which carries clientX/clientY) plus a
+ * pointerId, and give elements a width so swipe thresholds can be computed.
+ */
+export function installPointerEvents(width = 390): () => void {
+  const w = window as unknown as { PointerEvent?: typeof MouseEvent };
+  const hadPointer = 'PointerEvent' in window;
+  if (!hadPointer) {
+    class FakePointerEvent extends MouseEvent {
+      pointerId: number;
+      pointerType: string;
+      constructor(type: string, init: MouseEventInit & { pointerId?: number; pointerType?: string } = {}) {
+        super(type, init);
+        this.pointerId = init.pointerId ?? 1;
+        this.pointerType = init.pointerType ?? 'touch';
+      }
+    }
+    w.PointerEvent = FakePointerEvent;
+  }
+  const desc = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+  Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => width });
+  return () => {
+    if (!hadPointer) delete w.PointerEvent;
+    if (desc) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', desc);
+  };
+}

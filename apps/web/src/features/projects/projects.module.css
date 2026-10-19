@@ -521,6 +521,16 @@
     font-size: 22px;
     line-height: 28px;
   }
+  /* Six view tabs don't fit a phone: they scroll sideways inside their own pill. */
+  .header :global(.ht-tabs) {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .header :global(.ht-tab) {
+    flex: none;
+  }
 }
 
 @media (pointer: coarse) {

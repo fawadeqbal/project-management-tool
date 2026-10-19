@@ -2,10 +2,12 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNod
 import { GroupHeader, TaskRow, toUiStatus } from '@hearth/ui';
 import type { TaskDto, TaskStatusDto } from '@hearth/contracts';
 import { groupAndSort, isTaskStatus, type GroupingId, type SortId, type TaskGroup } from '@hearth/domain';
+import { useIsPhone } from '@/shared/hooks/useMediaQuery';
 import { useHotkey } from '@/shared/hotkeys/use-hotkey';
 import { useUiStore } from '@/shared/layout/ui-store';
 import { today } from './dates';
 import { asIcon } from './meta';
+import { MobileTaskRow } from './MobileTaskRow';
 import { AssigneePicker, PriorityPicker, StatusPicker } from './pickers';
 import { taskRowProps } from './task-row-props';
 import { isOptimisticId, useTaskMutations } from './useTaskMutations';
@@ -26,6 +28,8 @@ export interface TaskListProps {
   empty?: ReactNode;
   /** Hide tag and due columns (narrow layouts). */
   compact?: boolean;
+  /** Phone rows: hide the assignee avatar (lists that only hold your own tasks). */
+  hideAssignee?: boolean;
   /** Bind J/K/X/Space/S/A/P while mounted (default true). Disable for secondary lists. */
   keyboard?: boolean;
   /** Group header "+" — receives the group so callers can prefill (status, due…). */
@@ -60,6 +64,7 @@ export function TaskList({
   footer,
   empty,
   compact,
+  hideAssignee,
   keyboard = true,
   onAddToGroup,
   projectNames,
@@ -68,6 +73,7 @@ export function TaskList({
   onCompleted,
 }: TaskListProps) {
   const listId = useId();
+  const phone = useIsPhone();
   const mutations = useTaskMutations();
   const setSelectedTaskId = useUiStore((s) => s.setSelectedTaskId);
   const groups = useMemo(
@@ -200,6 +206,7 @@ export function TaskList({
     <div
       ref={containerRef}
       className={styles.list}
+      data-phone={phone || undefined}
       role="table"
       aria-label={label}
       aria-rowcount={tasks.length}
@@ -221,7 +228,23 @@ export function TaskList({
               onAdd={onAddToGroup ? () => onAddToGroup(g) : undefined}
             />
             <div id={regionId} role="presentation" hidden={!isOpen} className={styles.rows}>
-              {isOpen
+              {isOpen && phone
+                ? g.items.map((task) => (
+                    <MobileTaskRow
+                      key={task.id}
+                      task={task}
+                      rowId={`${listId}-row-${task.id}`}
+                      selected={selection.has(task.id) || task.id === activeTaskId}
+                      hideAssignee={hideAssignee}
+                      pending={isOptimisticId(task.id)}
+                      onFocus={() => setFocusedId(task.id)}
+                      onToggleDone={() => !isOptimisticId(task.id) && toggleDone(task)}
+                      onSnooze={() => !isOptimisticId(task.id) && void mutations.snoozeToTomorrow(task)}
+                      onOpen={() => !isOptimisticId(task.id) && onOpen(task)}
+                    />
+                  ))
+                : null}
+              {isOpen && !phone
                 ? g.items.map((task) => (
                     <TaskRow
                       key={task.id}

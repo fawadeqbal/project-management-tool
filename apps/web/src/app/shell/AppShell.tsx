@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { SkipLink } from '@hearth/ui';
 import { CommandPalette } from '@/features/command-palette';
 import { TaskPanelHost } from '@/features/task-detail';
 import { ProjectsHost } from '@/features/projects';
 import { useMe } from '@/shared/auth/use-me';
+import { useIsPhone } from '@/shared/hooks/useMediaQuery';
 import { useUiStore } from '@/shared/layout/ui-store';
 import { CreateTaskDialog } from '@/shared/tasks/CreateTaskDialog';
+import { TASK_PARAM } from '@/shared/tasks/useTaskPanel';
+import { MobileTabBar } from './MobileTabBar';
 import { ShortcutSheet } from './ShortcutSheet';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
@@ -43,6 +46,20 @@ function useDrawer() {
 }
 
 /**
+ * Phones get the bottom tab bar, except on full-screen surfaces that bring their own bottom
+ * chrome: the task sheet / task page (comment composer) and inbox triage (action bar).
+ */
+function useShowTabBar() {
+  const phone = useIsPhone();
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  if (!phone) return false;
+  if (params.has(TASK_PARAM) || pathname.startsWith('/tasks/')) return false;
+  if (pathname === '/inbox' && params.get('triage') === '1') return false;
+  return true;
+}
+
+/**
  * The signed-in frame: skip link, sidebar, top bar, page outlet, and the hosts every page shares
  * (task panel via ?task=KEY, create-task dialog, ⌘K palette, shortcut sheet). Toasts live at the app root.
  */
@@ -50,6 +67,7 @@ export function AppShell() {
   useMe();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const drawer = useDrawer();
+  const tabBar = useShowTabBar();
 
   // Let root-level overlays (toasts) center on the content column, not the window.
   useEffect(() => {
@@ -63,6 +81,7 @@ export function AppShell() {
       className={styles.shell}
       data-sidebar={collapsed ? 'collapsed' : 'expanded'}
       data-drawer={drawer.open ? 'open' : 'closed'}
+      data-tabbar={tabBar || undefined}
     >
       <SkipLink targetId="main">Skip to content</SkipLink>
       <div id="app-sidebar" ref={drawer.drawerRef} className={styles.sidebarSlot}>
@@ -78,7 +97,7 @@ export function AppShell() {
           <TaskPanelHost />
         </div>
       </div>
-      <div id="mobile-tabbar-slot" />
+      <div id="mobile-tabbar-slot">{tabBar ? <MobileTabBar /> : null}</div>
       <CreateTaskDialog />
       <CommandPalette />
       <ShortcutSheet />

@@ -36,6 +36,11 @@ export function TaskPage() {
         task={task}
         mode="page"
         onOpenTask={(k) => void navigate(`/tasks/${k}`)}
+        onBack={() => {
+          // Back to wherever the task was opened from; a cold deep link goes to My tasks.
+          if (window.history.state && (window.history.state as { idx?: number }).idx) void navigate(-1);
+          else void navigate('/my-tasks');
+        }}
         onDeleted={() => void navigate('/my-tasks', { replace: true })}
       />
     </div>

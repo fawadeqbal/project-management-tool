@@ -1,4 +1,6 @@
+import { TaskCheckbox } from '@hearth/ui';
 import type { TaskDetailDto, UpdateTaskInput } from '@hearth/contracts';
+import { useIsPhone } from '@/shared/hooks/useMediaQuery';
 import { usePermission } from '@/shared/auth/use-permission';
 import { usePresence } from '@/shared/realtime';
 import { useToast } from '@/shared/toast';
@@ -24,6 +26,9 @@ export interface TaskDetailViewProps {
   onOpenTask: (key: string) => void;
   /** Called after the task is deleted. */
   onDeleted: () => void;
+  /** Phone top bar back button (defaults to `onClose`). */
+  onBack?: () => void;
+  backLabel?: string;
 }
 
 /** Everything about one task; shared by the side panel and the full page. */
@@ -34,7 +39,10 @@ export function TaskDetailView({
   onOpenFullPage,
   onOpenTask,
   onDeleted,
+  onBack,
+  backLabel,
 }: TaskDetailViewProps) {
+  const phone = useIsPhone();
   const mutations = useTaskMutations();
   const detail = useTaskDetailMutations(task);
   const viewers = usePresence(task.id);
@@ -61,13 +69,16 @@ export function TaskDetailView({
   };
 
   return (
-    <div className={styles.view} data-mode={mode}>
+    <div className={styles.view} data-mode={mode} data-phone={phone || undefined}>
       <TaskHeader
         task={task}
         viewers={viewers}
         isFollowing={detail.isFollowing}
         canDelete={canDelete}
         mode={mode}
+        phone={phone}
+        onBack={onBack ?? onClose}
+        backLabel={backLabel}
         onClose={onClose}
         onOpenFullPage={onOpenFullPage}
         onCopyLink={() => void copyLink()}
@@ -78,12 +89,32 @@ export function TaskDetailView({
         }}
       />
       <div className={styles.scroll}>
-        <EditableTitle
-          value={task.title}
-          as={mode === 'page' ? 'h1' : 'h2'}
-          disabled={!canEdit}
-          onSave={(title) => update({ title })}
-        />
+        {phone ? (
+          // MobileTask.dc.html: complete right next to the title.
+          <div className={styles.titleRow}>
+            <span className={styles.titleCheck}>
+              <TaskCheckbox
+                checked={task.status === 'DONE'}
+                label={task.status === 'DONE' ? 'Mark not done' : 'Mark complete'}
+                disabled={!canEdit}
+                onChange={() => void mutations.toggleDone(task)}
+              />
+            </span>
+            <EditableTitle
+              value={task.title}
+              as={mode === 'page' ? 'h1' : 'h2'}
+              disabled={!canEdit}
+              onSave={(title) => update({ title })}
+            />
+          </div>
+        ) : (
+          <EditableTitle
+            value={task.title}
+            as={mode === 'page' ? 'h1' : 'h2'}
+            disabled={!canEdit}
+            onSave={(title) => update({ title })}
+          />
+        )}
         <PropertyGrid
           task={task}
           readOnly={!canEdit}

@@ -1,0 +1,100 @@
+/* Phone tab bar + floating create button (MobileTasks.dc.html). Mounted below 768px only. */
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: var(--space-1) var(--space-2) calc(var(--space-1) + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-default);
+}
+
+.tab {
+  position: relative;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-tertiary);
+  font: 600 11px/14px var(--font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab[aria-current='page'],
+.tab[data-active] {
+  color: var(--brand-primary);
+}
+
+.tab:focus-visible,
+.fab:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.tab:active {
+  background: var(--bg-hover);
+}
+
+.iconWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  left: 14px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  background: var(--danger-solid);
+  color: var(--text-on-brand);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.fab {
+  position: fixed;
+  right: var(--space-5);
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px) + var(--fab-lift, 0px));
+  z-index: 51;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
+  box-shadow: var(--shadow-3);
+  cursor: pointer;
+  transition: bottom 160ms ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab:active {
+  background: var(--brand-primary-pressed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    transition: none;
+  }
+}

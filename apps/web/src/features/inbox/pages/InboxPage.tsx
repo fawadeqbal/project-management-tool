@@ -5,6 +5,7 @@ import type { InboxItemDto, InboxTabDto, SnoozePresetDto } from '@hearth/contrac
 import { useRegisterCommands } from '@/shared/commands';
 import type { Command } from '@/shared/commands/command';
 import { useHotkey } from '@/shared/hotkeys/use-hotkey';
+import { useIsPhone } from '@/shared/hooks/useMediaQuery';
 import { useRealtimeEvent } from '@/shared/realtime';
 import { useTaskPanel } from '@/shared/tasks';
 import { useToast } from '@/shared/toast';
@@ -17,6 +18,7 @@ import { InboxEmpty } from '../components/InboxEmpty';
 import { InboxKeyHints } from '../components/InboxKeyHints';
 import { BulkBar } from '../components/BulkBar';
 import { NotificationSettings } from '../components/NotificationSettings';
+import { InboxTriage, TRIAGE_PARAM } from '../components/InboxTriage';
 import styles from '../inbox.module.css';
 
 /** Selecting an item marks it read after this long (so a quick J/K pass doesn't clear everything). */
@@ -28,8 +30,19 @@ const SNOOZE_LABEL: Record<SnoozePresetDto, string> = {
   next_week: 'next week',
 };
 
-/** Inbox per Inbox.dc.html: list on the left, the selected item on the right, keyboard triage. */
+/**
+ * Inbox per Inbox.dc.html: list on the left, the selected item on the right, keyboard triage.
+ * On phones `?triage=1` (the push-notification deep link, or the "Triage" button) shows one item
+ * at a time instead (MobileInbox.dc.html).
+ */
 export function InboxPage() {
+  const phone = useIsPhone();
+  const [params] = useSearchParams();
+  if (phone && params.get(TRIAGE_PARAM) === '1') return <InboxTriage />;
+  return <InboxWorkspace phone={phone} />;
+}
+
+function InboxWorkspace({ phone }: { phone: boolean }) {
   const [params, setParams] = useSearchParams();
   const tab: InboxTabDto = isInboxTab(params.get('tab')) ? (params.get('tab') as InboxTabDto) : 'all';
   const [unreadOnly, setUnreadOnly] = useState(false);
@@ -246,6 +259,22 @@ export function InboxPage() {
               Unread
             </Button>
             <NotificationSettings />
+            {phone && items.length ? (
+              <Button
+                variant="secondary"
+                size="sm"
+                icon="layers"
+                onClick={() =>
+                  setParams((p) => {
+                    const n = new URLSearchParams(p);
+                    n.set(TRIAGE_PARAM, '1');
+                    return n;
+                  })
+                }
+              >
+                Triage
+              </Button>
+            ) : null}
           </div>
           <ViewTabs tabs={tabs} value={tab} onChange={setTab} label="Inbox filters" />
         </div>

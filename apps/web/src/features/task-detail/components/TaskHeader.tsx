@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AvatarGroup, Button, Dialog, DropdownMenu, Kbd } from '@hearth/ui';
+import { AvatarGroup, Button, Dialog, DropdownMenu, Icon, Kbd } from '@hearth/ui';
 import type { TaskDetailDto, UserRefDto } from '@hearth/contracts';
 import { SaveIndicator } from './SaveIndicator';
 import styles from '../task-detail.module.css';
@@ -16,6 +16,11 @@ interface Props {
   onToggleFollow: () => void;
   onDelete: () => void;
   onClose?: () => void;
+  /** Phone layout: back arrow on the left, "Open full page" moves into More. */
+  phone?: boolean;
+  /** Phone back action (closes the sheet, or leaves the full page). */
+  onBack?: () => void;
+  backLabel?: string;
 }
 
 /** Key, autosave state, presence, open full page, copy link, more (follow, delete), close. */
@@ -30,10 +35,19 @@ export function TaskHeader({
   onToggleFollow,
   onDelete,
   onClose,
+  phone,
+  onBack,
+  backLabel = 'Back',
 }: Props) {
   const [confirming, setConfirming] = useState(false);
+  const showOpenFull = mode === 'panel' && !!onOpenFullPage;
   return (
-    <div className={styles.header}>
+    <div className={styles.header} data-phone={phone || undefined}>
+      {phone && onBack ? (
+        <button type="button" className={styles.backButton} aria-label={backLabel} onClick={onBack}>
+          <Icon name="chevron-right" size={24} className={styles.backIcon} />
+        </button>
+      ) : null}
       <span className={styles.key}>{task.key}</span>
       <SaveIndicator />
       <span className={styles.grow} />
@@ -49,7 +63,7 @@ export function TaskHeader({
           />
         </span>
       ) : null}
-      {mode === 'panel' && onOpenFullPage ? (
+      {showOpenFull && !phone ? (
         <Button
           variant="ghost"
           size="sm"
@@ -63,6 +77,16 @@ export function TaskHeader({
         label="More actions"
         align="end"
         items={[
+          ...(showOpenFull && phone
+            ? [
+                {
+                  id: 'open-full',
+                  label: 'Open full page',
+                  icon: 'arrow-up-right' as const,
+                  onSelect: () => onOpenFullPage?.(),
+                },
+              ]
+            : []),
           {
             id: 'follow',
             label: isFollowing ? 'Unfollow' : 'Follow',
@@ -84,7 +108,7 @@ export function TaskHeader({
         ]}
         trigger={<Button variant="ghost" size="sm" icon="more" aria-label="More actions" />}
       />
-      {mode === 'panel' && onClose ? (
+      {mode === 'panel' && onClose && !phone ? (
         <>
           <Kbd keys="Esc" aria-hidden="true" className={styles.hideNarrow} />
           <Button variant="ghost" size="sm" icon="x" aria-label="Close panel" onClick={onClose} />

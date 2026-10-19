@@ -169,6 +169,7 @@ export function MyTasksPage() {
         onOpen={(t) => panel.open(t.key)}
         onCompleted={onCompleted}
         projectNames={projectNames}
+        hideAssignee={!wide}
         empty={
           <NoMatches
             onClear={() => {
@@ -215,7 +216,7 @@ export function MyTasksPage() {
         ) : null}
         <span className={styles.grow} />
         <span className={styles.savedView}>Saved view · “My focus”</span>
-        <Button variant="secondary" icon="plus" onClick={() => openCreateTask()}>
+        <Button variant="secondary" icon="plus" className={styles.hidePhone} onClick={() => openCreateTask()}>
           Add task
         </Button>
       </div>

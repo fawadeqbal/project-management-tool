@@ -1,7 +1,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ApprovalDetailDto, InboxDto, InboxItemDto } from '@hearth/contracts';
-import { renderApp, signIn } from '@/test/render';
+import { installPointerEvents, mockPhoneViewport, renderApp, signIn } from '@/test/render';
 import { InboxPage, MARK_READ_DELAY_MS } from './InboxPage';
 import type * as HttpModule from '@/shared/api/http';
 
@@ -344,5 +344,79 @@ describe('InboxPage', () => {
     expect(screen.getByText(/Tasks people hand to you/)).toBeInTheDocument();
     expect(mocked.list).toHaveBeenCalledWith('assigned', false);
     unmount();
+  });
+  describe('phone triage (?triage=1)', () => {
+    let restoreViewport: () => void;
+    let restorePointer: () => void;
+    beforeEach(() => {
+      restoreViewport = mockPhoneViewport();
+      restorePointer = installPointerEvents(350);
+    });
+    afterEach(() => {
+      restoreViewport();
+      restorePointer();
+    });
+
+    it('shows one item at a time with progress; archive calls the api with Undo and advances', async () => {
+      const { unmount } = renderApp(<InboxPage />, { route: '/inbox?triage=1' });
+      // The approval first, as a card with large Approve / Request changes.
+      expect(
+        await screen.findByRole('article', { name: 'Jia Li requested your approval' }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Triage · 1 of 3')).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Approve' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Request changes' })).toBeInTheDocument();
+      expect(screen.getByText('Sara approved · waiting on you')).toBeInTheDocument();
+      expect(screen.queryByRole('listbox', { name: 'Inbox items' })).not.toBeInTheDocument();
+
+      const actions = screen.getByRole('navigation', { name: 'Triage actions' });
+      fireEvent.click(within(actions).getByRole('button', { name: 'Archive' }));
+      await waitFor(() => expect(mocked.archive).toHaveBeenCalledWith('n1'));
+      expect(await screen.findByRole('article', { name: 'Sara Ahmed mentioned you' })).toBeInTheDocument();
+      expect(screen.getByText('Triage · 2 of 3')).toBeInTheDocument();
+      expect(screen.getByText('Archived')).toBeInTheDocument();
+
+      // Undo brings the item back as the current card.
+      fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+      await waitFor(() => expect(mocked.unarchive).toHaveBeenCalledWith('n1'));
+      expect(
+        await screen.findByRole('article', { name: 'Jia Li requested your approval' }),
+      ).toBeInTheDocument();
+      unmount();
+    });
+
+    it('Next keeps the item (marks it read); swipe left archives; ends caught up', async () => {
+      const { unmount } = renderApp(<InboxPage />, { route: '/inbox?triage=1' });
+      await screen.findByRole('article', { name: 'Jia Li requested your approval' });
+      const actions = screen.getByRole('navigation', { name: 'Triage actions' });
+      fireEvent.click(within(actions).getByRole('button', { name: 'Next' }));
+      await waitFor(() => expect(mocked.read).toHaveBeenCalledWith('n1'));
+      expect(mocked.archive).not.toHaveBeenCalled();
+
+      const card = await screen.findByRole('article', { name: 'Sara Ahmed mentioned you' });
+      vi.useFakeTimers();
+      act(() => {
+        fireEvent.pointerDown(card, { clientX: 300, clientY: 100, pointerId: 1, button: 0 });
+        for (const x of [280, 220, 160, 100])
+          fireEvent.pointerMove(card, { clientX: x, clientY: 104, pointerId: 1 });
+        fireEvent.pointerUp(card, { clientX: 100, clientY: 104, pointerId: 1 });
+      });
+      act(() => void vi.advanceTimersByTime(400));
+      vi.useRealTimers();
+      await waitFor(() => expect(mocked.archive).toHaveBeenCalledWith('n2'));
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Archive' }));
+      await waitFor(() => expect(mocked.archive).toHaveBeenCalledWith('n3'));
+      expect(await screen.findByRole('heading', { name: 'You’re all caught up' })).toBeInTheDocument();
+      unmount();
+    });
+
+    it('the list header offers Triage on phones', async () => {
+      const { router, unmount } = renderApp(<InboxPage />, { route: '/inbox' });
+      fireEvent.click(await screen.findByRole('button', { name: 'Triage' }));
+      expect(router.state.location.search).toBe('?triage=1');
+      expect(await screen.findByRole('navigation', { name: 'Triage actions' })).toBeInTheDocument();
+      unmount();
+    });
   });
 });

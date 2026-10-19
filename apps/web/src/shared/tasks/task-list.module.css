@@ -21,3 +21,207 @@
 .pending {
   opacity: 0.6;
 }
+
+/* ── Phone rows (MobileTasks.dc.html) — only rendered below 768px ───────────── */
+
+/* Group headers stay pinned under the top bar while their rows scroll. */
+.list[data-phone] :global(.ht-group) {
+  position: sticky;
+  top: var(--shell-topbar-height, 52px);
+  z-index: 2;
+  height: 40px;
+  padding: 0 var(--space-4);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mRow {
+  position: relative;
+  overflow: hidden;
+  /* Vertical scroll stays native; horizontal movement is ours (swipe). */
+  touch-action: pan-y;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+.mRow:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+}
+
+.mRow[aria-selected='true'] .mSurface {
+  background: var(--bg-selected);
+}
+
+.mRow[data-pending] {
+  opacity: 0.6;
+}
+
+.mSurface {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 64px;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-1);
+  background: var(--bg-surface);
+  will-change: transform;
+}
+
+.mSurface[data-dragging] {
+  box-shadow: var(--shadow-2);
+}
+
+.mReveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-5);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-subtle);
+  transition:
+    background-color 120ms ease-out,
+    color 120ms ease-out;
+}
+
+.mReveal[data-action='snooze'] {
+  justify-content: flex-end;
+}
+
+.mReveal[data-action='complete'] :global(.ht-icon),
+.mReveal[data-action='reopen'] :global(.ht-icon) {
+  color: var(--status-done);
+}
+
+.mReveal[data-action='snooze'] :global(.ht-icon) {
+  color: var(--warning-icon);
+}
+
+.mReveal[data-armed] :global(.ht-icon) {
+  color: inherit;
+}
+
+.mReveal[data-action='complete'][data-armed],
+.mReveal[data-action='reopen'][data-armed] {
+  background: var(--status-done);
+  color: var(--text-on-brand);
+}
+
+.mReveal[data-action='snooze'][data-armed] {
+  background: var(--warning-icon);
+  color: var(--text-on-brand);
+}
+
+/* 44×44 hit area around the 18px visual checkbox. */
+.mCheck {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mCheck :global(.ht-check) {
+  width: 20px;
+  height: 20px;
+}
+
+.mCheck :global(.ht-check)::after {
+  inset: -12px;
+}
+
+.mBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mTitle {
+  font-size: 16px;
+  line-height: 22px;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.mRow[data-done] .mTitle {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
+.mMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.mKey {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.mDue[data-tone='danger'] {
+  color: var(--danger-text);
+  font-weight: 500;
+}
+
+.mTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-left: 2px;
+}
+
+.mTagDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.mTagName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mCell {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mReveal,
+  .mSurface {
+    transition: none !important;
+  }
+}

@@ -263,4 +263,32 @@
   .quickAddInput {
     min-height: 44px;
   }
+
+  /* The floating + button replaces "Add task" on phones. */
+  .hidePhone {
+    display: none;
+  }
+
+  .title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+
+  /* Filter / group / sort stay on one line and scroll sideways instead of wrapping. */
+  .toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--space-4));
+    padding: 2px var(--space-4);
+    scrollbar-width: none;
+  }
+
+  .toolbar > * {
+    flex: none;
+  }
+
+  /* Rows run edge to edge like the design. */
+  .page > [role='table'] {
+    margin: 0 calc(-1 * var(--space-4));
+  }
 }

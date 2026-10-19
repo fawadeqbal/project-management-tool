@@ -89,6 +89,7 @@ export function TaskPanelHost() {
         task={task}
         mode="panel"
         onClose={closePanel}
+        backLabel="Close task"
         onOpenFullPage={() => void navigate(`/tasks/${task.key}`)}
         onOpenTask={open}
         onDeleted={closePanel}

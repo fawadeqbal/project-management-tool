@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQueryClient, type QueryKey } from '@tanstack/react-query';
 import type { CreateTaskInput, TaskDto, TaskStatusDto, UpdateTaskInput } from '@hearth/contracts';
-import { STATUS_META, parseQuickAdd, toDateOnly } from '@hearth/domain';
+import { STATUS_META, addDays, parseQuickAdd, toDateOnly } from '@hearth/domain';
 import { api, type MoveTaskRequest, type QuickAddRequest } from '@/shared/api/client';
 import { queryKeys } from '@/shared/api/query-keys';
 import { useAuthStore } from '@/shared/auth/auth-store';
@@ -39,6 +39,8 @@ const inverseOf = (task: TaskDto, patch: UpdateTaskInput): UpdateTaskInput => {
 export interface UpdateOptions {
   /** Show an Undo toast with this message (e.g. "Moved to In review"). */
   undoMessage?: string;
+  /** Hearth icon for that toast (defaults to the success check). */
+  undoIcon?: string;
 }
 
 /**
@@ -131,6 +133,7 @@ export function useTaskMutations() {
       if (opts.undoMessage && inverse) {
         toast.show({
           message: opts.undoMessage,
+          icon: opts.undoIcon,
           action: 'Undo',
           onAction: () => void updateMutation.mutateAsync({ id, patch: inverse }).catch(() => undefined),
         });
@@ -155,6 +158,20 @@ export function useTaskMutations() {
       if (task.status === 'DONE')
         return update(task, { status: 'TODO' }, { undoMessage: `${task.key} reopened` });
       return update(task, { status: 'DONE' }, { undoMessage: `${task.key} marked as done` });
+    };
+
+    /**
+     * Swipe-left on a phone row: push the due date to tomorrow (and the start date with it if it
+     * would end up after the due date), with Undo restoring both.
+     */
+    const snoozeToTomorrow = (task: TaskDto) => {
+      const tomorrow = toDateOnly(addDays(today(), 1));
+      const patch: UpdateTaskInput = { dueDate: tomorrow };
+      if (task.startDate && task.startDate > tomorrow) patch.startDate = tomorrow;
+      return update(task, patch, {
+        undoMessage: `${task.key} snoozed to tomorrow`,
+        undoIcon: 'clock',
+      });
     };
 
     const move = (task: TaskDto, input: MoveTaskRequest, undo = true) => {
@@ -195,6 +212,7 @@ export function useTaskMutations() {
       update,
       setStatus,
       toggleDone,
+      snoozeToTomorrow,
       move,
       remove,
       create,

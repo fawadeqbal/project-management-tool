@@ -150,6 +150,8 @@
 }
 
 .tableWrap {
+  /* Contains absolutely positioned descendants (sr-only text) so they scroll with the table. */
+  position: relative;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   overflow: auto;
@@ -516,27 +518,64 @@
   border-color: var(--text-primary);
 }
 
+.navSelect {
+  display: none;
+}
+
 @media (max-width: 767px) {
+  /* Phones: a section picker on top instead of the sideways-scrolling link strip. */
   .nav {
-    flex: 1 1 100%;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--border-default);
-    padding: var(--space-2) var(--space-4);
-  }
-  .navGroup {
-    flex-direction: row;
-  }
-  .navHeading {
     display: none;
   }
-  .navItem {
-    white-space: nowrap;
+  .navSelect {
+    flex: 1 1 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-default);
+  }
+  .navSelectLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+  }
+  .navSelectBox {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .navSelectBox select {
+    width: 100%;
+    height: 44px;
+    box-sizing: border-box;
+    padding: 0 var(--space-10) 0 var(--space-3);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font: 500 16px/20px var(--font-sans);
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .navSelectBox select:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 1px;
+  }
+  .navSelectChevron {
+    position: absolute;
+    right: var(--space-3);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+    pointer-events: none;
   }
   .page {
     padding: var(--space-5) var(--space-4) 64px;
+  }
+  /* The heading's flex-basis is for the row layout; in the stacked page it must not grow tall. */
+  .page > .heading {
+    flex: none;
   }
 }
 

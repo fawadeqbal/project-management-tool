@@ -26,7 +26,8 @@
 
 @media (max-width: 767px) {
   .region {
-    bottom: calc(var(--space-16) + var(--space-2));
+    /* Above the tab bar (or a screen's own bottom bar via --toast-bottom). */
+    bottom: var(--toast-bottom, calc(80px + env(safe-area-inset-bottom, 0px)));
   }
 }
 

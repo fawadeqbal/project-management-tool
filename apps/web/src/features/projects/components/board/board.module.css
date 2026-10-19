@@ -221,6 +221,17 @@
   }
 }
 
+@media (max-width: 767px) {
+  /* Columns scroll sideways inside the board (one per swipe), never the page. The containing
+     block keeps visually-hidden labels inside the scroller too. */
+  .columns {
+    position: relative;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 0;
+    overscroll-behavior-x: contain;
+  }
+}
+
 @media (pointer: coarse) {
   .addTask,
   .moveItem {

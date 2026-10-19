@@ -416,6 +416,19 @@
   .sidebar :global(.ht-nav) {
     min-height: 44px;
   }
+
+  .hidePhone {
+    display: none;
+  }
+
+  .search {
+    height: 40px;
+  }
+
+  /* Nothing hides behind the fixed tab bar. */
+  .shell[data-tabbar] .main {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

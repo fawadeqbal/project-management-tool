@@ -100,15 +100,13 @@ export class SprintsReadModel {
       completedBefore.map((s) => s.completedPoints),
       VELOCITY_WINDOW,
     );
-    const bars = completedBefore
-      .slice(-4)
-      .map((s) => ({
-        sprintId: s.id,
-        number: s.number,
-        label: `S${s.number}`,
-        points: s.completedPoints,
-        isPlan: false,
-      }));
+    const bars = completedBefore.slice(-4).map((s) => ({
+      sprintId: s.id,
+      number: s.number,
+      label: `S${s.number}`,
+      points: s.completedPoints,
+      isPlan: false,
+    }));
     const isOpen = sprint.status !== 'COMPLETED';
     bars.push({
       sprintId: sprint.id,

@@ -1,5 +1,6 @@
 import { ForbiddenError } from '../shared/errors';
 import { can, ROLE_META, type Permission, type Role } from './roles';
+import { canViewProject, outOfScopeError } from './project-scope';
 
 export interface Actor {
   userId: string;
@@ -23,12 +24,11 @@ export interface AccessRule {
   ): AccessDecision;
 }
 
-/** Guests are confined to the projects they were invited to. */
+/** Guests are confined to the projects they were invited to (see project-scope.ts). */
 export class GuestProjectScopeRule implements AccessRule {
   evaluate(actor: Actor, _p: Permission, resource?: { projectId?: string | null }): AccessDecision {
-    if (actor.role !== 'GUEST' || resource?.projectId === undefined) return 'pass';
-    if (resource.projectId === null) return 'deny';
-    return actor.projectIds?.includes(resource.projectId) ? 'pass' : 'deny';
+    if (resource?.projectId === undefined) return 'pass';
+    return canViewProject(actor, resource.projectId) ? 'pass' : 'deny';
   }
 }
 
@@ -56,11 +56,17 @@ export class AccessPolicy {
     return false;
   }
 
+  /**
+   * Throws when the actor may not act. Out-of-scope guests get the project-scope error (404 for a
+   * named project, so hidden ids can't be confirmed); everyone else gets a 403 naming their role.
+   */
   assert(
     actor: Actor,
     permission: Permission,
     resource?: { projectId?: string | null; ownerId?: string },
   ): void {
+    if (resource?.projectId !== undefined && !canViewProject(actor, resource.projectId))
+      throw outOfScopeError(resource.projectId);
     if (!this.allows(actor, permission, resource))
       throw new ForbiddenError(
         `forbidden.${permission}`,

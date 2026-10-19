@@ -79,6 +79,18 @@ export const notificationsFor = (event: DomainEvent, ctx: PolicyContext): Notifi
           approvalId: event.aggregateId,
         });
       break;
+    case 'approval.decided': {
+      const decision = p['decision'] as string;
+      const verb = decision === 'APPROVED' ? 'approved' : 'requested changes on';
+      add(p['requesterId'] as string | null, {
+        type: 'STATUS_CHANGED',
+        title: `${ctx.actorName} ${verb} your request`,
+        excerpt: String(p['title'] ?? ''),
+        taskId: String(p['taskId'] ?? ''),
+        approvalId: event.aggregateId,
+      });
+      break;
+    }
     default:
       break;
   }

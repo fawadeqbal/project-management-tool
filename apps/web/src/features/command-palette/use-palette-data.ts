@@ -19,7 +19,7 @@ export function usePaletteData(query: string, scope: PaletteScope, open: boolean
   const { data: tags = [] } = useTags();
   const { data: teams = [] } = useTeams();
   const { data: shell } = useShell();
-  const server = useServerSearch(query);
+  const server = useServerSearch(query, scope);
 
   return useMemo((): { groups: PaletteGroup[]; ms: number } => {
     if (!open) return { groups: [], ms: 0 };

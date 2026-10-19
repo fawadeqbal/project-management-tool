@@ -61,3 +61,34 @@ export const fuzzyRank = <T>(query: string, items: readonly T[], fieldsOf: (item
     .filter((x): x is { item: T; i: number; match: FuzzyMatch & { field: number } } => x.match !== null)
     .sort((a, b) => b.match.score - a.match.score || a.i - b.i)
     .slice(0, limit);
+
+export interface WeightedFields<T> {
+  /** Fields people search by first (title, key). */
+  primary: (item: T) => string[];
+  /** Supporting fields (project, tags): match alone ranks lower; matching alongside a primary hit adds a little. */
+  secondary?: (item: T) => string[];
+  /** Small per-item adjustment, e.g. open work above done work. */
+  boost?: (item: T) => number;
+}
+
+/** Penalty for an item that only matches on a secondary field. */
+const SECONDARY_ONLY_PENALTY = 60;
+const SECONDARY_ALSO_BONUS = 5;
+
+/**
+ * Ranks by primary fields first so a title hit beats a tag hit: "pric" puts "Design pricing
+ * page" (title + Pricing tag) above "Final plan names" (tag only). Stable for ties.
+ */
+export const fuzzyRankWeighted = <T>(query: string, items: readonly T[], fields: WeightedFields<T>, limit = 50) =>
+  items
+    .map((item, i) => {
+      const primary = fuzzyBest(query, fields.primary(item));
+      const secondary = fields.secondary ? fuzzyBest(query, fields.secondary(item)) : null;
+      if (!primary && !secondary) return null;
+      const base = primary ? primary.score + (secondary ? SECONDARY_ALSO_BONUS : 0) : secondary!.score - SECONDARY_ONLY_PENALTY;
+      const match: FuzzyMatch & { field: number; primary: boolean } = primary ? { ...primary, primary: true } : { ...secondary!, primary: false };
+      return { item, i, score: base + (fields.boost?.(item) ?? 0), match };
+    })
+    .filter((x): x is { item: T; i: number; score: number; match: FuzzyMatch & { field: number; primary: boolean } } => x !== null)
+    .sort((a, b) => b.score - a.score || a.i - b.i)
+    .slice(0, limit);

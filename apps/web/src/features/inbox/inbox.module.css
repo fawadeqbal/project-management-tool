@@ -1,0 +1,475 @@
+/* Inbox (Inbox.dc.html): list pane 460–520px, detail pane fills the rest; one pane at a time on phones. */
+
+.page {
+  display: flex;
+  min-width: 0;
+  min-height: calc(100vh - var(--shell-topbar-height, 52px));
+  min-height: calc(100dvh - var(--shell-topbar-height, 52px));
+}
+
+.listPane {
+  flex: 1 1 460px;
+  max-width: 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-default);
+  background: var(--bg-surface);
+}
+
+.listHead {
+  padding: 20px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  flex-grow: 1;
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  outline: none;
+}
+
+.list:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--border-focus);
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px 14px 12px;
+  border-bottom: 1px solid var(--border-default);
+  cursor: pointer;
+  background: transparent;
+}
+
+.item:hover {
+  background: var(--bg-hover, var(--bg-subtle));
+}
+
+.item[data-selected] {
+  background: var(--bg-selected);
+  box-shadow: inset 3px 0 0 var(--brand-primary);
+}
+
+.item[data-checked] {
+  background: var(--brand-subtle);
+}
+
+.dotCol {
+  width: 20px;
+  flex: none;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+}
+
+.item:has(button) .dotCol {
+  padding-top: 6px;
+}
+
+.dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--brand-primary);
+}
+
+.itemBody {
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.itemTop {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.itemTitle {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.item[data-unread] .itemTitle {
+  font-weight: 600;
+}
+
+.itemTime {
+  flex: none;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.itemWhere {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.itemQuote {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemSkeleton {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px 14px 40px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.itemSkeleton > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hints {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-subtle);
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.hints > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hintsExtra {
+  margin-left: auto;
+}
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 12px 8px 20px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--brand-subtle);
+}
+
+.bulkCount {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.grow {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+/* ── Detail pane ── */
+
+.detailPane {
+  flex: 999 1 420px;
+  min-width: 0;
+  padding: 24px 32px;
+}
+
+.detailInner {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 720px;
+}
+
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.backButton {
+  display: none;
+}
+
+.detailHead {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailContext {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.detailTitle {
+  margin: 0;
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.detailBy {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.quoteCard {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quoteText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.chip svg {
+  color: var(--text-secondary);
+}
+
+.chip:hover {
+  border-color: var(--border-strong, var(--border-default));
+  text-decoration: underline;
+}
+
+.approvers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.approversTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.approverList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.approver {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.approverNote {
+  color: var(--text-secondary);
+}
+
+.decisionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.decided {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.muted {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.mention {
+  color: var(--text-link);
+  font-weight: 600;
+}
+
+.comment {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+}
+
+.commentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.commentMeta {
+  font-size: 13px;
+}
+
+.commentText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: pre-wrap;
+}
+
+.replyBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px 16px;
+  font-size: 14px;
+  align-items: center;
+}
+
+.facts dt {
+  color: var(--text-secondary);
+}
+
+.facts dd {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.facts dd[data-tone='danger'] {
+  color: var(--danger-text, var(--text-primary));
+}
+
+.settings {
+  max-width: 300px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+}
+
+.settings p {
+  margin: 0;
+  color: var(--text-tertiary);
+}
+
+/* Phones: one pane at a time; the detail pane gets a "Back to inbox" button. */
+@media (max-width: 767px) {
+  .listPane {
+    max-width: none;
+    border-right: 0;
+  }
+
+  .detailPane {
+    padding: 16px;
+  }
+
+  .page[data-mobile-view='list'] .detailPane,
+  .page[data-mobile-view='detail'] .listPane {
+    display: none;
+  }
+
+  .backButton {
+    display: inline-flex;
+  }
+
+  .item {
+    min-height: 44px;
+  }
+
+  .hints {
+    display: none;
+  }
+
+  .facts {
+    grid-template-columns: 96px 1fr;
+  }
+}

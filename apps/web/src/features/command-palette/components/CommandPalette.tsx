@@ -10,6 +10,7 @@ import { taskUrl, useTaskPanel } from '@/shared/tasks/useTaskPanel';
 import { useTaskMutations } from '@/shared/tasks/useTaskMutations';
 import type { PaletteItem } from '../palette-items';
 import { usePaletteData } from '../use-palette-data';
+import { askHearth } from '../api';
 import { Highlight } from './Highlight';
 import styles from '../command-palette.module.css';
 
@@ -110,7 +111,7 @@ export function CommandPalette() {
     requestAnimationFrame(() => {
       if (document.activeElement === document.body && target?.isConnected) target.focus();
     });
-    if (item.kind === 'ai' && item.href) void navigate(item.href);
+    if (item.kind === 'ai' && item.href) void askHearth(query, item.href).then((to) => navigate(to));
     else if (item.kind === 'task' && item.task) panel.open(item.task.key);
     else if (item.kind === 'person' && item.href) void navigate(item.href);
     else if (item.command) void registry.run(item.command);

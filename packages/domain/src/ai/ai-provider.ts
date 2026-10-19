@@ -9,6 +9,8 @@ export interface AiTaskContext {
   description: string | null;
   status: string;
   dueDate: string | null;
+  /** "YYYY-MM-DD" — lets a provider say "due today" / "overdue" without reading a clock. */
+  today?: string | null;
   blockedBy: { key: string; title: string; status: string }[];
   subtasks: { title: string; done: boolean }[];
   comments: { author: string; body: string; createdAt: string }[];

@@ -62,3 +62,16 @@ describe('search, onboarding, ai query', () => {
     expect(q.explanation).toBe('Show overdue tasks for Design');
   });
 });
+
+describe('computeKpis without history', () => {
+  it('marks deltas neutral when the previous window has nothing to compare', () => {
+    const today = new Date('2026-10-19T00:00:00Z');
+    const kpis = computeKpis([{ status: 'DONE', createdAt: new Date('2026-10-10'), startDate: null, dueDate: new Date('2026-10-12'), completedAt: new Date('2026-10-11'), projectId: null }], today, 6);
+    expect(kpis.slice(0, 3).map((k) => [k.delta, k.deltaTone])).toEqual([
+      ['New', 'neutral'],
+      ['New', 'neutral'],
+      ['New', 'neutral'],
+    ]);
+    expect(kpis[0]!.sub).toBe('no data before the last 6 weeks');
+  });
+});

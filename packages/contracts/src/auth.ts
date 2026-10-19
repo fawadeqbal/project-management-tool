@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AccentColorSchema, RoleSchema } from './common';
+import { AccentColorSchema, type RoleSchema } from './common';
 
 export const RegisterSchema = z.object({
   name: z.string().trim().min(1, 'Add your name.').max(80),

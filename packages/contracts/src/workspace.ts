@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AccentColorSchema, RoleSchema, type ProjectRefDto, type UserRefDto } from './common';
+import { AccentColorSchema, type RoleSchema, type ProjectRefDto, type UserRefDto } from './common';
 
 /** Basic directory of people in the workspace — powers assignee pickers, @mentions, avatars. */
 export interface MemberDto extends UserRefDto {

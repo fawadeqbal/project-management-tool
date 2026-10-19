@@ -57,10 +57,29 @@ export const computeKpis = (tasks: readonly ReportTask[], today: Date, weeks = 6
   const overdueWeekAgo = overdueAt(addDays(startOfDay(today), -7));
   const cycleDelta = Math.round((cycleNow - cyclePrev) * 10) / 10;
 
+  // With nothing finished in the previous window there is no honest comparison: say so (neutral).
+  const noHistory = prevCompleted.length === 0;
+  const NEW = { delta: 'New', deltaTone: 'neutral' as const };
+
   return [
-    { label: 'Tasks completed', value: String(completed.length), delta: `${fmtDelta(completedDeltaPct)}%`, deltaTone: completedDeltaPct >= 0 ? 'good' : 'bad', sub: `vs. previous ${weeks} weeks` },
-    { label: 'On-time delivery', value: `${onTimeNow}%`, delta: `${fmtDelta(onTimeNow - onTimePrev)} pts`, deltaTone: onTimeNow >= onTimePrev ? 'good' : 'bad', sub: `target ${onTimeTarget}%` },
-    { label: 'Avg. cycle time', value: `${cycleNow} days`, delta: fmtDelta(cycleDelta), deltaTone: cycleDelta <= 0 ? 'good' : 'bad', sub: 'lower is better' },
+    {
+      label: 'Tasks completed',
+      value: String(completed.length),
+      ...(noHistory ? NEW : { delta: `${fmtDelta(completedDeltaPct)}%`, deltaTone: completedDeltaPct >= 0 ? ('good' as const) : ('bad' as const) }),
+      sub: noHistory ? `no data before the last ${weeks} weeks` : `vs. previous ${weeks} weeks`,
+    },
+    {
+      label: 'On-time delivery',
+      value: `${onTimeNow}%`,
+      ...(noHistory ? NEW : { delta: `${fmtDelta(onTimeNow - onTimePrev)} pts`, deltaTone: onTimeNow >= onTimePrev ? ('good' as const) : ('bad' as const) }),
+      sub: `target ${onTimeTarget}%`,
+    },
+    {
+      label: 'Avg. cycle time',
+      value: `${cycleNow} days`,
+      ...(noHistory ? NEW : { delta: fmtDelta(cycleDelta), deltaTone: cycleDelta <= 0 ? ('good' as const) : ('bad' as const) }),
+      sub: 'lower is better',
+    },
     { label: 'Overdue now', value: String(overdueNow), delta: fmtDelta(overdueNow - overdueWeekAgo), deltaTone: overdueNow <= overdueWeekAgo ? 'good' : 'bad', sub: 'since last week' },
   ];
 };

@@ -125,26 +125,6 @@ export function ThroughputChart({
                 <text x={xc} y={212} textAnchor="middle" className={styles.axisText}>
                   {weeks.length > 8 && i % 2 === 1 && i !== last ? '' : w.label}
                 </text>
-                {i === last ? (
-                  <>
-                    <text
-                      x={x1 + barW / 2}
-                      y={Math.min(Y(w.created), Y(w.completed)) - 18}
-                      textAnchor="end"
-                      className={styles.seriesLabelMuted}
-                    >
-                      Created
-                    </text>
-                    <text
-                      x={x2 + barW / 2}
-                      y={Math.min(Y(w.created), Y(w.completed)) - 18}
-                      textAnchor="start"
-                      className={styles.seriesLabel}
-                    >
-                      Completed
-                    </text>
-                  </>
-                ) : null}
               </g>
             );
           })}

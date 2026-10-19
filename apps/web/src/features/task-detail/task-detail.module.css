@@ -146,12 +146,16 @@
 }
 
 .props dt {
+  /* Top-aligned so a multi-line value (several blockers) keeps its label on the first line. */
+  align-self: start;
+  line-height: 28px;
   font-size: 13px;
   color: var(--text-tertiary);
 }
 
 .props dd {
   margin: 0;
+  min-height: 28px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

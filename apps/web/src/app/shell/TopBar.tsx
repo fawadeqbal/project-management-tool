@@ -1,3 +1,5 @@
+import { useEffect, useReducer } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useMatches, useNavigate } from 'react-router-dom';
 import { Avatar, Button, DropdownMenu, Icon, Kbd } from '@hearth/ui';
 import { useAuthStore } from '@/shared/auth/auth-store';
@@ -10,7 +12,24 @@ import { useShell } from '@/shared/workspace/hooks';
 import { hasCrumb, resolveCrumb } from '@/shared/routing/crumbs';
 import styles from './shell.module.css';
 
+/**
+ * Crumb functions may read cached data (e.g. a project's name), so the breadcrumb re-renders
+ * whenever a query in the cache receives new data.
+ */
+function useRerenderOnQueryData() {
+  const queryClient = useQueryClient();
+  const [, bump] = useReducer((n: number) => n + 1, 0);
+  useEffect(
+    () =>
+      queryClient.getQueryCache().subscribe((event) => {
+        if (event.type === 'updated' && event.action.type === 'success') bump();
+      }),
+    [queryClient],
+  );
+}
+
 function Breadcrumb() {
+  useRerenderOnQueryData();
   const matches = useMatches();
   const crumbs = matches.flatMap((m) => {
     if (!hasCrumb(m.handle) || m.handle.crumb === undefined) return [];

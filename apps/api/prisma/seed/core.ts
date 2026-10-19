@@ -130,7 +130,7 @@ export async function seedCore(prisma: PrismaClient, today: Date): Promise<SeedC
   ];
   const users: Record<string, string> = {};
   for (const p of people) {
-    const u = await prisma.user.create({ data: { ...p, passwordHash, createdAt: d(-400) } });
+    const u = await prisma.user.create({ data: { ...p, theme: 'system', passwordHash, createdAt: d(-400) } });
     users[p.initials] = u.id;
   }
   const nameOf = Object.fromEntries(people.map((p) => [p.initials, p.name])) as Record<string, string>;

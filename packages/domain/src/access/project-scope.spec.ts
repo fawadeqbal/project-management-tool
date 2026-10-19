@@ -33,7 +33,9 @@ describe('project scope', () => {
   });
 
   it('answers hidden things with a 404 for the thing asked for', () => {
-    expect(() => assertCanViewProject(guest, 'p-mobile', { entity: 'Task', id: 't1' })).toThrow(NotFoundError);
+    expect(() => assertCanViewProject(guest, 'p-mobile', { entity: 'Task', id: 't1' })).toThrow(
+      NotFoundError,
+    );
     try {
       assertCanViewProject(guest, 'p-mobile', { entity: 'Task', id: 't1' });
     } catch (e) {

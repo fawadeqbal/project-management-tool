@@ -251,9 +251,9 @@ describe('Tasks (e2e)', () => {
     ).body[0] as TaskDto;
     const res = await tom.get(`/tasks/${mobileTask.id}`);
     expect([403, 404]).toContain(res.status);
-    await tom.get(`/tasks?scope=project&projectId=${projects['Mobile app v2']}`).expect(403);
-    await tom.patch(`/tasks/${mobileTask.id}`, { title: 'Hijacked' }).expect(403);
-    await tom.post('/tasks', { title: 'Sneaky', projectId: projects['Mobile app v2'] }).expect(403);
+    await tom.get(`/tasks?scope=project&projectId=${projects['Mobile app v2']}`).expect(404); // hidden projects are not found for guests
+    await tom.patch(`/tasks/${mobileTask.id}`, { title: 'Hijacked' }).expect(404); // hidden projects are not found for guests
+    await tom.post('/tasks', { title: 'Sneaky', projectId: projects['Mobile app v2'] }).expect(404); // hidden projects are not found for guests
     await tom.post('/tasks', { title: 'No project' }).expect(403);
   });
 

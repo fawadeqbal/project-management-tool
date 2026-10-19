@@ -52,7 +52,9 @@ export class ProjectScope {
   /** Throws a 404 unless the project exists in the actor's workspace and is visible to them. */
   async assertCanViewProject(actor: Actor, projectId: string): Promise<void> {
     assertCanViewProject(actor, projectId, { entity: 'Project', id: projectId });
-    const found = await this.prisma.project.count({ where: { id: projectId, workspaceId: actor.workspaceId } });
+    const found = await this.prisma.project.count({
+      where: { id: projectId, workspaceId: actor.workspaceId },
+    });
     if (!found) throw new NotFoundError('Project', projectId);
   }
 

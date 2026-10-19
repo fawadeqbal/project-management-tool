@@ -58,14 +58,14 @@ describe('CreateTaskHandler', () => {
     expect(kit.tasks.all()).toHaveLength(0);
   });
 
-  it('forbids viewers and confines guests to their projects', async () => {
+  it('forbids viewers and hides other projects from guests', async () => {
     await expect(
       handler.execute(new CreateTaskCommand(actorOf('VIEWER'), { title: 'X' })),
     ).rejects.toBeInstanceOf(ForbiddenError);
     const guest = actorOf('GUEST', 'u-tom', ['p-web']);
     await expect(
       handler.execute(new CreateTaskCommand(guest, { title: 'X', projectId: 'p-mobile' })),
-    ).rejects.toBeInstanceOf(ForbiddenError);
+    ).rejects.toBeInstanceOf(NotFoundError); // hidden projects are "not found" for guests
     await handler.execute(new CreateTaskCommand(guest, { title: 'Ok', projectId: 'p-web' }));
     expect(kit.tasks.all().map((t) => t.workspaceId)).toEqual([WS]);
   });

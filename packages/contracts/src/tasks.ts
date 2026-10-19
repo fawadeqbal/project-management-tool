@@ -142,6 +142,9 @@ export type MoveTaskInput = z.infer<typeof MoveTaskSchema>;
 const csv = <T extends z.ZodTypeAny>(item: T) =>
   z.preprocess((v) => (typeof v === 'string' ? v.split(',').filter(Boolean) : v), z.array(item));
 
+/** Query-string boolean: "true"/"1" → true, "false"/"0"/"" → false (z.coerce.boolean treats "false" as true). */
+export const QueryBoolean = z.preprocess((v) => (typeof v === 'string' ? ['true', '1', 'yes'].includes(v.toLowerCase()) : v), z.boolean());
+
 export const ListTasksQuerySchema = z.object({
   scope: z.enum(['mine', 'project', 'workspace']).default('mine'),
   projectId: IdSchema.optional(),
@@ -153,9 +156,9 @@ export const ListTasksQuerySchema = z.object({
   tags: csv(z.string()).optional(),
   from: DateOnlySchema.optional(),
   to: DateOnlySchema.optional(),
-  overdue: z.coerce.boolean().optional(),
-  includeDone: z.coerce.boolean().optional(),
-  includeSubtasks: z.coerce.boolean().optional(),
+  overdue: QueryBoolean.optional(),
+  includeDone: QueryBoolean.optional(),
+  includeSubtasks: QueryBoolean.optional(),
   q: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(500).default(200),
 });

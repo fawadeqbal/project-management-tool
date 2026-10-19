@@ -1,4 +1,4 @@
-import type { DependencyEdge, TaskStatus } from '@hearth/domain';
+import type { DependencyEdge, Role, TaskStatus } from '@hearth/domain';
 
 /**
  * Small application-layer ports for everything a task command needs besides the aggregate
@@ -21,7 +21,13 @@ export interface ProjectHandle {
 
 /** Ids a task may point at; each must belong to the actor's workspace. */
 export interface TaskReferences {
+  /** Checked for existence when a write sets or changes the project. */
   projectId?: string | null;
+  /**
+   * The project the task will live in after the write. When given, the section, sprint and parent
+   * must belong to it (a section or sprint of another project is never valid).
+   */
+  targetProjectId?: string | null;
   sectionId?: string | null;
   parentId?: string | null;
   sprintId?: string | null;
@@ -29,9 +35,25 @@ export interface TaskReferences {
   tagIds?: readonly string[];
 }
 
-export interface MissingReference {
-  entity: 'Project' | 'Section' | 'Task' | 'Sprint' | 'Member' | 'Tag';
-  id: string;
+export type ReferenceEntity = 'Project' | 'Section' | 'Task' | 'Sprint' | 'Member' | 'Tag';
+
+/** The first reference that can't be used: it doesn't exist, or it lives in another project. */
+export type ReferenceProblem =
+  | { kind: 'missing'; entity: ReferenceEntity; id: string }
+  | { kind: 'other_project'; entity: 'Section' | 'Sprint' | 'Task'; id: string; projectId: string | null };
+
+/** Where a task lives (subtasks inherit it). */
+export interface TaskLocation {
+  projectId: string | null;
+  sprintId: string | null;
+}
+
+/** What the assignment rule needs to know about a person. */
+export interface AssigneeFacts {
+  name: string;
+  role: Role;
+  /** Projects a guest was invited to. */
+  projectIds: readonly string[];
 }
 
 /** Read-only lookups across the workspace (people, projects, reference checks). */
@@ -40,10 +62,14 @@ export interface TaskDirectory {
   activeMembers(workspaceId: string): Promise<MemberHandle[]>;
   /** Non-archived projects, optionally limited to some ids (guests). */
   projects(workspaceId: string, onlyIds?: readonly string[]): Promise<ProjectHandle[]>;
-  /** First reference that doesn't exist in the workspace, or null when all are valid. */
-  findMissingReference(workspaceId: string, refs: TaskReferences): Promise<MissingReference | null>;
-  /** Project of a parent task (subtasks inherit it). */
-  projectOfTask(workspaceId: string, taskId: string): Promise<string | null | undefined>;
+  /** First reference that can't be used, or null when all are valid. */
+  checkReferences(workspaceId: string, refs: TaskReferences): Promise<ReferenceProblem | null>;
+  /** Where a task of the workspace lives, or null when there is no such task. */
+  taskLocation(workspaceId: string, taskId: string): Promise<TaskLocation | null>;
+  /** An active member's role and project scope, or null when they aren't an active member. */
+  assigneeFacts(workspaceId: string, userId: string): Promise<AssigneeFacts | null>;
+  /** Of `userIds`, the active members who can see something in `projectId`. */
+  usersWhoCanSee(workspaceId: string, projectId: string | null, userIds: readonly string[]): Promise<string[]>;
 }
 
 export interface TaskOrdering {

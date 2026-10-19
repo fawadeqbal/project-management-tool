@@ -134,3 +134,18 @@ export interface ApprovalRepository {
 }
 
 export const APPROVAL_REPOSITORY = Symbol('ApprovalRepository');
+
+const WEB_LINK = /^https?:\/\/[^\s/?#@]+(?:[/?#][^\s]*)?$/i;
+
+/**
+ * Approval attachments are links people click from the inbox, so only web links are accepted —
+ * never `javascript:`, `data:` or other schemes that would run or smuggle content in the app.
+ */
+export const assertSafeAttachmentUrl = (url: string): void => {
+  if (!WEB_LINK.test(url.trim()))
+    throw new ValidationError(
+      'approval.attachment_url',
+      'Attachments need a web link that starts with https:// (or http://). Paste the file’s share link.',
+      { field: 'attachments' },
+    );
+};

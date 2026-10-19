@@ -1,6 +1,9 @@
 import {
+  assertCanBeAssigned,
+  canViewProject,
   createEvent,
   NotFoundError,
+  ValidationError,
   type Actor,
   type DomainEvent,
   type Task,
@@ -8,21 +11,64 @@ import {
 } from '@hearth/domain';
 import type { TaskDirectory, TaskReferences } from './ports';
 
-/** Loads a task of the actor's workspace or throws a 404 the person can understand. */
+/**
+ * Loads a task the actor can see, or throws a 404 the person can understand. Tasks in projects
+ * hidden from a guest are reported exactly like tasks that don't exist.
+ */
 export async function loadTask(tasks: TaskRepository, actor: Actor, id: string): Promise<Task> {
   const task = await tasks.findById(actor.workspaceId, id);
-  if (!task) throw new NotFoundError('Task', id);
+  if (!task || !canViewProject(actor, task.projectId)) throw new NotFoundError('Task', id);
   return task;
 }
 
-/** Every id a write points at must exist in the actor's workspace. */
+const OTHER_PROJECT: Record<'Section' | 'Sprint' | 'Task', { code: string; message: string; field: string }> = {
+  Section: {
+    code: 'task.section_project',
+    message: 'That section belongs to another project. Pick a section from this task’s project.',
+    field: 'sectionId',
+  },
+  Sprint: {
+    code: 'task.sprint_project',
+    message:
+      'That sprint belongs to another project. Pick one of this project’s sprints, or move the task first.',
+    field: 'sprintId',
+  },
+  Task: {
+    code: 'task.parent_project',
+    message: 'A subtask lives in its parent’s project. Pick a parent task from the same project.',
+    field: 'parentId',
+  },
+};
+
+/**
+ * Every id a write points at must exist in the actor's workspace and be visible to them; sections,
+ * sprints and parents must also belong to the task's (target) project. Something the actor can't
+ * see is reported as missing (404) so hidden ids can't be confirmed.
+ */
 export async function assertReferencesExist(
   directory: TaskDirectory,
   actor: Actor,
   refs: TaskReferences,
 ): Promise<void> {
-  const missing = await directory.findMissingReference(actor.workspaceId, refs);
-  if (missing) throw new NotFoundError(missing.entity === 'Member' ? 'Person' : missing.entity, missing.id);
+  const problem = await directory.checkReferences(actor.workspaceId, refs);
+  if (!problem) return;
+  if (problem.kind === 'missing')
+    throw new NotFoundError(problem.entity === 'Member' ? 'Person' : problem.entity, problem.id);
+  if (!canViewProject(actor, problem.projectId)) throw new NotFoundError(problem.entity, problem.id);
+  const { code, message, field } = OTHER_PROJECT[problem.entity];
+  throw new ValidationError(code, message, { field });
+}
+
+/** A person can only be assigned work in a project they can see (guests: their projects). */
+export async function assertAssignable(
+  directory: TaskDirectory,
+  workspaceId: string,
+  assigneeId: string,
+  projectId: string | null,
+): Promise<void> {
+  const facts = await directory.assigneeFacts(workspaceId, assigneeId);
+  if (!facts) throw new NotFoundError('Person', assigneeId);
+  assertCanBeAssigned(facts, projectId);
 }
 
 /**

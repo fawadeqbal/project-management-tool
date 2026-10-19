@@ -28,14 +28,12 @@ export class ValidationError extends DomainError {
 
 export class NotFoundError extends DomainError {
   readonly kind = 'not_found' as const;
-  constructor(entity: string, id: string) {
+  /** Leave `id` out when echoing it back would reveal something the caller didn't send. */
+  constructor(entity: string, id?: string) {
     super(
       `${entity.toLowerCase()}.not_found`,
       `We couldn’t find that ${entity.toLowerCase()}. It may have been deleted or moved.`,
-      {
-        entity,
-        id,
-      },
+      id === undefined ? { entity } : { entity, id },
     );
   }
 }

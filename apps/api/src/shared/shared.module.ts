@@ -9,16 +9,22 @@ import { TokenService } from './auth/token.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { ActorResolver } from './workspace-context/actor-resolver.service';
 import { AccessService } from './access/access.service';
+import { ProjectScope } from './access/project-scope';
 import { PermissionGuard } from './access/require-permission';
 import { DomainExceptionFilter } from './http/domain-exception.filter';
 import { FeatureGuard, PlanService } from './billing/require-feature';
 import { DomainEventPublisher } from './events/domain-event.publisher';
 import { ActivityRecorder } from './events/activity-recorder';
 import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway';
+import { TransactionScope } from './persistence/transaction-scope';
+import { PrismaDb } from './persistence/prisma-db';
+import { PrismaUnitOfWork } from './persistence/prisma-unit-of-work';
+import { UNIT_OF_WORK } from './persistence/unit-of-work';
 
 /**
  * Cross-cutting infrastructure available to every bounded context: persistence, time, auth,
- * workspace context, access control, error mapping, domain events and realtime.
+ * workspace context, access control (role matrix + project scope), units of work, error mapping,
+ * domain events and realtime.
  */
 @Global()
 @Module({
@@ -39,6 +45,10 @@ import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway'
     TokenService,
     ActorResolver,
     AccessService,
+    ProjectScope,
+    TransactionScope,
+    PrismaDb,
+    { provide: UNIT_OF_WORK, useClass: PrismaUnitOfWork },
     DomainEventPublisher,
     ActivityRecorder,
     RealtimeGateway,
@@ -57,6 +67,10 @@ import { RealtimeBroadcaster, RealtimeGateway } from './events/realtime.gateway'
     TokenService,
     ActorResolver,
     AccessService,
+    ProjectScope,
+    TransactionScope,
+    PrismaDb,
+    UNIT_OF_WORK,
     DomainEventPublisher,
     RealtimeGateway,
   ],

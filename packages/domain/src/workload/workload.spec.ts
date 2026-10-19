@@ -93,3 +93,12 @@ describe('workload cell items and suggestion projections', () => {
     expect(s!.toLoadPctAfter).toBe(15);
   });
 });
+
+describe('workload range', () => {
+  it('accepts up to 92 days and rejects longer or backwards ranges', async () => {
+    const { assertWorkloadRange } = await import('./workload');
+    expect(() => assertWorkloadRange(d('2026-10-01'), d('2026-12-31'))).not.toThrow(); // 92 days
+    expect(() => assertWorkloadRange(d('2026-10-01'), d('2027-01-01'))).toThrow(/92 days/);
+    expect(() => assertWorkloadRange(d('2026-10-02'), d('2026-10-01'))).toThrow(/on or after/);
+  });
+});

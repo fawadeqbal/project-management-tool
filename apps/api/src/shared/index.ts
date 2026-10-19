@@ -7,6 +7,15 @@ export { TokenService } from './auth/token.service';
 export { CurrentActor, CurrentUserId } from './workspace-context/current-actor.decorator';
 export { ActorResolver } from './workspace-context/actor-resolver.service';
 export { AccessService } from './access/access.service';
+export { ProjectScope } from './access/project-scope';
+export {
+  UNIT_OF_WORK,
+  TRANSACTION_RUNNER,
+  immediateUnitOfWork,
+  type UnitOfWork,
+} from './persistence/unit-of-work';
+export { PrismaDb } from './persistence/prisma-db';
+export { isUniqueViolation } from './persistence/prisma-errors';
 export { RequirePermission } from './access/require-permission';
 export { ZodValidationPipe } from './http/zod-validation.pipe';
 export { DomainEventEnvelope } from './events/domain-event.envelope';

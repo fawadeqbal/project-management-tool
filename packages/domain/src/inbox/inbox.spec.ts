@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { notificationsFor, snoozeUntil } from './notification-policy';
-import { Approval } from './approval';
+import { Approval, assertSafeAttachmentUrl } from './approval';
 import { createEvent } from '../shared/domain-event';
 
 const now = new Date('2026-10-19T09:42:00Z');
@@ -79,5 +79,22 @@ describe('approval', () => {
 
   it('only approvers can decide', () => {
     expect(() => request().decide('mo', 'APPROVED', null, now)).toThrow(/not an approver/);
+  });
+});
+
+describe('approval attachments', () => {
+  it('accepts only http(s) links', () => {
+    expect(() => assertSafeAttachmentUrl('https://files.acme.com/names.pdf')).not.toThrow();
+    expect(() => assertSafeAttachmentUrl('http://intranet.acme.com/x')).not.toThrow();
+    for (const bad of [
+      'javascript:alert(1)',
+      'JAVASCRIPT:alert(1)',
+      'data:text/html;base64,PHNjcmlwdD4=',
+      'file:///etc/passwd',
+      '//evil.example/x',
+      'https://',
+      'hearth.pdf',
+    ])
+      expect(() => assertSafeAttachmentUrl(bad), bad).toThrow(/https:\/\//);
   });
 });

@@ -4,3 +4,6 @@ import type { Command } from '@/shared/commands/command';
 /** Public surface of the "command-palette" feature: its routes and the commands it contributes to ⌘K. */
 export const routes: RouteObject[] = [];
 export const commands: Command[] = [];
+
+/** The ⌘K dialog, mounted once by the app shell. Open it with useUiStore().openPalette(). */
+export { CommandPalette } from './components/CommandPalette';

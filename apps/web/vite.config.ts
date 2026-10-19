@@ -13,6 +13,17 @@ export default defineConfig({
       '/socket.io': { target: process.env.VITE_API_URL ?? 'http://localhost:3000', ws: true },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Long-lived vendor chunks: app deploys don't bust the framework cache.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          data: ['@tanstack/react-query', 'zustand', 'socket.io-client'],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

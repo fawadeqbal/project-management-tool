@@ -1,0 +1,21 @@
+/* App-level base styles. Tokens come from @hearth/ui/styles.css. */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+mark {
+  background: transparent;
+  color: var(--text-link);
+  font-weight: 600;
+}

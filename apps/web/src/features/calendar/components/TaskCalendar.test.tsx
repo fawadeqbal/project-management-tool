@@ -69,12 +69,16 @@ const renderCal = (range: 'month' | 'week' = 'month') =>
 
 describe('TaskCalendar', () => {
   beforeEach(() => {
+    // The fixtures are laid out around Monday, Oct 19 2026; pin "today" so the suite never drifts.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-19T09:00:00Z'));
     signIn();
     mocked.tasks.update.mockImplementation(
       async (id: string, patch) => ({ ...unscheduled[0]!, id, ...patch }) as never,
     );
   });
   afterEach(() => {
+    vi.useRealTimers();
     vi.clearAllMocks();
     useToastStore.getState().clear();
   });

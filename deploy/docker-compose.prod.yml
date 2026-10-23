@@ -1,0 +1,70 @@
+# Production stack for a server that already runs a shared edge proxy on the external
+# `global-proxy` network. Everything is prefixed `hearth-` (containers, service aliases,
+# images, volumes) so it cannot collide with other stacks on the same host, and no host
+# ports are published. Run through deploy/deploy.sh.
+name: hearth
+
+x-api-env: &api-env
+  NODE_ENV: production
+  DATABASE_URL: postgresql://hearth:${POSTGRES_PASSWORD}@hearth-postgres:5432/hearth
+  JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+  JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+  WEB_ORIGIN: ${WEB_ORIGIN:?set WEB_ORIGIN in .env}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+services:
+  hearth-postgres:
+    image: postgres:16-alpine
+    container_name: hearth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hearth
+      POSTGRES_USER: hearth
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - hearth-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hearth -d hearth']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [hearth-internal]
+    mem_limit: 384m
+
+  hearth-migrate:
+    image: hearth/api:latest
+    container_name: hearth-migrate
+    command: ['node_modules/.bin/prisma', 'migrate', 'deploy']
+    environment: *api-env
+    depends_on:
+      hearth-postgres: { condition: service_healthy }
+    networks: [hearth-internal]
+    restart: 'no'
+    mem_limit: 384m
+
+  hearth-api:
+    image: hearth/api:latest
+    container_name: hearth-api
+    restart: unless-stopped
+    environment: *api-env
+    depends_on:
+      hearth-migrate: { condition: service_completed_successfully }
+    networks: [hearth-internal, global-proxy]
+    mem_limit: 512m
+
+  hearth-web:
+    image: hearth/web:latest
+    container_name: hearth-web
+    restart: unless-stopped
+    networks: [global-proxy]
+    mem_limit: 64m
+
+networks:
+  hearth-internal:
+    name: hearth-internal
+  global-proxy:
+    external: true
+
+volumes:
+  hearth-pgdata:
+    name: hearth-pgdata

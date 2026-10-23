@@ -1,0 +1,12 @@
+# --- Hearth (project management, /opt/hearth) ---
+# Site block for the shared edge Caddy that owns :80/:443. The containers join its
+# `global-proxy` network, so they are reached by container name; no host ports are opened.
+hearth.fawadiqbal.dev {
+    encode zstd gzip
+    request_body {
+        max_size 25MB
+    }
+    @api path /api/* /socket.io/*
+    reverse_proxy @api hearth-api:3000
+    reverse_proxy hearth-web:80
+}

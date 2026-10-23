@@ -116,3 +116,7 @@ Builder, Decorator, Mediator, Template method (event subscribers, optimistic mut
 
 CI (`.github/workflows/ci.yml`) runs format, lint, typecheck, unit tests, e2e tests against a
 Postgres service, and builds.
+
+## Deployment
+
+Production runs as a self-contained Docker Compose stack behind a shared Caddy edge proxy: see [docs/DEPLOY.md](docs/DEPLOY.md). Update with `deploy/deploy.sh` on the server.
